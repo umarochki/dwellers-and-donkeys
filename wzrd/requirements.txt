@@ -1,0 +1,4 @@
+django
+pydash
+psycopg2
+djangorestframework
