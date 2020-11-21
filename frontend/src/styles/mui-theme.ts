@@ -23,7 +23,6 @@ const typography = {
     }
 }
 const overrides = {
-
     MuiButton: {
         root: {
         },
@@ -39,6 +38,22 @@ const overrides = {
             zIndex: 1,
         },
     },
+    MuiCssBaseline: {
+        '@global': {
+            '*::-webkit-scrollbar': {
+                width: '0.5em',
+                backgroundColor: '#F5F5F5'
+            },
+            '*::-webkit-scrollbar-track': {
+                '-webkit-box-shadow': 'inset 0 0 6px rgba(0, 0, 0, 0.3)',
+                backgroundColor: '#F5F5F5'
+            },
+            '*::-webkit-scrollbar-thumb': {
+                backgroundColor: '#43536B',
+                outline: '2px solid #555'
+            }
+        }
+    }
 }
 
 export default createMuiTheme({ overrides, palette, typography })
