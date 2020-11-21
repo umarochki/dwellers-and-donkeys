@@ -13,10 +13,8 @@ import CardActions from '@material-ui/core/CardActions'
 import { makeStyles } from '@material-ui/core/styles'
 import { useHistory } from 'react-router-dom'
 import InvitationCodeDialog from './InvitationCodeDialog'
-import clsx from 'clsx'
-import { primary200 } from '../../styles/colors'
-import AddBoxIcon from '@material-ui/icons/AddBox'
 import CardActionArea from '@material-ui/core/CardActionArea'
+import AddCard from '../../components/Cards/AddCard'
 
 function Copyright() {
     return (
@@ -30,10 +28,6 @@ function Copyright() {
 }
 
 const useStyles = makeStyles(theme => ({
-    addIcon: {
-        fontSize: '4rem',
-        color: primary200
-    },
     content: {
         backgroundColor: theme.palette.background.paper,
         padding: theme.spacing(8, 0, 6),
@@ -66,18 +60,6 @@ const useStyles = makeStyles(theme => ({
     },
     date: {
         fontSize: '0.9rem'
-    },
-    addGame: {
-        padding: '10px',
-        height: '100%'
-    },
-    addGameInner: {
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100%',
-        alignItems: 'center',
-        justifyContent: 'center',
-        border: `4px ${primary200} dashed`
     }
 }))
 
@@ -90,6 +72,9 @@ const StartPage = () => {
 
     const openInvitationCodeDialog = useCallback(() => setOpen(true), [])
     const closeInvitationCodeDialog = useCallback(() => setOpen(false), [])
+
+    const handleNewGame = useCallback(() => history.push('new-game'), [history])
+    const handleNewGameWorld = useCallback(() => history.push('tabletop'), [history])
 
     return (
         <>
@@ -109,9 +94,7 @@ const StartPage = () => {
                         <div className={classes.heroButtons}>
                             <Grid container spacing={2} justify="center">
                                 <Grid item>
-                                    <Button variant="contained" color="primary" onClick={() => {
-                                        history.push('new-game')
-                                    }}>
+                                    <Button variant="contained" color="primary" onClick={handleNewGame}>
                                         Создать партию
                                     </Button>
                                 </Grid>
@@ -131,13 +114,7 @@ const StartPage = () => {
                     </Typography>
                     <Grid container spacing={4}>
                         <Grid item xs={12} sm={6} md={4}>
-                            <Card className={clsx(classes.card)}>
-                                <CardActionArea className={classes.addGame}>
-                                    <div className={classes.addGameInner}>
-                                        <AddBoxIcon  className={classes.addIcon}/>
-                                    </div>
-                                </CardActionArea>
-                            </Card>
+                            <AddCard className={classes.card} onClick={handleNewGameWorld}/>
                         </Grid>
                         {cards.map(card => (
                             <Grid item key={card} xs={12} sm={6} md={4}>
