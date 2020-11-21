@@ -1,14 +1,29 @@
 import { createMuiTheme } from '@material-ui/core/styles'
 
 const palette = {
-    primary: { main: '#334055', contrastText: '#FFF' },
-    secondary: { main: '#FFCC00', contrastText: '#333' },
+    primary: {
+        light: '#808fa7',
+        main: '#617492',
+        dark: '#435166',
+        contrastText: '#fff',
+    },
+    secondary: {
+        light: '#5a94af',
+        main: '#81d4fa',
+        dark: '#9adcfb',
+        contrastText: '#000',
+
+    },
     white: { main: '#fff', contrastText: '#fff' },
     fontFamily: 'Roboto',
     background: {
         paper: '#E9EEFB',
         default: '#212C3D',
     },
+    text: {
+        primary: '#00000',
+        secondary: '#617492'
+    }
 }
 
 const typography = {
@@ -25,13 +40,17 @@ const typography = {
 const overrides = {
     MuiButton: {
         root: {
+            '&:hover': {
+                // backgroundColor: '#7888A4',
+                // color: lightBlue[500]
+            }
         },
         outlined: {
             borderWidth: 2,
         },
         outlinedSecondary: {
             borderWidth: 2,
-        },
+        }
     },
     MuiAppBar: {
         root: {
