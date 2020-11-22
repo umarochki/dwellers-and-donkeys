@@ -3,7 +3,7 @@ import React, { useCallback } from 'react'
 import { useHistory } from 'react-router-dom'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import CardList, { CardItem } from '../../components/Containers/CardList'
-
+import image from '../../assets/cat.jpg'
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         cardGrid: {
@@ -16,8 +16,8 @@ const useStyles = makeStyles((theme: Theme) =>
 interface Props {}
 
 const cards: CardItem[] = [
-    { title: 'Шахты', date: '20.01.20', image: 'https://source.unsplash.com/random' },
-    { title: 'Шахты', date: '20.01.20', image: 'https://source.unsplash.com/random' },
+    { title: 'Шахты', date: '20.01.20', image: image },
+    { title: 'Шахты', date: '20.01.20', image: image },
 ]
 
 const CreatedGameWorlds: React.FC<Props> = props => {

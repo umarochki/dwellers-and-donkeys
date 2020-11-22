@@ -5,6 +5,7 @@ import { CssBaseline, ThemeProvider } from '@material-ui/core'
 import theme from '../../styles/mui-theme'
 import Tabletop from '../../pages/Tabletop/Tabletop'
 import GameCreationPage from '../../pages/GameCreationPage/GameCreationPage'
+import LoginPage from '../../pages/LoginPage/LoginPage'
 
 const App = () => {
     return (
@@ -13,6 +14,7 @@ const App = () => {
             <Router>
                 <Switch>
                     <Route path="/" exact component={StartPage}/>
+                    <Route path="/login" exact component={LoginPage}/>
                     <Route path="/new-game" exact component={GameCreationPage}/>
                     <Route path="/tabletop" component={Tabletop}/>
                 </Switch>

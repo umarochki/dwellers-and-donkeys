@@ -33,7 +33,7 @@ const StartPageHeader: React.FC<Props> = props => {
         <div className={className}>
             <Container maxWidth="sm">
                 <Typography component="h1" variant="h2" align="center" color="textPrimary" gutterBottom>
-                    Dungeons & Dragons
+                    Dwellers & Donkeys
                 </Typography>
                 <Typography variant="h5" align="center" color="textSecondary" paragraph>
                     В данный момент это MVP-версия.<br/>Надеемся, Вам понравится!

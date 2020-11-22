@@ -27,16 +27,26 @@ const palette = {
 }
 
 const typography = {
-    'body1': {
-        'color': '#000',
-        'fontFamily': "'Proxima Nova', helvetica, sans-serif",
-        'lineHeight': 1.3,
-        'fontSize': 18,
-        'fontWeight': 400,
-        'marginTop': 0,
-        'marginBottom': 16,
-    }
+    h1: {
+        fontSize: '3rem',
+    },
+    h2: {
+        fontSize: '2rem',
+    },
+    h3: {
+        fontSize: '1.64rem',
+    },
+    h4: {
+        fontSize: '1.5rem',
+    },
+    h5: {
+        fontSize: '1.285rem',
+    },
+    h6: {
+        fontSize: '1.142rem',
+    },
 }
+
 const overrides = {
     MuiButton: {
         root: {
