@@ -1,8 +1,8 @@
 import { Container } from '@material-ui/core'
 import React, { useCallback } from 'react'
-import { useHistory } from 'react-router-dom'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import CardList, { CardItem } from '../../components/Containers/CardList'
+import CreateCharacterDialog from '../../components/Dialogs/CreateCharacterDialog'
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -17,7 +17,8 @@ const useStyles = makeStyles((theme: Theme) =>
     })
 )
 
-interface Props {}
+interface Props {
+}
 
 const cards: CardItem[] = [
     { title: 'Орк', date: '20.01.20', image: 'https://source.unsplash.com/random' },
@@ -27,9 +28,14 @@ const cards: CardItem[] = [
 
 const CreatedCharacters: React.FC<Props> = props => {
     const classes = useStyles()
-    const history = useHistory()
-    const handleAddCharacter = useCallback(() => {
+    const [open, setOpen] = React.useState(false)
 
+    const handleAddCharacter = useCallback(() => {
+        setOpen(true)
+    }, [])
+
+    const handleClose = useCallback(() => {
+        setOpen(false)
     }, [])
 
     return (
@@ -37,6 +43,7 @@ const CreatedCharacters: React.FC<Props> = props => {
             <Container className={classes.cardGrid} maxWidth="md">
                 <CardList headerText={'Созданные персонажи:'} cards={cards} onAddClick={handleAddCharacter}/>
             </Container>
+            <CreateCharacterDialog open={open} onClose={handleClose}/>
         </div>
     )
 }
