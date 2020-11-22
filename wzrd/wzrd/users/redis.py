@@ -6,7 +6,7 @@ from wzrd.utils import generate_key
 
 class AuthRedisManager:
     def __init__(self):
-        self._redis = Redis(host='localhost', port=6379)
+        self._redis = Redis(host='redis', port=6379)
 
     def add_token(self, **kwargs):
         token = generate_key(length=20)
