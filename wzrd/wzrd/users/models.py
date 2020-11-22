@@ -6,10 +6,10 @@ from .managers import UserManager
 
 
 class User(AbstractUser):
-
     username = models.TextField(unique=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     objects = UserManager()
 
     sessions = models.ManyToManyField(Session)
+

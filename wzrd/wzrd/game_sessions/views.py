@@ -4,6 +4,8 @@ from django.shortcuts import render
 from rest_framework import viewsets
 from rest_framework.response import Response
 
+from wzrd.users.decorators import is_authorized
+
 from .models import Session
 from .serializers import DetailGameSessionSerializer
 
@@ -28,6 +30,7 @@ class GameSessionViewSet(viewsets.ModelViewSet):
             queryset |= self.model_class.objects.filter(game_master=self.request.user.id)
         return queryset
 
+    #@is_authorized
     def list(self, request, *args, **kwargs):
         res = super().list(request, *args, **kwargs).data
         return Response(res, status=200)
@@ -37,5 +40,13 @@ class GameSessionViewSet(viewsets.ModelViewSet):
             'request': self.request,
         }
 
+# Временные кеки
+from django.shortcuts import render
 
+def index(request):
+    return render(request, 'index.html')
 
+def room(request, session_name):
+    return render(request, 'game.html', {
+        'session_name': session_name
+    })

@@ -1,4 +1,8 @@
+channels
+channels_redis
 django
-pydash
-psycopg2
 djangorestframework
+djongo
+redis
+psycopg2
+pydash

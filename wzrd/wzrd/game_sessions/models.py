@@ -1,9 +1,12 @@
+from djongo import models as djongo_models
 from django.db import models
 
 
 class Session(models.Model):
-    name = models.TextField()
-    description = models.TextField(blank=True, null=True)
-    game_master = models.IntegerField(blank=True, null=True)
+    name = models.TextField(blank=True, default="Sample Game")
+    description = models.TextField(blank=True, default="")
+    game_master = models.IntegerField(blank=True, default=0)
+    game_objects = djongo_models.JSONField(blank=True, default=[])
 
-    is_private = models.BooleanField(default=False)
+    invitation_code = models.TextField(blank=True, default="XXXXXX")
+    is_private = models.BooleanField(blank=True, default=False)

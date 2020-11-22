@@ -26,11 +26,13 @@ SECRET_KEY = ')k6z8b7)$ubtw@@pv(@-$5ia#(g3am2jzh1^-gqa^6zua2y7da'
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
+API_PREFIX = "api/v1/"
+APPEND_SLASH = False
 
 # Application definition
 
 INSTALLED_APPS = [
+    'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -47,18 +49,16 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
 ROOT_URLCONF = 'wzrd.urls'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, "wzrd/templates")],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -71,16 +71,28 @@ TEMPLATES = [
     },
 ]
 
+ASGI_APPLICATION = 'wzrd.asgi.application'
 WSGI_APPLICATION = 'wzrd.wsgi.application'
 
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
+}
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'djongo',
+        'NAME': 'umr-dnd',
+        'CLIENT': {
+           'host': '127.0.0.1:27017',
+        }
     }
 }
 
