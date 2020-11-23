@@ -1,0 +1,8 @@
+channels
+channels_redis
+django==3.0.5
+djangorestframework
+djongo
+pydash
+redis
+sqlparse==0.2.4
