@@ -8,6 +8,7 @@
     "@testing-library/react": "^11.1.2",
     "@testing-library/user-event": "^12.2.2",
     "gsap": "^3.5.1",
+    "pixi-viewport": "^4.17.1",
     "pixi.js": "^5.3.3",
     "pixi.js-legacy": "^5.3.3",
     "react": "^17.0.1",
