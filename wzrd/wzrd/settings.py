@@ -25,7 +25,11 @@ SECRET_KEY = ')k6z8b7)$ubtw@@pv(@-$5ia#(g3am2jzh1^-gqa^6zua2y7da'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "localhost",
+    "nginx",
+    "wzrd",
+]
 API_PREFIX = "api/v1/"
 APPEND_SLASH = False
 

@@ -81,7 +81,23 @@ const LoginPage = () => {
                                         disabled={false
                                             // loginValue.length === 0 || passwordValue.length === 0
                                         }
-                                        onClick={() => {}
+                                        onClick={() => {
+                                            var oReq = new XMLHttpRequest()
+
+                                            oReq.open('POST', '/api/v1/auth/login')
+                                            oReq.setRequestHeader('Content-Type', 'application/json')
+                                            oReq.onreadystatechange = function () {
+                                              if(oReq.readyState === XMLHttpRequest.DONE) {
+                                                var status = oReq.status;
+                                                if (status === 0 || (status >= 200 && status < 400)) {
+                                                  window.location = "/"
+                                                } else {
+                                                 alert("AHAHAHHAHAHAHHAHHHHHAHAH FOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOL!")
+                                                }
+                                              }
+                                            }
+                                            oReq.send(JSON.stringify({ 'username': loginValue, 'password': passwordValue }))
+                                        }
                                             // loginUser(
                                             //     userDispatch,
                                             //     loginValue,

@@ -1,0 +1,56 @@
+version: "3.3"
+services:
+  nginx:
+    image: nginx:mainline-alpine
+    container_name: umr_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx-conf:/etc/nginx/conf.d
+    depends_on:
+      - tank
+      - wzrd
+    networks:
+      - inner
+
+  tank:
+    build: tank
+    container_name: umr_tank
+    volumes:
+      - ./tank/src:/build/src
+    networks:
+      - inner
+
+  wzrd:
+    build: wzrd
+    container_name: umr_wzrd
+    volumes:
+      - ./wzrd/wzrd:/app/wzrd
+    depends_on:
+      - mongo
+      - redis
+    networks:
+      - inner
+
+  mongo:
+    container_name: umr_mongo
+    image: mongo:latest
+    restart: always
+    networks:
+     - inner
+    volumes:
+      - ./_/mongodb:/data/db
+
+  redis:
+    container_name: umr_redis
+    image: redis:latest
+    restart: always
+    networks:
+     - inner
+    volumes:
+      - ./_/redis:/data
+
+networks:
+ inner:
+   name: inner
