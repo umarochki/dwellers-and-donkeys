@@ -5,7 +5,7 @@
 ```docker-compose up --build -d```
 
 #### 2) Залетаем в контейнер wzrd
-```docker exec -it wzrd bash```
+```docker exec -it umr_wzrd bash```
 
 #### 3) Делаем миграции
 ```./manage.py migrate```
