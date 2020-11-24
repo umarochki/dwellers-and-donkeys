@@ -8,10 +8,10 @@
 ```docker exec -it umr_wzrd bash```
 
 #### 3) Делаем миграции
-```./manage.py migrate```
+```python3  manage.py migrate```
 
 #### 4) Создаем себе юзера напотестить
-```./manage.py createsuperuser```, дальше по инструкции, регистрацию завезу попоже.
+```python3  manage.py createsuperuser```, дальше по инструкции, регистрацию завезу попоже.
 
 ### API
 Авторизация:
