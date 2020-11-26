@@ -16,6 +16,9 @@ class AuthRedisManager:
         }))
         return token
 
+    def delete_token(self, token):
+        self._redis.delete(token)
+
     def check_token(self, token):
         return self._redis.exists(token)
 

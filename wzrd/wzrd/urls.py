@@ -10,14 +10,17 @@ from .settings import API_PREFIX
 
 router = routers.SimpleRouter()
 router.trailing_slash = "/?"
-router.register(r'games', games_views.GameSessionViewSet, 'game')
+router.register(r"games", games_views.GameSessionViewSet, "game")
 
 urlpatterns = [
-    url('^admin/', admin.site.urls),
-    url(f'^{API_PREFIX}', include([
-        url('', include(router.urls)),
-        url('auth/login', users_views.LoginWithCredentials.as_view(), name="login")
+    url("^admin/", admin.site.urls),
+    url(f"^{API_PREFIX}", include([
+        url("", include(router.urls)),
+        url("auth/me", users_views.UserViewSet.as_view({"get": "me"}), name="me"),
+        url("auth/login", users_views.LoginWithCredentials.as_view(), name="login"),
+        url("auth/signup", users_views.UserViewSet.as_view({"post": "signup"}), name="signup"),
+        url("auth/logout", users_views.UserViewSet.as_view({"get": "logout", "post": "logout"}), name="logout")
     ])),
-    url('^games$', games_views.index, name="games"),
-    url(r'^games/(?P<room_name>[\w\d]+)', games_views.room, name='room'),
+    url("^games$", games_views.index, name="games"),
+    url(r"^games/(?P<room_name>[\w\d]+)", games_views.room, name="room"),
 ]
