@@ -16,7 +16,7 @@
 ### API
 Авторизация:
 ```
-POST /api/v1/auth/login [Войти] дет поля: username, password
+POST /api/v1/auth/login [Войти] Ждет поля: username, password
 
 GET/POST /api/v1/auth/logout [Выйти]
 
