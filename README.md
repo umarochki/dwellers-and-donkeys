@@ -16,16 +16,21 @@
 ### API
 Авторизация:
 ```
-POST /api/v1/auth/login - ждет поля: username, password
-GET/POST /api/v1/auth/logout
-POST /api/v1/auth/signup - ждет как минимум username, password.
-Можно еще передать: first_name, last_name, email
-GET /api/v1/auth/me - информация о текущем пользователе
+POST /api/v1/auth/login [Войти] дет поля: username, password
+
+GET/POST /api/v1/auth/logout [Выйти]
+
+POST /api/v1/auth/signup [Регистрация]
+Ждет как минимум username, password.
+Можно еще передать: first_name, last_name, email.
+
+GET /api/v1/auth/me [Информация о текущем пользователе]
 ```
 Что-то про игры:
 ```
-GET /api/v1/games - список игр
-POST /api/v1/games - ждет поля: name, description.. уточни у меня когда будешь делать
+GET /api/v1/games [Список игр]
+POST /api/v1/games [Создать игру] 
+Ждет поля: name, description.. уточни у меня когда будешь делать
 ```
 Вебсокетная сессия:
 ```
