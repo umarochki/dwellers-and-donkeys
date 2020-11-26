@@ -16,8 +16,11 @@
 ### API
 Авторизация:
 ```
-GET /api/v1/auth/login тут пока дурацкий шаблон, потом на твое переделаем
 POST /api/v1/auth/login - ждет поля: username, password
+GET/POST /api/v1/auth/logout
+POST /api/v1/auth/signup - ждет как минимум username, password.
+Можно еще передать: first_name, last_name, email
+GET /api/v1/auth/me - информация о текущем пользователе
 ```
 Что-то про игры:
 ```
