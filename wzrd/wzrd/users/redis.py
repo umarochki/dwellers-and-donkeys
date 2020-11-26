@@ -8,12 +8,9 @@ class AuthRedisManager:
     def __init__(self):
         self._redis = Redis(host='redis', port=6379)
 
-    def add_token(self, **kwargs):
+    def add_token(self, **fields):
         token = generate_key(length=20)
-        self._redis.set(token, json.dumps({
-            "id": kwargs.get("id"),
-            "username": kwargs.get("username")
-        }))
+        self._redis.set(token, json.dumps(fields))
         return token
 
     def delete_token(self, token):

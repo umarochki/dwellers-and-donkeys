@@ -12,6 +12,7 @@ from .models import User
 from .redis import auth_manager
 from .decorators import is_authorized
 from .mixins import IsAuthorisedMixin
+from .serializers import UserSerializer
 
 
 class LoginWithCredentials(View):
@@ -33,7 +34,11 @@ class LoginWithCredentials(View):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             response = HttpResponse("OK!", status=200)
-            auth_token = auth_manager.add_token(id=user.id, username=user.username)
+            auth_token = auth_manager.add_token(**{
+                field: getattr(user, field)
+                for field in ("id", "username", "first_name")
+                if getattr(user, field) is not None
+            })
             response.set_cookie("auth_token", auth_token)
             return response
         else:
@@ -47,8 +52,12 @@ class UserViewSet(viewsets.ModelViewSet, IsAuthorisedMixin):
             body = json.loads(request.body)
         except json.decoder.JSONDecodeError:
             return HttpResponse("Bad request", status=400)
-        username, password = _.at(body, "username", "password")
-        User.objects.create_user(username=username, password=password)
+
+        serializer = UserSerializer(data=body)
+        if not serializer.is_valid():
+            return JsonResponse({"errors": serializer.errors}, status=400)
+
+        User.objects.create_user(**body)
         return HttpResponse("OK!", status=200)
 
     @is_authorized
