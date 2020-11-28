@@ -6,6 +6,7 @@ import theme from '../../styles/mui-theme'
 import Tabletop from '../../pages/Tabletop/Tabletop'
 import GameCreationPage from '../../pages/GameCreationPage/GameCreationPage'
 import LoginPage from '../../pages/LoginPage/LoginPage'
+import { AuthRoutes, NonAuthRoutes } from '../../routes'
 
 const App = () => {
     return (
@@ -14,9 +15,9 @@ const App = () => {
             <Router>
                 <Switch>
                     <Route path="/" exact component={StartPage}/>
-                    <Route path="/login" exact component={LoginPage}/>
-                    <Route path="/new-game" exact component={GameCreationPage}/>
-                    <Route path="/tabletop" component={Tabletop}/>
+                    <Route path={NonAuthRoutes.login} component={LoginPage}/>
+                    <Route path={AuthRoutes.newGame} component={GameCreationPage}/>
+                    <Route path={AuthRoutes.tabletop} component={Tabletop}/>
                 </Switch>
             </Router>
         </ThemeProvider>

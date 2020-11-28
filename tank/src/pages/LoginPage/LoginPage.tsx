@@ -1,19 +1,36 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Button, CircularProgress, Grid, Tab, Tabs, TextField, Typography } from '@material-ui/core'
 import useStyles from './styles'
 import clsx from 'clsx'
-import google from '../../assets/google.svg'
+import { useDispatch, useSelector } from 'react-redux'
+import { selectLoginState, selectSignupState } from '../../store/user/selectors'
+import { AsyncState } from '../../store/user/reducer'
+import { login, signup } from '../../store/user/actions'
+import { useRedirect } from '../../helpers/redirect'
 
 const LoginPage = () => {
+    useRedirect()
+
     const classes = useStyles()
+    const dispatch = useDispatch()
+
+    const signupState = useSelector(selectSignupState)
+    const loginState = useSelector(selectLoginState)
 
     const [activeTabId, setActiveTabId] = useState(0)
 
-    var [isLoading, setIsLoading] = useState(false)
-    var [error, setError] = useState(undefined)
-    var [nameValue, setNameValue] = useState('')
-    var [loginValue, setLoginValue] = useState('')
-    var [passwordValue, setPasswordValue] = useState('')
+    const [isLoading, setIsLoading] = useState(false)
+    const [loginValue, setLoginValue] = useState('')
+    const [emailValue, setEmailValue] = useState('')
+    const [passwordValue, setPasswordValue] = useState('')
+
+    useEffect(() => {
+        if (signupState === AsyncState.inProcess || loginState === AsyncState.inProcess) {
+            setIsLoading(true)
+        } else {
+            setIsLoading(false)
+        }
+    }, [signupState, loginState])
 
     return (
         <Grid container className={classes.container}>
@@ -34,17 +51,9 @@ const LoginPage = () => {
                     </Tabs>
                     {activeTabId === 0 && (
                         <>
-                            <Button size="large" className={classes.googleButton}>
-                                <img src={google} alt="google" className={classes.googleIcon} />
-                                &nbsp;Войти через Google
-                            </Button>
-                            <div className={classes.formDividerContainer}>
-                                <div className={classes.formDivider} />
-                                <Typography className={classes.formDividerWord}>или</Typography>
-                                <div className={classes.formDivider} />
-                            </div>
                             <TextField
-                                id="email"
+                                id="login"
+                                className={classes.marginTop}
                                 InputProps={{
                                     classes: {
                                         underline: classes.textFieldUnderline,
@@ -54,8 +63,8 @@ const LoginPage = () => {
                                 value={loginValue}
                                 onChange={e => setLoginValue(e.target.value)}
                                 margin="normal"
-                                label="Email"
-                                type="email"
+                                label="Логин"
+                                type="text"
                                 fullWidth
                             />
                             <TextField
@@ -73,65 +82,36 @@ const LoginPage = () => {
                                 type="password"
                                 fullWidth
                             />
-                            <div className={classes.formButtons}>
+                            <div className={classes.creatingButtonContainer}>
                                 {isLoading ? (
                                     <CircularProgress size={26} className={classes.loginLoader} />
                                 ) : (
                                     <Button
-                                        disabled={false
-                                            // loginValue.length === 0 || passwordValue.length === 0
-                                        }
+                                        disabled={loginValue.length === 0 || passwordValue.length === 0}
                                         onClick={() => {
-                                            var oReq = new XMLHttpRequest()
-
-                                            oReq.open('POST', '/api/v1/auth/login')
-                                            oReq.setRequestHeader('Content-Type', 'application/json')
-                                            oReq.onreadystatechange = function () {
-                                              if(oReq.readyState === XMLHttpRequest.DONE) {
-                                                var status = oReq.status;
-                                                if (status === 0 || (status >= 200 && status < 400)) {
-                                                  window.location = "/"
-                                                } else {
-                                                 alert("AHAHAHHAHAHAHHAHHHHHAHAH FOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOL!")
-                                                }
-                                              }
-                                            }
-                                            oReq.send(JSON.stringify({ 'username': loginValue, 'password': passwordValue }))
-                                        }
-                                            // loginUser(
-                                            //     userDispatch,
-                                            //     loginValue,
-                                            //     passwordValue,
-                                            //     props.history,
-                                            //     setIsLoading,
-                                            //     setError,
-                                            // )
-                                        }
+                                            dispatch(login(loginValue, passwordValue))
+                                        }}
                                         variant="contained"
                                         color="primary"
                                         size="large"
+                                        className={classes.createAccountButton}
+                                        fullWidth
                                     >
                                         Войти
                                     </Button>
                                 )}
-                                <Button
-                                    color="primary"
-                                    size="large"
-                                    className={classes.forgetButton}
-                                >
-                                    Забыли пароль?
-                                </Button>
+                                {/*<Button*/}
+                                {/*    color="primary"*/}
+                                {/*    size="large"*/}
+                                {/*    className={classes.forgetButton}*/}
+                                {/*>*/}
+                                {/*    Забыли пароль?*/}
+                                {/*</Button>*/}
                             </div>
                         </>
                     )}
                     {activeTabId === 1 && (
                         <>
-                            {/*<Typography variant="h2" className={clsx(classes.greeting, classes.marginBottom)}>*/}
-                            {/*    Добро пожаловать!*/}
-                            {/*</Typography>*/}
-                            {/*<Typography variant="h2" className={classes.subGreeting}>*/}
-                            {/*    Создайте аккаунт*/}
-                            {/*</Typography>*/}
                             <TextField
                                 id="name"
                                 className={classes.marginTop}
@@ -141,8 +121,8 @@ const LoginPage = () => {
                                         input: classes.textField,
                                     },
                                 }}
-                                value={nameValue}
-                                onChange={e => setNameValue(e.target.value)}
+                                value={loginValue}
+                                onChange={e => setLoginValue(e.target.value)}
                                 margin="normal"
                                 label="Имя"
                                 type="text"
@@ -156,8 +136,8 @@ const LoginPage = () => {
                                         input: classes.textField,
                                     },
                                 }}
-                                value={loginValue}
-                                onChange={e => setLoginValue(e.target.value)}
+                                value={emailValue}
+                                onChange={e => setEmailValue(e.target.value)}
                                 margin="normal"
                                 label="Email"
                                 type="email"
@@ -183,20 +163,13 @@ const LoginPage = () => {
                                     <CircularProgress size={26} />
                                 ) : (
                                     <Button
-                                        onClick={() => {}
-                                            // loginUser(
-                                            //     userDispatch,
-                                            //     loginValue,
-                                            //     passwordValue,
-                                            //     props.history,
-                                            //     setIsLoading,
-                                            //     setError,
-                                            // )
-                                        }
+                                        onClick={() => {
+                                            dispatch(signup(loginValue, emailValue, passwordValue))
+                                        }}
                                         disabled={
                                             loginValue.length === 0 ||
                                             passwordValue.length === 0 ||
-                                            nameValue.length === 0
+                                            emailValue.length === 0
                                         }
                                         size="large"
                                         variant="contained"
@@ -208,21 +181,21 @@ const LoginPage = () => {
                                     </Button>
                                 )}
                             </div>
-                            <div className={clsx(classes.formDividerContainer, classes.marginBottom)}>
-                                <div className={classes.formDivider} />
-                                <Typography className={classes.formDividerWord}>или</Typography>
-                                <div className={classes.formDivider} />
-                            </div>
-                            <Button
-                                size="large"
-                                className={clsx(
-                                    classes.googleButton,
-                                    classes.googleButtonCreating,
-                                )}
-                            >
-                                <img src={google} alt="google" className={classes.googleIcon} />
-                                &nbsp;Войти через Google
-                            </Button>
+                            {/*<div className={clsx(classes.formDividerContainer, classes.marginBottom)}>*/}
+                            {/*    <div className={classes.formDivider} />*/}
+                            {/*    <Typography className={classes.formDividerWord}>или</Typography>*/}
+                            {/*    <div className={classes.formDivider} />*/}
+                            {/*</div>*/}
+                            {/*<Button*/}
+                            {/*    size="large"*/}
+                            {/*    className={clsx(*/}
+                            {/*        classes.googleButton,*/}
+                            {/*        classes.googleButtonCreating,*/}
+                            {/*    )}*/}
+                            {/*>*/}
+                            {/*    <img src={google} alt="google" className={classes.googleIcon} />*/}
+                            {/*    &nbsp;Войти через Google*/}
+                            {/*</Button>*/}
                         </>
                     )}
                 </div>
