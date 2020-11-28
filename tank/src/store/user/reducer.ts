@@ -1,5 +1,6 @@
 import * as userConstants from './constants'
 import { Reducer } from 'redux'
+import { User } from '../../models/user'
 
 export enum AsyncState {
     inProcess,
@@ -12,12 +13,14 @@ export interface AuthState {
     loginState: AsyncState
     signupState: AsyncState
     error: Error | null
+    user: User | null
 }
 
 const INITIAL_STATE: AuthState = {
     loginState: AsyncState.unknown,
     signupState: AsyncState.unknown,
-    error: null
+    error: null,
+    user: null
 }
 
 const authReducer: Reducer<AuthState> = (state = INITIAL_STATE, action) => {
@@ -40,6 +43,12 @@ const authReducer: Reducer<AuthState> = (state = INITIAL_STATE, action) => {
             }
         case userConstants.SIGNUP_REQUEST_ERROR:
             return { ...state, signupState: AsyncState.error }
+        case userConstants.MYSELF_REQUEST_STARTED:
+            return { ...state, user: null }
+        case userConstants.MYSELF_REQUEST_FINISHED:
+            return { ...state, user: action.payload }
+        case userConstants.MYSELF_REQUEST_ERROR:
+            return { ...state, user: null }
         default:
             return state
     }
