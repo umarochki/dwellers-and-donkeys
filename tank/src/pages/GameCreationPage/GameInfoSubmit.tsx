@@ -1,6 +1,6 @@
 import { Button, createStyles, Grid, makeStyles, Paper } from '@material-ui/core'
 import React from 'react'
-import { Game } from '../../api/models/game'
+import { Game } from '../../models/game'
 
 const useStyles = makeStyles(() =>
     createStyles({

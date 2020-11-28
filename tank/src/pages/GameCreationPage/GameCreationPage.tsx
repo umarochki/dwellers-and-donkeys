@@ -11,7 +11,7 @@ import Button from '@material-ui/core/Button'
 import { useHistory } from 'react-router-dom'
 import GameInfoForm from './GameInfoForm'
 import GameInfoSubmit from './GameInfoSubmit'
-import { Game } from '../../api/models/game'
+import { Game } from '../../models/game'
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos'
 
 const useStyles = makeStyles(theme => ({
