@@ -1,7 +1,10 @@
-import React, { createContext } from 'react'
+import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 import io from 'socket.io-client'
 // import { WS_BASE } from './config'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
+import { selectCurrentGame } from '../../store/game/selectors'
+import { getUrl } from '../../helpers/authHeader'
+import Socket = SocketIOClient.Socket;
 // import { updateChatLog } from './actions'
 
 const WebSocketContext = createContext({})
@@ -10,29 +13,45 @@ export { WebSocketContext }
 
 const WebSocketProvider: React.FC = ({ children }) => {
     const dispatch = useDispatch()
+    const game = useSelector(selectCurrentGame)
+    
+    const [socket, setSocket] = useState<Socket | null>(null)
 
-    const sendMessage = (roomId: string, message: any) => {
-        const payload = {
-            roomId: roomId,
-            data: message
+    const sendMessage = useCallback((roomId: string, message: any) => {
+        if (socket) {
+            const payload = {
+                roomId: roomId,
+                data: message
+            }
+            socket.emit('message', JSON.stringify(payload))
+            // dispatch(updateChatLog(payload))
         }
-        socket.emit('event://send-message', JSON.stringify(payload))
-        // dispatch(updateChatLog(payload))
-    }
+    }, [socket])
 
-    const socket = io('ws://example.com/my-namespace', {
-        reconnectionDelayMax: 10000,
-    })
+    useEffect(() => {
+        if (game) {
+            if (socket) {
+                socket.disconnect()
+            }
 
-    socket.on('event://get-message', (msg: any) => {
-        const payload = JSON.parse(msg)
-        // dispatch(updateChatLog(payload))
-    })
+            const newSocket = io(`ws://${getUrl()}/ws/games/${game.invitation_code}`, {
+                reconnectionDelayMax: 10000,
+            })
 
-    const ws = {
+            newSocket.on('event://get-message', (msg: any) => {
+                const payload = JSON.parse(msg)
+                // dispatch(updateChatLog(payload))
+            })
+
+            setSocket(newSocket)
+        }
+    }, [game])
+
+    const ws = useMemo(() => ({
+        init: !!socket,
         socket: socket,
         sendMessage
-    }
+    }), [sendMessage, socket])
 
     return (
         <WebSocketContext.Provider value={ws}>
