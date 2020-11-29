@@ -77,10 +77,10 @@ export default class Gameboard {
     appView.addEventListener('drop', (e) => this.onDrop(e) );
     
     // Listen for window resize events
-    window.addEventListener('resize', (e) => { console.log(this.onResize); this.onResize(e)});
+    window.addEventListener('resize', (e) => this.onResize(e));
 
     // Add drag event handlers to draggable DOM-elements
-    Array.prototype.map.call(document.getElementsByClassName('draggable'),
+    Array.prototype.map.call(document.querySelectorAll('[draggable="true"]'),
       (element) => {
         element.addEventListener('dragstart', (e) => this.draggedDOM = e.target );
       }
