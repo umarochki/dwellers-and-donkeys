@@ -1,6 +1,6 @@
 import * as PIXI from 'pixi.js-legacy';
 import { Viewport } from 'pixi-viewport'
-import { PixiPlugin } from "gsap/PixiPlugin";
+//import { PixiPlugin } from "gsap/PixiPlugin";
 //import { gsap } from "gsap";
 
 import MapContainer from './Container';
