@@ -4,7 +4,6 @@ import io from 'socket.io-client'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectCurrentGame } from '../../store/game/selectors'
 import { getUrl } from '../../helpers/authHeader'
-import Socket = SocketIOClient.Socket;
 // import { updateChatLog } from './actions'
 
 const WebSocketContext = createContext({})
@@ -15,7 +14,7 @@ const WebSocketProvider: React.FC = ({ children }) => {
     const dispatch = useDispatch()
     const game = useSelector(selectCurrentGame)
     
-    const [socket, setSocket] = useState<Socket | null>(null)
+    const [socket, setSocket] = useState<any>(null)
 
     const sendMessage = useCallback((roomId: string, message: any) => {
         if (socket) {
@@ -23,25 +22,22 @@ const WebSocketProvider: React.FC = ({ children }) => {
                 roomId: roomId,
                 data: message
             }
-            socket.emit('message', JSON.stringify(payload))
+            socket.send('{"type": "delete", "meta": null}')
             // dispatch(updateChatLog(payload))
         }
     }, [socket])
 
     useEffect(() => {
-        if (game) {
+        if (!game) {
             if (socket) {
                 socket.disconnect()
             }
 
-            const newSocket = io(`ws://${getUrl()}/ws/games/${game.invitation_code}`, {
-                reconnectionDelayMax: 10000,
-            })
+            const newSocket = new WebSocket(`ws://localhost/ws/games/D14532A23785`) // ${game.invitation_code}`
 
-            newSocket.on('event://get-message', (msg: any) => {
-                const payload = JSON.parse(msg)
-                // dispatch(updateChatLog(payload))
-            })
+            newSocket.onmessage = function(event) {
+                alert(`[message] Data received from server: ${event.data}`)
+            }
 
             setSocket(newSocket)
         }
