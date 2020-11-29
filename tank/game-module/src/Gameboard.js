@@ -53,7 +53,6 @@ export default class Gameboard {
     return this;
   }
 
-
   /*
    * Gameboard preloading function
    *
@@ -77,14 +76,15 @@ export default class Gameboard {
     // Add drop behavior on PIXI application
     appView.addEventListener('drop', (e) => this.onDrop(e) );
     
+    // Listen for window resize events
+    window.addEventListener('resize', (e) => { console.log(this.onResize); this.onResize(e)});
+
     // Add drag event handlers to draggable DOM-elements
     Array.prototype.map.call(document.getElementsByClassName('draggable'),
       (element) => {
         element.addEventListener('dragstart', (e) => this.draggedDOM = e.target );
       }
     );
-
-
 
     // Load images to PIXI cashe (in case to know their size in advance)
     for (var i = 0 ; i < assets.length; i++) {
@@ -98,21 +98,32 @@ export default class Gameboard {
     });
   }
 
+  // Resize function window
+  onResize(e) {
+
+    // Get the parent
+    const parent = this.app.view.parentNode;
+     
+    // Resize the renderer
+    this.app.renderer.resize(parent.clientWidth, parent.clientHeight);
+    this.viewport.screenWidth = parent.clientWidth
+    this.viewport.screenHeight = parent.clientHeight
+  }
+
   /*
    * Gameboard rendering function
    *
    */
   onLoad() {
     // Create a viewport
-
-    console.log();
-
     
+    const world = { width: 10000, height: 10000 }
+
     this.viewport = new Viewport({
         screenWidth: this.width,
         screenHeight: this.height,
-        //worldWidth: 1000,
-        //worldHeight: 1000,
+        worldWidth: world.width,
+        worldHeight: world.height,
 
         interaction: this.app.renderer.plugins.interaction 
     })
@@ -126,6 +137,15 @@ export default class Gameboard {
         .pinch()
         .wheel()
         .decelerate()
+
+    this.viewport.clampZoom({ minScale: .3, maxScale: 2 })
+    
+    this.viewport.clamp({ 
+      left: -world.height, 
+      right: world.width, 
+      top: -world.height, 
+      bottom: world.width 
+    })
   }
 
   /*
