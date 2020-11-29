@@ -1,5 +1,5 @@
 {
-  "name": "gameboard",
+  "name": "game-module",
   "version": "1.0.0",
   "description": "Gameboard module for D&D web application",
   "main": "src/index.js",
