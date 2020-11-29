@@ -17,9 +17,13 @@ class AuthRedisManager:
         self._redis.delete(token)
 
     def check_token(self, token):
+        if not token:
+            return False
         return self._redis.exists(token)
 
     def get_user_info(self, token):
+        if not token:
+            return {}
         json_data = self._redis.get(token)
         if not json_data:
             return {}
