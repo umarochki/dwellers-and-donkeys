@@ -2,16 +2,14 @@ FROM node:12
 
 WORKDIR /build
 
-COPY package*.json ./
-COPY yarn.lock ./
-COPY tsconfig.json ./
-COPY game-module ./
+COPY game-module ./game-module
+COPY package.json .
+COPY yarn.lock .
+COPY tsconfig.json .
 
 RUN yarn
 
 COPY . .
 RUN rm -rf game-module
 
-EXPOSE 3000
 CMD yarn run start
-
