@@ -16,6 +16,9 @@ const useStyles = makeStyles((theme: Theme) => ({
     },
     inputLabel: {
         color: theme.palette.text.secondary
+    },
+    marginTop: {
+        marginTop: theme.spacing(4),
     }
 }))
 
@@ -42,7 +45,7 @@ const GameInfoForm: React.FC<Props> = props => {
                         <Input id="shortDesc" type="text" inputRef={register}/>
                     </FormControl>
 
-                    <Grid container justify="flex-end">
+                    <Grid container justify="flex-end" className={classes.marginTop}>
                         <Button variant="contained" color="primary" onClick={onSubmit}>
                             Дальше
                         </Button>

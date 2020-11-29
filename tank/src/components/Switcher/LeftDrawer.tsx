@@ -5,9 +5,15 @@ import { Theme } from '@material-ui/core'
 import clsx from 'clsx'
 import Switcher from './Switcher'
 
-const drawerWidth = 296
+const drawerWidth = 350
 
 const useStyles = makeStyles((theme: Theme) => ({
+    drawer: {
+        position: 'absolute',
+        top: '0',
+        bottom: '0',
+        left: '0'
+    },
     drawerPaper: {
         position: 'relative',
         height: '100%',
@@ -77,7 +83,10 @@ const LeftDrawer: React.FC = () => {
                 onEscapeKeyDown={() => setOpen(false)}
                 onBackdropClick={() => setOpen(false)}
                 anchor="left"
-                variant="persistent"
+                variant="permanent"
+                className={classes.drawer}
+                // modal={true}
+                // BackdropProps={{ invisible: true }}
                 classes={{
                     paper: clsx(
                         classes.drawerPaper,

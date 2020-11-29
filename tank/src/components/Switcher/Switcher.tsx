@@ -12,6 +12,7 @@ const switcherWidth = 60
 
 const useStyles = makeStyles(() => ({
     switcher: {
+        zIndex: '2000',
         width: `${switcherWidth}px`,
         height: '100%',
         display: 'flex',
