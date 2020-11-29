@@ -63,7 +63,7 @@ const StartPage = () => {
         dispatch(logout())
     }, [handleClose, dispatch])
 
-    if (!user) {
+    if (user) {
         return (
             <Grid
                 container
@@ -85,7 +85,7 @@ const StartPage = () => {
             <AppBar position="relative">
                 <Toolbar className={classes.toolbarAvatar}>
                     <Avatar onClick={handleProfileClick} className={classes.avatar}>
-                        {user.username[0] || '?'}
+                        { '?'}
                     </Avatar>
                     <Menu
                         id="profile-menu"

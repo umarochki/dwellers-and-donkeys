@@ -36,7 +36,7 @@ const InvitationCodeDialog: React.FC<Props> = props => {
                     label="Код приглашения"
                     type="email"
                     fullWidth
-                    autoComplete="false"
+                    autoComplete="off"
                 />
             </DialogContent>
             <DialogActions>

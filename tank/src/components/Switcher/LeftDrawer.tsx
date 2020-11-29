@@ -4,7 +4,6 @@ import Drawer from '@material-ui/core/Drawer'
 import { Theme, GridList, GridListTile } from '@material-ui/core'
 import clsx from 'clsx'
 import Switcher from './Switcher'
-// import  i from '../../assets/markers/Tavern.png'
 const drawerWidth = 300
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -71,6 +70,24 @@ const markersList = [
     'markers/Tree.png',
 ]
 
+const mapsList = [
+    'Bayport',
+    'Blackacre',
+    'Campfire',
+    'Deerbarrow',
+    'Loredge_Falls',
+    'Loredge_Springs',
+    'Lorness',
+    'Normoor',
+    'Ostton',
+    'OsttonCursed',
+    'OsttonMud',
+    'Summerwitch',
+    'Tavern',
+    'Whiteshadow',
+    'Witchwyn',
+]
+
 const LeftDrawer: React.FC = () => {
     const classes = useStyles()
     const [open, setOpen] = React.useState(false)
@@ -109,10 +126,17 @@ const LeftDrawer: React.FC = () => {
                 onClose={toggleDrawer(false)}
             >
                 <div className={classes.drawerInner} onClick={toggleDrawer(false)}>
-                    <GridList cellHeight={70} cols={3}>
-                        {markersList.map((marker: string) => (
-                            <GridListTile key={marker} cols={1} className={classes.tile}>
-                                <img src={marker} alt={marker} />
+                    {/*<GridList cellHeight={70} cols={3}>*/}
+                    {/*    {markersList.map((marker: string) => (*/}
+                    {/*        <GridListTile key={marker} cols={1} className={classes.tile}>*/}
+                    {/*            <img src={marker} alt={marker} />*/}
+                    {/*        </GridListTile>*/}
+                    {/*    ))}*/}
+                    {/*</GridList>*/}
+                    <GridList cellHeight={100} cols={1}>
+                        {mapsList.map((map: string) => (
+                            <GridListTile key={map} cols={1} className={classes.tile}>
+                                <img src={`locations/${map}.png`} alt={map} />
                             </GridListTile>
                         ))}
                     </GridList>
