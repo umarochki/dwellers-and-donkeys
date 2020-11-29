@@ -21,6 +21,4 @@ urlpatterns = [
         url("auth/signup", users_views.UserViewSet.as_view({"post": "signup"}), name="signup"),
         url("auth/logout", users_views.UserViewSet.as_view({"get": "logout", "post": "logout"}), name="logout")
     ])),
-    url("^games$", games_views.index, name="games"),
-    url(r"^games/(?P<room_name>[\w\d]+)", games_views.room, name="room"),
 ]

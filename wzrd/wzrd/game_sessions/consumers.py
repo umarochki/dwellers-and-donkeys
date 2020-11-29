@@ -65,6 +65,6 @@ class GameSessionConsumer(JsonWebsocketConsumer):
     def send_back(self, event):
         message = event["message"]
         game_session = self.game_session
-        game_session.game_objects[message] = message
+        game_session.game_objects.append(message)
         game_session.save()
         self.send_json(content=game_session.game_objects)

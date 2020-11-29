@@ -39,3 +39,4 @@ class GameSessionViewSet(viewsets.ModelViewSet):
         return {
             'request': self.request,
         }
+
