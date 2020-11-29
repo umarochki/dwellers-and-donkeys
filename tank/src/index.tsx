@@ -6,13 +6,16 @@ import reportWebVitals from './reportWebVitals'
 import { Provider } from 'react-redux'
 import configureStore from './store'
 import { setupInterceptors } from './services'
+import WebSocketProvider from './components/Contexts/WebSocketContext'
 
 const store = configureStore()
 setupInterceptors(store)
 
 ReactDOM.render(
     <Provider store={store}>
-        <App/>
+        <WebSocketProvider>
+            <App/>
+        </WebSocketProvider>
     </Provider>,
     document.getElementById('root')
 )

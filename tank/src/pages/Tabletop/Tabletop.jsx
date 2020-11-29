@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import LeftDrawer from '../../components/Switcher/LeftDrawer'
 import { Grid } from '@material-ui/core'
@@ -6,6 +6,7 @@ import UserCard from '../../components/Controls/UserCard'
 import PersonCard from '../../components/Controls/PersonCard'
 import ChatPanel from '../../components/Controls/ChatPanel'
 import Gameboard from 'game-module/src/Gameboard'
+import { WebSocketContext } from '../../components/Contexts/WebSocketContext'
 
 const drawerWidth = 240
 // https://codesandbox.io/s/ykk2x8k7xj?file=/src/App/index.js
@@ -91,6 +92,13 @@ const Tabletop = () => {
     const classes = useStyles()
     const divRef = React.useRef()    // Ссылка на родителя холста
     const boardRef = React.useRef()  // Ссылка на игровое поле
+    const ws = useContext(WebSocketContext)
+
+    const sendMessage = () => {
+        ws.sendMessage('id', {
+            message: 'msgInput'
+        })
+    }
 
     React.useEffect(() => {
 
@@ -124,13 +132,12 @@ const Tabletop = () => {
             <div className={classes.appFrame}>
                 <LeftDrawer/>
                 <main className={classes.content}>
-                    <div className={classes.map} ref={divRef}>
-                    </div>
+                    <div className={classes.map} ref={divRef}/>
                     <div className={classes.controls}>
                         <Grid container spacing={3}>
                             <Grid item xs={5}>
                                 <div className={classes.people}>
-                                    <PersonCard/>
+                                    <PersonCard onClick={sendMessage}/>
                                     <PersonCard/>
                                     <PersonCard/>
                                     <PersonCard/>
