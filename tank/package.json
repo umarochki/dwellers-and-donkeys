@@ -2,7 +2,6 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
-  "proxy": "http://localhost",
   "dependencies": {
     "@material-ui/core": "^4.11.0",
     "@material-ui/icons": "^4.9.1",
@@ -21,6 +20,7 @@
     "connected-react-router": "^6.8.0",
     "cookie-parser": "^1.4.5",
     "fontsource-roboto": "^3.0.3",
+    "game-module": "./game-module",
     "node-sass": "4.14.1",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",

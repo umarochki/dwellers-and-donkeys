@@ -5,6 +5,7 @@ import { Grid } from '@material-ui/core'
 import UserCard from '../../components/Controls/UserCard'
 import PersonCard from '../../components/Controls/PersonCard'
 import ChatPanel from '../../components/Controls/ChatPanel'
+import Gameboard from 'game-module/src/Gameboard'
 
 const drawerWidth = 240
 // https://codesandbox.io/s/ykk2x8k7xj?file=/src/App/index.js
@@ -57,7 +58,6 @@ const useStyles = makeStyles((theme: Theme) =>
         },
         map: {
             flexGrow: 1,
-            backgroundColor: 'green',
             marginBottom: '12px'
         },
         controls: {
@@ -89,13 +89,43 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const Tabletop = () => {
     const classes = useStyles()
+    const divRef = React.useRef()    // Ссылка на родителя холста
+    const boardRef = React.useRef()  // Ссылка на игровое поле
+
+    React.useEffect(() => {
+
+        const gameboard = new Gameboard({
+            parent: divRef.current,
+            // Нужно указать ширину/длину, иначе отчего-то хендлеры не робят
+            width: divRef.current.clientWidth,
+            height: divRef.current.clientHeight,
+            transparent: true
+            //backgroundColor: 0xfff000
+            // TODO: isGameMaster: {boolean}
+
+        })
+
+        // Картинки беру у клиента из точки входа
+        var assets = [{ name: 'grid', path: 'locations/Bayport.png' }]
+
+        // Грузим холст и статики (пока так)
+        gameboard.preload(assets, () => {
+            // Устанавливаем мапу
+            gameboard.setMap('locations/Bayport.png', () => {
+                // Сохраняем ссылку
+                boardRef.current = gameboard
+            })
+        })
+
+    }, [])
 
     return (
         <div className={classes.root}>
             <div className={classes.appFrame}>
                 <LeftDrawer/>
                 <main className={classes.content}>
-                    <div className={classes.map}/>
+                    <div className={classes.map} ref={divRef}>
+                    </div>
                     <div className={classes.controls}>
                         <Grid container spacing={3}>
                             <Grid item xs={5}>
