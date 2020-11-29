@@ -12,5 +12,8 @@
     "d&d"
   ],
   "author": "Anastasiia Kolonskaia",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "pixi.js-legacy": "^5.3.3"
+  }
 }
