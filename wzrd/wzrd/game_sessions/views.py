@@ -39,14 +39,3 @@ class GameSessionViewSet(viewsets.ModelViewSet):
         return {
             'request': self.request,
         }
-
-# Временные кеки
-from django.shortcuts import render
-
-def index(request):
-    return render(request, 'index.html')
-
-def room(request, session_name):
-    return render(request, 'game.html', {
-        'session_name': session_name
-    })
