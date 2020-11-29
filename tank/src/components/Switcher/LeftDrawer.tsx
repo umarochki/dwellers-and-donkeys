@@ -1,13 +1,19 @@
 import React from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import Drawer from '@material-ui/core/Drawer'
-import { Theme } from '@material-ui/core'
+import { Theme, GridList, GridListTile } from '@material-ui/core'
 import clsx from 'clsx'
 import Switcher from './Switcher'
-
-const drawerWidth = 296
+// import  i from '../../assets/markers/Tavern.png'
+const drawerWidth = 300
 
 const useStyles = makeStyles((theme: Theme) => ({
+    drawer: {
+        position: 'absolute',
+        top: '0',
+        bottom: '0',
+        left: '0',
+    },
     drawerPaper: {
         position: 'relative',
         height: '100%',
@@ -36,7 +42,9 @@ const useStyles = makeStyles((theme: Theme) => ({
         width: drawerWidth,
         height: '100%',
         display: 'flex',
-        flexDirection: 'column'
+        flexDirection: 'column',
+        paddingLeft: 60,
+        paddingTop: theme.spacing(1)
     },
     flexGrow: {
         flexGrow: 1
@@ -50,8 +58,18 @@ const useStyles = makeStyles((theme: Theme) => ({
     listSubheader: {
         textAlign: 'left',
         fontWeight: 'bold'
+    },
+    tile: {
+        objectFit: 'contain'
     }
 }))
+
+const markersList = [
+    'markers/Bonfire.png',
+    'markers/Castle.png',
+    'markers/Tavern.png',
+    'markers/Tree.png',
+]
 
 const LeftDrawer: React.FC = () => {
     const classes = useStyles()
@@ -77,7 +95,10 @@ const LeftDrawer: React.FC = () => {
                 onEscapeKeyDown={() => setOpen(false)}
                 onBackdropClick={() => setOpen(false)}
                 anchor="left"
-                variant="persistent"
+                variant="permanent"
+                className={classes.drawer}
+                // modal={true}
+                // BackdropProps={{ invisible: true }}
                 classes={{
                     paper: clsx(
                         classes.drawerPaper,
@@ -87,7 +108,15 @@ const LeftDrawer: React.FC = () => {
                 open={open}
                 onClose={toggleDrawer(false)}
             >
-                <div className={classes.drawerInner} onClick={toggleDrawer(false)}/>
+                <div className={classes.drawerInner} onClick={toggleDrawer(false)}>
+                    <GridList cellHeight={70} cols={3}>
+                        {markersList.map((marker: string) => (
+                            <GridListTile key={marker} cols={1} className={classes.tile}>
+                                <img src={marker} alt={marker} />
+                            </GridListTile>
+                        ))}
+                    </GridList>
+                </div>
             </Drawer>
         </>
     )

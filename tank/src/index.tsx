@@ -5,8 +5,6 @@ import App from './components/App/App'
 import reportWebVitals from './reportWebVitals'
 import { Provider } from 'react-redux'
 import configureStore from './store'
-import { ConnectedRouter } from 'connected-react-router'
-import { history } from './helpers/history'
 import { setupInterceptors } from './services'
 
 const store = configureStore()
@@ -14,9 +12,7 @@ setupInterceptors(store)
 
 ReactDOM.render(
     <Provider store={store}>
-        <ConnectedRouter history={history}>
-            <App/>
-        </ConnectedRouter>
+        <App/>
     </Provider>,
     document.getElementById('root')
 )

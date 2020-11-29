@@ -1,4 +1,5 @@
 import API from './index'
+import { User } from '../models/user'
 
 export interface LoginRequest {
     username: string
@@ -20,6 +21,9 @@ const userService = {
             .then(response => response.data),
     signup: (request: SignupRequest): Promise<void> =>
         API.post('/auth/signup', request)
+            .then(response => response.data),
+    me: (): Promise<User> =>
+        API.get('/auth/me')
             .then(response => response.data)
 }
 

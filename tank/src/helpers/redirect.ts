@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectLoginState } from '../store/user/selectors'
 import { AsyncState } from '../store/user/reducer'
-import { AuthRoutes } from '../routes'
+import { push } from 'connected-react-router'
 
 export const useRedirect = () => {
     const loginState = useSelector(selectLoginState)
@@ -10,7 +10,7 @@ export const useRedirect = () => {
     
     useEffect(() => {
         if (loginState === AsyncState.success) {
-            window.location.href = AuthRoutes.dashboard
+            dispatch(push('/'))
         }
     }, [loginState, dispatch])
 }
