@@ -1,7 +1,7 @@
 import * as PIXI from 'pixi.js-legacy';
 import { Viewport } from 'pixi-viewport'
 import { PixiPlugin } from "gsap/PixiPlugin";
-import { gsap } from "gsap";
+//import { gsap } from "gsap";
 
 import MapContainer from './Container';
 import GameObject from './GameObject';
@@ -10,8 +10,8 @@ import GameObject from './GameObject';
 // PIXI.settings.FAIL_IF_MAJOR_PERFORMANCE_CAVEAT = false;
 
 // Register GreenSock plugin
-gsap.registerPlugin(PixiPlugin);
-PixiPlugin.registerPIXI(PIXI);
+//gsap.registerPlugin(PixiPlugin);
+//PixiPlugin.registerPIXI(PIXI);
 
 export default class Gameboard {
   /*
