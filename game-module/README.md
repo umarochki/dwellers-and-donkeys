@@ -31,27 +31,30 @@ function App() {
   
   React.useEffect(() => {
     
-    const gameboard = new Gameboard({ 
+    const gameboard = new Gameboard({
       parent: divRef.current,
-      width: {number}, 
-      height: {number},
-      transparent: true,
-   // backgroundColor: {string}
-   // resizeTo: {HTMLElement}
-   // TODO: isGameMaster: {boolean}, 
+      // Нужно указать ширину/длину, иначе отчего-то хендлеры не робят
+      width: divRef.current.clientWidth, 
+      height: divRef.current.clientHeight,
+      transparent: true
+      //backgroundColor: 0xfff000
+      // TODO: isGameMaster: {boolean} 
 
-    });
+    })
+
+    // Картинки беру у клиента из точки входа
+    var assets = [{ name: 'grid', path: './locations/{grid.png}' }]
 
     // Грузим холст и статики (пока так)
-    gameboard.preload(() => {
-      // Устанавливаем мапу
-      gameboard.setMap(MAP_IMAGE_PATH, () => {
-        // Сохраняем ссылку
-        boardRef.current = gameboard;
-      });
-    });
+    gameboard.preload(assets, () => {
+        // Устанавливаем мапу
+        gameboard.setMap('./locations/{map.png}', () => {
+            // Сохраняем ссылку
+            boardRef.current = gameboard
+        })
+      })
 
-  }, []);
+  }, [])
 
   return (
     <div className="App draggable" style={{backgroundColor: '#444'}}>

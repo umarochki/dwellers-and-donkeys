@@ -58,10 +58,9 @@ export default class Gameboard {
    * Gameboard preloading function
    *
    */
-  preload(callback) {
+  preload(assets, callback) {
 
     const appView = this.app.view;
-
     // Prevent pinch gesture
     appView.addEventListener('wheel', e => { e.preventDefault(); }, { passive: false });
 
@@ -85,10 +84,14 @@ export default class Gameboard {
       }
     );
 
-    // Load images to PIXI cashe (in case to know their size in advance)
-    this.app.loader
-      .add('grid-thin', './assets/grid64-1px.png');
 
+
+    // Load images to PIXI cashe (in case to know their size in advance)
+    for (var i = 0 ; i < assets.length; i++) {
+      this.app.loader
+      .add(assets[i].name, assets[i].path);
+    }
+    
     this.app.loader.load(() => { 
       this.onLoad();
       callback();
@@ -101,6 +104,10 @@ export default class Gameboard {
    */
   onLoad() {
     // Create a viewport
+
+    console.log();
+
+    
     this.viewport = new Viewport({
         screenWidth: this.width,
         screenHeight: this.height,
@@ -156,10 +163,10 @@ export default class Gameboard {
       const image = PIXI.Sprite.from(this.app.loader.resources[path].texture);
 
       this.mapContainer = new MapContainer(
-        this.app.loader.resources['grid-thin'].texture, 
+        this.app.loader.resources.grid.texture, 
         this.viewport, 
         image
-        );
+      );
       
       this.viewport.addChild(this.mapContainer);
 
