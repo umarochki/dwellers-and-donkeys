@@ -6,7 +6,7 @@ export default class MapContainer extends Container {
      * @constructor
      * @param {string} name 
      */
-    constructor(grid: Texture, parent: Container, img: Sprite, name = '[noname] container') {
+    constructor(grid, parent, img, name = '[noname] container') {
         super()
         this.grid = grid;
         this.img = img;

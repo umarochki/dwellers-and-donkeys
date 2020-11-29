@@ -6,7 +6,7 @@ export default class GameObject extends Sprite {
    * @constructor
    * @param {string} name 
    */
-  constructor(img: String) {
+  constructor(img) {
     
     super(img);
 
