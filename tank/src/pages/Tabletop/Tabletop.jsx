@@ -5,6 +5,8 @@ import { Grid } from '@material-ui/core'
 import UserCard from '../../components/Controls/UserCard'
 import PersonCard from '../../components/Controls/PersonCard'
 import ChatPanel from '../../components/Controls/ChatPanel'
+import clsx from 'clsx'
+import Gameboard from 'gameboard/src/Board'
 
 const drawerWidth = 240
 // https://codesandbox.io/s/ykk2x8k7xj?file=/src/App/index.js
@@ -90,12 +92,41 @@ const useStyles = makeStyles((theme: Theme) =>
 const Tabletop = () => {
     const classes = useStyles()
 
+    const divRef = React.useRef()    // Ссылка на родителя холста
+    const boardRef = React.useRef()  // Ссылка на игровое поле
+
+    React.useEffect(() => {
+
+        const gameboard = new Gameboard({
+            parent: divRef.current,
+            // width: { number },
+            // height: { number },
+            transparent: true,
+            // backgroundColor: {string}
+            // resizeTo: {HTMLElement}
+            // TODO: isGameMaster: {boolean}, 
+
+        })
+
+        // Грузим холст и статики (пока так)
+        gameboard.preload(() => {
+            // Устанавливаем мапу
+            gameboard.setMap('MAP_IMAGE_PATH', () => {
+                // Сохраняем ссылку
+                boardRef.current = gameboard
+            })
+        })
+
+    }, [])
+
     return (
         <div className={classes.root}>
             <div className={classes.appFrame}>
                 <LeftDrawer/>
                 <main className={classes.content}>
-                    <div className={classes.map}/>
+                    <div className={clsx(classes.map, 'draggable')}>
+                        <div ref={divRef}/>
+                    </div>
                     <div className={classes.controls}>
                         <Grid container spacing={3}>
                             <Grid item xs={5}>
