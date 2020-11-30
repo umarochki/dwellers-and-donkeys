@@ -108,37 +108,41 @@ const Tabletop = () => {
     }
 
     useEffect(() => {
-        const gameBoard = new Gameboard({
-            parent: divRef.current,
-            // Нужно указать ширину/длину, иначе отчего-то хендлеры не робят
-            width: divRef.current.clientWidth,
-            height: divRef.current.clientHeight,
-            transparent: true,
-            //backgroundColor: 0xfff000
-            // TODO: isGameMaster: {boolean}
-        })
-
-        gameBoard.eventManager.subscribe('map', (e: any) => ws.sendMessage('map', e))
-        gameBoard.eventManager.subscribe('add', (e: any) => ws.sendMessage('add', e))
-        gameBoard.eventManager.subscribe('update', (e: any) => ws.sendMessage('update', e))
-        gameBoard.eventManager.subscribe('delete', (e: any) => ws.sendMessage('delete', e))
-
-        // Картинки беру у клиента из точки входа
-        const assets = [{ name: 'grid', path: 'locations/Bayport.png' }]
-
-        // Грузим холст и статики (пока так)
-        gameBoard.preload(assets, () => {
-            // Устанавливаем мапу
-            gameBoard.setMap('locations/Bayport.png', () => {
-                // Сохраняем ссылку
-                boardRef.current = gameBoard
+        if (game) {
+            const gameBoard = new Gameboard({
+                parent: divRef.current,
+                // Нужно указать ширину/длину, иначе отчего-то хендлеры не робят
+                width: divRef.current.clientWidth,
+                height: divRef.current.clientHeight,
+                transparent: true,
+                //backgroundColor: 0xfff000
+                // TODO: isGameMaster: {boolean}
             })
-        })
 
-        setGameBoard(gameBoard)
-    }, [divRef, ws])
+            gameBoard.eventManager.subscribe('map', (e: any) => ws.sendMessage('map', e))
+            gameBoard.eventManager.subscribe('add', (e: any) => ws.sendMessage('add', e))
+            gameBoard.eventManager.subscribe('update', (e: any) => ws.sendMessage('update', e))
+            gameBoard.eventManager.subscribe('delete', (e: any) => ws.sendMessage('delete', e))
+
+            // Картинки беру у клиента из точки входа
+            const assets = [{ name: 'grid', path: 'locations/Bayport.png' }]
+
+            // Грузим холст и статики (пока так)
+            gameBoard.preload(assets, () => {
+                // Устанавливаем мапу
+                gameBoard.setMap('locations/Bayport.png', () => {
+                    // Сохраняем ссылку
+                    boardRef.current = gameBoard
+                })
+            })
+
+            setGameBoard(gameBoard)
+        }
+    }, [game, divRef, ws])
 
     useEffect(() => {
+        if (!currentGameData) return
+
         switch (currentGameData.type) {
             case 'update':
                 gameBoard.updateObjectPosition(currentGameData.meta)
