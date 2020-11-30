@@ -13,7 +13,7 @@ from .models import Session
 
 class GameSessionConsumer(JsonWebsocketConsumer):
     UPDATE_FIELDS = ("xy", "sprite")
-    ACTION_TYPES = ('add', 'delete', 'update')
+    ACTION_TYPES = ("add", "delete", "update", "refresh", "clear")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -24,7 +24,7 @@ class GameSessionConsumer(JsonWebsocketConsumer):
         return Session.objects.filter(invitation_code=self.session_name).first()
 
     def connect(self):
-        self.session_name = self.scope['url_route']['kwargs']['session_name']
+        self.session_name = self.scope["url_route"]["kwargs"]["session_name"]
 
         token = _.get(self.scope, "cookies.auth_token")
         self.user_info = auth_manager.get_user_info(token)
@@ -32,6 +32,7 @@ class GameSessionConsumer(JsonWebsocketConsumer):
         #     return self.close(code=401)
 
         if not self.get_game_session():
+            
             return self.close(code=4400)
 
         # Join session group
@@ -49,20 +50,82 @@ class GameSessionConsumer(JsonWebsocketConsumer):
         )
 
     def receive(self, text_data=None, bytes_data=None, **kwargs):
-        text_data_json = json.loads(text_data)
-        action_type = text_data_json['type']
-        message = text_data_json['meta']
+        json_data = json.loads(text_data)
+        action_type = json_data["type"]
+        meta = json_data.get("meta")
 
-        if action_type in self.ACTION_TYPES:
-            async_to_sync(self.channel_layer.group_send)(
-                self.session_name,
-                {
-                    'type': action_type,
-                    'message': message
-                }
-            )
-        else:
-            return self.close(code=4400)
+        if action_type not in self.ACTION_TYPES:
+            json_data["type"] = "error"
+            json_data["meta"] = f"Tried non-existant action_type {action_type}"
+            logging.warning(f"[WS {self.session_name}] Tried non-existant action_type {action_type}")
+            return self.start_sending("send_me", json_data)
+
+        game_session = self.get_game_session()
+        if not game_session:
+            json_data["type"] = "error"
+            json_data["meta"] = "Game session not found!"
+            logging.warning(f"[WS {self.session_name}] Game session not found!")
+            return self.start_sending("send_me", json_data)
+
+        message_type = "send_all_but_me"
+        if action_type == "add":
+            object_id = game_session.last_object_id
+            game_session.game_objects[object_id] = meta
+            json_data["meta"]["id"] = object_id
+            game_session.last_object_id += 1
+            game_session.save()
+
+        elif action_type == "update":
+            obj = game_session.game_objects.get(str(meta["id"]))
+            if not obj:
+                json_data["type"] = "error"
+                json_data["meta"] = f"Tried non-existant action_type {action_type}"
+                logging.warning(f"[WS {self.session_name} UPDATE] Object [{meta['id']}] not found!")
+                return self.start_sending("send_me", json_data)
+
+            changes = _.pick(meta, *self.UPDATE_FIELDS)
+            if not self.validate_fields(changes):
+                json_data["type"] = "error"
+                json_data["meta"] = "Field validation failed!"
+                logging.warning(f"[WS {self.session_name} UPDATE] Field validation failed!")
+                return self.start_sending("send_me", json_data)
+
+            obj.update(changes)
+            game_session.save()
+
+        elif action_type == "delete":
+            object_id = str(meta["id"])
+            if object_id not in game_session.game_objects:
+                json_data["type"] = "error"
+                json_data["meta"] = f"Object [{meta['id']}] not found!"
+                logging.warning(f"[WS {self.session_name} DELETE] Object [{meta['id']}] not found!")
+                return self.start_sending("send_me", json_data)
+
+            del game_session.game_objects[object_id]
+            game_session.save()
+
+        elif action_type == "refresh":
+            message_type = "send_me"
+            json_data["meta"] = {
+                "game_objects": list(game_session.game_objects.values()),
+            }
+
+        elif action_type == "clear":
+            game_session.game_objects = {}
+            game_session.last_object_id = 1
+            game_session.save()
+
+        self.start_sending(message_type, json_data)
+
+    def start_sending(self, message_type, json_data):
+        async_to_sync(self.channel_layer.group_send)(
+            self.session_name,
+            {
+                "type": message_type,
+                "message": json_data,
+                "sender": self.channel_name
+            }
+        )
 
     @staticmethod
     def validate_fields(obj):
@@ -75,33 +138,13 @@ class GameSessionConsumer(JsonWebsocketConsumer):
                     return False
         return True
 
-    def add(self, event):
-        game_session = self.get_game_session()
-        object_id = game_session.last_object_id
-        game_session.game_objects[object_id] = {"id": object_id, **event["message"]}
-        game_session.last_object_id += 1
-        game_session.save()
-        self.send_json(content=game_session.game_objects)
+    def send_me(self, event):
+        if self.channel_name == event["sender"]:
+            return self.send_json(content=event["message"])
 
-    def update(self, event):
-        game_session = self.get_game_session()
-        obj = game_session.game_objects.get(str(event["message"]["id"]))
-        if not obj:
-            return self.close(code=4404)
+    def send_all(self, event):
+        self.send_json(content=event["message"])
 
-        changes = _.pick(event["message"], *self.UPDATE_FIELDS)
-        if not self.validate_fields(changes):
-            self.close(code=4404)
-        obj.update(changes)
-        game_session.save()
-        self.send_json(content=game_session.game_objects)
-
-    def delete(self, event):
-        object_id = str(event["message"]["id"])
-        game_session = self.get_game_session()
-        if object_id not in game_session.game_objects:
-            return self.close(code=4404)
-
-        del game_session.game_objects[object_id]
-        game_session.save()
-        self.send_json(content=game_session.game_objects)
+    def send_all_but_me(self, event):
+        if self.channel_name != event["sender"]:
+            self.send_json(content=event["message"])
