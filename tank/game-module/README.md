@@ -2,7 +2,8 @@
 
 Based on Pixi.JS
 
-### Объект GameBoard:
+### Класс GameBoard:
+Игровое поле.
 *  Конструктор:
    * @param {object} [options] - The optional gameboard parameters.
    * @param {number} [options.width=800] - Width of PIXI application.
@@ -17,17 +18,38 @@ Based on Pixi.JS
 * Ключевые методы:
     * preload(callback) - Предзагрузка игровго поля
     * setMap(path, callback) - Установка мапы
+    * addObject(meta, callback) - Добавление объекта на поле. Callback опционально
+    * updateObjectPosition(meta, callback) - Изменение координат объекта. Callback опционально
     * switchGrid() - Включение/выключение сетки (потом сделаю удобнее)
-    
+
+### Класс GameObject:
+Игровой объект.
+* Конструктор:
+   * @param {object} [options] - The optional game object parameters.
+   * @param {string} [src] - Object image source.
+   * @param {number} [width] - Object width.
+   * @param {number} [height] - Object height.
+   * @param {number[]} [xy] - Object init coordinates: [x, y].
+   * @returns {GameObject}
+
+### Класс EventManager:
+Объект, отвечающий за оповещение при изменениях на игровом поле.
+* Конструктор:
+    * @returns {EventManager}
+
+* Mетоды:
+    * subscribe(eventType, listener) - Подписаться на события определенного типа
+    * unsubscribe(eventType, listener) - Отписаться от события
+    * notify(eventType, data) - Триггер на событие
 
 ### Пример использования на Реакт-компоненте:
 ```
-import Gameboard from './gameboard/Board';
+import Gameboard from './gameboard/Gameboard';
 
 function App() {
 
-  const divRef = React.useRef();    // Ссылка на родителя холста
-  const boardRef = React.useRef();  // Ссылка на игровое поле
+  const divRef = React.useRef()    // Ссылка на родителя холста
+  const boardRef = React.useRef()  // Ссылка на игровое поле
   
   React.useEffect(() => {
     
@@ -42,6 +64,10 @@ function App() {
 
     })
 
+    gameboard.eventManager.subscribe('map', (e) => console.log('Map has been changed!\n', e))
+    gameboard.eventManager.subscribe('add', (e) => console.log('New object!\n', e))
+    gameboard.eventManager.subscribe('update', (e) => console.log('Update!\n', e))
+
     // Картинки беру у клиента из точки входа
     var assets = [{ name: 'grid', path: './locations/{grid.png}' }]
 
@@ -51,8 +77,12 @@ function App() {
         gameboard.setMap('./locations/{map.png}', () => {
             // Сохраняем ссылку
             boardRef.current = gameboard
+
+            gameboard.addObject({ sprite: './boy-smart.png', xy: [0, 0] }, () => {
+                gameboard.updateObjectPosition({ id: 0, xy: [439, 256] })
+            })
         })
-      })
+    })
 
   }, [])
 
