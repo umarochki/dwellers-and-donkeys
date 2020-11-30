@@ -4,11 +4,22 @@ export default class GameObject extends Sprite {
 
   /**
    * @constructor
-   * @param {string} name 
+   *
+   * @param {object} [options] - The optional game object parameters.
+   * @param {string} [sprite] - Object image source.
+   * @param {number} [width] - Object width.
+   * @param {number} [height] - Object height.
+   * @param {number[]} [xy] - Object init coordinates: [x, y].
+   * @returns {GameObject}
    */
-  constructor(img) {
+  constructor(options) {
     
-    super(img);
+    super(options.texture);
+
+    this.position.set(options.xy[0], options.xy[1]);
+
+    this.id = options.id;
+    this.eventManager = options.eventManager;
 
     // Center the sprite's anchor point
     this.anchor.set(0.5);
@@ -35,6 +46,11 @@ export default class GameObject extends Sprite {
       .on('mousemove', onDragMove)
       .on('touchmove', onDragMove);
 
+    this.eventManager.notify('add', {
+      id: options.id,
+      sprite: options.src,
+      xy: options.xy
+    })
     
     function onDragStart(event) {
 
@@ -70,8 +86,20 @@ export default class GameObject extends Sprite {
         this.x += (newPoint.x - this.last.x) / this.parent.scale.x;
         this.y += (newPoint.y - this.last.y) / this.parent.scale.y;
 
-        this.last = newPoint
+        this.last = newPoint;
+
+        this.eventManager.notify('update', {
+          id: this.id,
+          xy: [this.x, this.y]
+        })
+
       }
     }
   }
+
+  updatePosition(x, y) {
+      this.x += x;
+      this.y += y;
+    }
+
 }
