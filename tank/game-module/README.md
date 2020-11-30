@@ -2,7 +2,8 @@
 
 Based on Pixi.JS
 
-### Объект GameBoard:
+### Класс GameBoard:
+Игровое поле.
 *  Конструктор:
    * @param {object} [options] - The optional gameboard parameters.
    * @param {number} [options.width=800] - Width of PIXI application.
@@ -18,7 +19,26 @@ Based on Pixi.JS
     * preload(callback) - Предзагрузка игровго поля
     * setMap(path, callback) - Установка мапы
     * switchGrid() - Включение/выключение сетки (потом сделаю удобнее)
-    
+
+### Класс GameObject:
+Игровой объект.
+* Конструктор:
+   * @param {object} [options] - The optional game object parameters.
+   * @param {string} [src] - Object image source.
+   * @param {number} [width] - Object width.
+   * @param {number} [height] - Object height.
+   * @param {number[]} [xy] - Object init coordinates: [x, y].
+   * @returns {GameObject}
+
+### Класс EventManager:
+Объект, отвечающий за оповещение при изменениях на игровом поле.
+* Конструктор:
+    * @returns {EventManager}
+
+* Mетоды:
+    * subscribe(eventType, listener) - Подписаться на события определенного типа
+    * unsubscribe(eventType, listener) - Отписаться от события
+    * notify(eventType, data) - Триггер на событие
 
 ### Пример использования на Реакт-компоненте:
 ```
@@ -41,6 +61,10 @@ function App() {
       // TODO: isGameMaster: {boolean} 
 
     })
+
+    gameboard.eventManager.subscribe('map', (e) => console.log('Map has been changed!\n', e));
+    gameboard.eventManager.subscribe('add', (e) => console.log('New object!\n', e));
+    gameboard.eventManager.subscribe('update', (e) => console.log('Update!\n', e));
 
     // Картинки беру у клиента из точки входа
     var assets = [{ name: 'grid', path: './locations/{grid.png}' }]

@@ -5,7 +5,7 @@ import { Viewport } from 'pixi-viewport'
 
 import MapContainer from './Container';
 import GameObject from './GameObject';
-
+import EventManager from './EventManager';
 
 // PIXI.settings.FAIL_IF_MAJOR_PERFORMANCE_CAVEAT = false;
 
@@ -33,8 +33,8 @@ export default class Gameboard {
         forceCanvas: false,
     }, options);
 
-    // Init gameboard data
-    this.data = { map: '', objects: [], grid: false };
+    
+    this.eventManager = new EventManager();
 
     // A DOM-element that is currently dragged.
     // Can become a drawn object if dropped on the game map.
@@ -157,28 +157,47 @@ export default class Gameboard {
 
     // Check for dropping correct object
     if (!this.draggedDOM) return;
-    this._safeLoad(this.draggedDOM.src, () => this.addObject(e))
+
+    this.addObject({
+      src: this.draggedDOM.src,
+      width: this.draggedDOM.clientWidth,
+      height: this.draggedDOM.clientHeight,
+      xy: [(e.layerX - this.viewport.x) / this.viewport.scale.x, 
+           (e.layerY - this.viewport.y) / this.viewport.scale.y],
+    })
+    
   }
 
-  // Add object to the viewpoint
-  addObject(e) {
-    const obj = new GameObject(this.app.loader.resources[this.draggedDOM.src].texture);
+  /* Add object to the viewpoint
+   *
+   * [src] - Object image source
+   * [width] - Object width
+   * [height] - Object height
+   * [xy] - Object init coordinates
+   */
+  addObject(options) {
 
-    // Get DOM-element web size
-    var w = this.draggedDOM.clientWidth;
-    var h = this.draggedDOM.clientHeight;
+    this._safeLoad(options.src, () => {
 
-    // Move the sprite to the center of the screen
-    obj.x = (e.layerX - this.viewport.x) / this.viewport.scale.x;
-    obj.y = (e.layerY - this.viewport.y) / this.viewport.scale.y;
+      const obj = new GameObject({
+        id: this.viewport.children.length - 1,
+        eventManager: this.eventManager, 
+        texture: this.app.loader.resources[options.src].texture,
+        src: options.src,
+        width: options.width,
+        height: options.height,
+        xy: options.xy
+      });
 
-    this.viewport.addChild(obj);
-    this.draggedDOM = undefined;
+      this.viewport.addChild(obj);
+      this.draggedDOM = undefined;
+
+    });
+
   }
 
   setMap(path, callback) {
     this._safeLoad(path, () => {
-
       // Draw map image as a background
       const image = PIXI.Sprite.from(this.app.loader.resources[path].texture);
 
@@ -190,12 +209,15 @@ export default class Gameboard {
       
       this.viewport.addChild(this.mapContainer);
 
+      this.eventManager.notify('map', { sprite: path });
       callback();
     });
   }
 
   switchGrid() {
     this.mapContainer.switchGrid();
+
+    this.eventManager.notify('grid', { enabled: true });
   }
 
   _safeLoad(res, callback) {
