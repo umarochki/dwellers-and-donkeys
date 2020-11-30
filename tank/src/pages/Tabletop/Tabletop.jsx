@@ -101,7 +101,7 @@ const Tabletop = () => {
     const game = useSelector(selectCurrentGame)
     const currentGameData = useSelector(selectCurrentGameData)
 
-    const [gameBoard, setGameBoard] = useState(null)
+    const [myGameBoard, setMyGameBoard] = useState(null)
 
     if (!game) {
         dispatch(push('/'))
@@ -136,7 +136,7 @@ const Tabletop = () => {
                 })
             })
 
-            setGameBoard(gameBoard)
+            setMyGameBoard(gameBoard)
         }
     }, [game, divRef, ws])
 
@@ -145,20 +145,20 @@ const Tabletop = () => {
 
         switch (currentGameData.type) {
             case 'update':
-                gameBoard.updateObjectPosition(currentGameData.meta)
+                myGameBoard.updateObjectPosition(currentGameData.meta)
                 break
             case 'add':
-                gameBoard.addObject(currentGameData.meta)
+                myGameBoard.addObject(currentGameData.meta)
                 break
             case 'delete':
-                gameBoard.deleteObject(currentGameData.meta)
+                myGameBoard.deleteObject(currentGameData.meta)
                 break
             case 'refresh':
             case 'clear':
             default:
                 break
         }
-    }, [gameBoard, currentGameData])
+    }, [myGameBoard, currentGameData])
 
     return (
         <div className={classes.root}>
