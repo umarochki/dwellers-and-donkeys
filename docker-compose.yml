@@ -19,6 +19,7 @@ services:
     container_name: umr_tank
     volumes:
       - ./tank/src:/build/src
+      - ./tank/game-module/src:/build/node_modules/game-module/src
     networks:
       - inner
 
