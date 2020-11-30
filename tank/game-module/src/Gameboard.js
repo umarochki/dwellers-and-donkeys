@@ -166,42 +166,6 @@ export default class Gameboard {
            (e.layerY - this.viewport.y) / this.viewport.scale.y],
     })
     
-<<<<<<< Updated upstream
-  }
-
-  /* Add object to the viewpoint
-   *
-   * @param {string} [sprite] - Object image source
-   * @param {number} [width] - Object width
-   * @param {number} [height] - Object height
-   * @param {number[]} [xy] - Object init coordinates
-   * @param {function} [callback] - Callback function.
-   */
-  addObject(options, callback) {
-
-    this._safeLoad(options.sprite, () => {
-
-      const obj = new GameObject({
-        id: this.viewport.children.length - 1,
-        eventManager: this.eventManager, 
-        texture: this.app.loader.resources[options.sprite].texture,
-        src: options.sprite,
-        width: options.width,
-        height: options.height,
-        xy: options.xy
-      });
-
-      this.viewport.addChild(obj);
-      this.draggedDOM = undefined;
-
-      typeof callback == "function" && callback();
-    });
-  }
-
-  updateObjectPosition(data, callback) {
-    this.viewport.children[data.id + 1].updatePosition(data.xy[0], data.xy[1]);
-    typeof callback == "function" && callback();
-=======
   }
 
   /* Add object to the viewpoint
@@ -252,7 +216,6 @@ export default class Gameboard {
     };
 
     typeof callback == "function" && callback(); 
->>>>>>> Stashed changes
   }
 
   setMap(options, callback) {
