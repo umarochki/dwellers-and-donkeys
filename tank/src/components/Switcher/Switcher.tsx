@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react'
-import { makeStyles, withStyles } from '@material-ui/core/styles'
-import { ListItem, Tooltip } from '@material-ui/core'
+import { makeStyles } from '@material-ui/core/styles'
+import { ListItem } from '@material-ui/core'
 import ListItemIcon from '@material-ui/core/ListItemIcon/ListItemIcon'
 import HomeIcon from '@material-ui/icons/Home'
 import LayersIcon from '@material-ui/icons/Layers'
@@ -41,12 +41,6 @@ const useStyles = makeStyles(() => ({
     }
 }))
 
-const CustomTooltip = withStyles(() => ({
-    tooltip: {
-        zIndex: 4000
-    },
-}))(Tooltip)
-
 export enum MenuType {
     heroes = 'heroes',
     locations = 'locations',
@@ -67,6 +61,7 @@ const mapTypeToIcon = (type: MenuType) => {
     }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const mapTypeToTooltip = (type: MenuType): string => {
     switch (type) {
         case MenuType.heroes:
@@ -86,7 +81,7 @@ interface Props {
 }
 
 const Switcher: React.FC<Props> = props => {
-    const { onClick, onSelect } = props
+    const { onSelect } = props
     const classes = useStyles()
     const history = useHistory()
 

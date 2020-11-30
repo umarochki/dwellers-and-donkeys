@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import LeftDrawer from '../../components/Switcher/LeftDrawer'
 import { Grid } from '@material-ui/core'
@@ -10,7 +10,6 @@ import { WebSocketContext } from '../../components/Contexts/WebSocketContext'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectCurrentGame, selectCurrentGameData } from '../../store/game/selectors'
 import { push } from 'connected-react-router'
-import { AuthRoutes } from '../../routes'
 
 const drawerWidth = 240
 // https://codesandbox.io/s/ykk2x8k7xj?file=/src/App/index.js
@@ -99,14 +98,16 @@ const Tabletop = () => {
     const boardRef = React.useRef()  // Ссылка на игровое поле
 
     const ws = useContext(WebSocketContext)
-    const gameData = useSelector(selectCurrentGameData)
     const game = useSelector(selectCurrentGame)
+    const currentGameData = useSelector(selectCurrentGameData)
+
+    const [gameBoard, setGameBoard] = useState(null)
 
     if (!game) {
         dispatch(push('/'))
     }
 
-    React.useEffect(() => {
+    useEffect(() => {
         const gameBoard = new Gameboard({
             parent: divRef.current,
             // Нужно указать ширину/длину, иначе отчего-то хендлеры не робят
@@ -115,9 +116,12 @@ const Tabletop = () => {
             transparent: true,
             //backgroundColor: 0xfff000
             // TODO: isGameMaster: {boolean}
-            data: gameData,
-            sendMessage: ws.sendMessage
         })
+
+        gameBoard.eventManager.subscribe('map', (e: any) => ws.sendMessage('map', e))
+        gameBoard.eventManager.subscribe('add', (e: any) => ws.sendMessage('add', e))
+        gameBoard.eventManager.subscribe('update', (e: any) => ws.sendMessage('update', e))
+        gameBoard.eventManager.subscribe('delete', (e: any) => ws.sendMessage('delete', e))
 
         // Картинки беру у клиента из точки входа
         const assets = [{ name: 'grid', path: 'locations/Bayport.png' }]
@@ -131,7 +135,26 @@ const Tabletop = () => {
             })
         })
 
-    }, [divRef])
+        setGameBoard(gameBoard)
+    }, [divRef, ws])
+
+    useEffect(() => {
+        switch (currentGameData.type) {
+            case 'update':
+                gameBoard.updateObjectPosition(currentGameData.meta)
+                break
+            case 'add':
+                gameBoard.addObject(currentGameData.meta)
+                break
+            case 'delete':
+                gameBoard.deleteObject(currentGameData.meta)
+                break
+            case 'refresh':
+            case 'clear':
+            default:
+                break
+        }
+    }, [gameBoard, currentGameData])
 
     return (
         <div className={classes.root}>

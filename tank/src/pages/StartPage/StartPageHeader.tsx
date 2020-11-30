@@ -4,7 +4,6 @@ import Typography from '@material-ui/core/Typography'
 import Grid from '@material-ui/core/Grid'
 import Button from '@material-ui/core/Button'
 import InvitationCodeDialog from './InvitationCodeDialog'
-import { useHistory } from 'react-router-dom'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import CreateWorldDialog from '../../components/Dialogs/CreateWorldDialog'
 

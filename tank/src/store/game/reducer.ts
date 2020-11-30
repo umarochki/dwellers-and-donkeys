@@ -56,7 +56,16 @@ const gameReducer: Reducer<GameState> = (state = INITIAL_STATE, action) => {
                 ...state,
                 currentGame: null,
                 currentGameData: null,
-                connected: false
+                connected: false,
+                connectGameState: AsyncState.unknown
+            }
+        case gameConstants.DISCONNECT_GAME_ERROR:
+            return {
+                ...state,
+                currentGame: null,
+                currentGameData: null,
+                connected: false,
+                connectGameState: AsyncState.error
             }
         default:
             return state

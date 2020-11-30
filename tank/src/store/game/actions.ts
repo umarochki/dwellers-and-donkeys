@@ -45,6 +45,11 @@ export const connectGameSuccess = () => {
     }
 }
 
+export const disconnectGameError = () => {
+    return {
+        type: gameConstants.DISCONNECT_GAME_ERROR
+    }
+}
 export const disconnectGame = () => {
     return {
         type: gameConstants.DISCONNECT_GAME
