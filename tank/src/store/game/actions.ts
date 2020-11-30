@@ -31,3 +31,22 @@ export const updateGameData = (data: object) => {
         payload: data
     }
 }
+
+export const connectGame = (code: string) => {
+    return {
+        type: gameConstants.CONNECT_GAME_STARTED,
+        payload: code
+    }
+}
+
+export const connectGameSuccess = () => {
+    return {
+        type: gameConstants.CONNECT_GAME_FINISHED
+    }
+}
+
+export const disconnectGame = () => {
+    return {
+        type: gameConstants.DISCONNECT_GAME
+    }
+}

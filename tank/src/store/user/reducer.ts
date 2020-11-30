@@ -46,7 +46,11 @@ const authReducer: Reducer<AuthState> = (state = INITIAL_STATE, action) => {
         case userConstants.MYSELF_REQUEST_STARTED:
             return { ...state, user: null }
         case userConstants.MYSELF_REQUEST_FINISHED:
-            return { ...state, user: action.payload }
+            return {
+                ...state,
+                user: action.payload,
+                loginState: AsyncState.success
+            }
         case userConstants.MYSELF_REQUEST_ERROR:
             return { ...state, user: null }
         default:
