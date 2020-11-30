@@ -4,7 +4,13 @@ export default class GameObject extends Sprite {
 
   /**
    * @constructor
-   * @param {string} name 
+   *
+   * @param {object} [options] - The optional game object parameters.
+   * @param {string} [sprite] - Object image source.
+   * @param {number} [width] - Object width.
+   * @param {number} [height] - Object height.
+   * @param {number[]} [xy] - Object init coordinates: [x, y].
+   * @returns {GameObject}
    */
   constructor(options) {
     
@@ -90,4 +96,10 @@ export default class GameObject extends Sprite {
       }
     }
   }
+
+  updatePosition(x, y) {
+      this.x += x;
+      this.y += y;
+    }
+
 }

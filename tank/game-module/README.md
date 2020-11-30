@@ -18,6 +18,8 @@ Based on Pixi.JS
 * Ключевые методы:
     * preload(callback) - Предзагрузка игровго поля
     * setMap(path, callback) - Установка мапы
+    * addObject(meta, callback) - Добавление объекта на поле. Callback опционально
+    * updateObjectPosition(meta, callback) - Изменение координат объекта. Callback опционально
     * switchGrid() - Включение/выключение сетки (потом сделаю удобнее)
 
 ### Класс GameObject:
@@ -42,12 +44,12 @@ Based on Pixi.JS
 
 ### Пример использования на Реакт-компоненте:
 ```
-import Gameboard from './gameboard/Board';
+import Gameboard from './gameboard/Gameboard';
 
 function App() {
 
-  const divRef = React.useRef();    // Ссылка на родителя холста
-  const boardRef = React.useRef();  // Ссылка на игровое поле
+  const divRef = React.useRef()    // Ссылка на родителя холста
+  const boardRef = React.useRef()  // Ссылка на игровое поле
   
   React.useEffect(() => {
     
@@ -62,9 +64,9 @@ function App() {
 
     })
 
-    gameboard.eventManager.subscribe('map', (e) => console.log('Map has been changed!\n', e));
-    gameboard.eventManager.subscribe('add', (e) => console.log('New object!\n', e));
-    gameboard.eventManager.subscribe('update', (e) => console.log('Update!\n', e));
+    gameboard.eventManager.subscribe('map', (e) => console.log('Map has been changed!\n', e))
+    gameboard.eventManager.subscribe('add', (e) => console.log('New object!\n', e))
+    gameboard.eventManager.subscribe('update', (e) => console.log('Update!\n', e))
 
     // Картинки беру у клиента из точки входа
     var assets = [{ name: 'grid', path: './locations/{grid.png}' }]
@@ -75,8 +77,12 @@ function App() {
         gameboard.setMap('./locations/{map.png}', () => {
             // Сохраняем ссылку
             boardRef.current = gameboard
+
+            gameboard.addObject({ sprite: './boy-smart.png', xy: [0, 0] }, () => {
+                gameboard.updateObjectPosition({ id: 0, xy: [439, 256] })
+            })
         })
-      })
+    })
 
   }, [])
 

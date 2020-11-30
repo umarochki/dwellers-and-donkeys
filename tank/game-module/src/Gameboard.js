@@ -94,7 +94,7 @@ export default class Gameboard {
     
     this.app.loader.load(() => { 
       this.onLoad();
-      callback();
+      typeof callback == "function" && callback();
     });
   }
 
@@ -159,7 +159,7 @@ export default class Gameboard {
     if (!this.draggedDOM) return;
 
     this.addObject({
-      src: this.draggedDOM.src,
+      sprite: this.draggedDOM.src,
       width: this.draggedDOM.clientWidth,
       height: this.draggedDOM.clientHeight,
       xy: [(e.layerX - this.viewport.x) / this.viewport.scale.x, 
@@ -170,20 +170,21 @@ export default class Gameboard {
 
   /* Add object to the viewpoint
    *
-   * [src] - Object image source
-   * [width] - Object width
-   * [height] - Object height
-   * [xy] - Object init coordinates
+   * @param {string} [sprite] - Object image source
+   * @param {number} [width] - Object width
+   * @param {number} [height] - Object height
+   * @param {number[]} [xy] - Object init coordinates
+   * @param {function} [callback] - Callback function.
    */
-  addObject(options) {
+  addObject(options, callback) {
 
-    this._safeLoad(options.src, () => {
+    this._safeLoad(options.sprite, () => {
 
       const obj = new GameObject({
         id: this.viewport.children.length - 1,
         eventManager: this.eventManager, 
-        texture: this.app.loader.resources[options.src].texture,
-        src: options.src,
+        texture: this.app.loader.resources[options.sprite].texture,
+        src: options.sprite,
         width: options.width,
         height: options.height,
         xy: options.xy
@@ -192,14 +193,19 @@ export default class Gameboard {
       this.viewport.addChild(obj);
       this.draggedDOM = undefined;
 
+      typeof callback == "function" && callback();
     });
-
   }
 
-  setMap(path, callback) {
-    this._safeLoad(path, () => {
+  updateObjectPosition(data, callback) {
+    this.viewport.children[data.id + 1].updatePosition(data.xy[0], data.xy[1]);
+    typeof callback == "function" && callback();
+  }
+
+  setMap(options, callback) {
+    this._safeLoad(options.sprite, () => {
       // Draw map image as a background
-      const image = PIXI.Sprite.from(this.app.loader.resources[path].texture);
+      const image = PIXI.Sprite.from(this.app.loader.resources[options.sprite].texture);
 
       this.mapContainer = new MapContainer(
         this.app.loader.resources.grid.texture, 
@@ -209,8 +215,9 @@ export default class Gameboard {
       
       this.viewport.addChild(this.mapContainer);
 
-      this.eventManager.notify('map', { sprite: path });
-      callback();
+      this.eventManager.notify('map', { sprite: options.sprite });
+
+      typeof callback == "function" && callback();
     });
   }
 
@@ -229,22 +236,4 @@ export default class Gameboard {
       this.app.loader.add(res).load(callback.bind(this));
     }
   }
-
-  /*
-  // Set callback function for getting gameboard info updates.
-  subscribe(callback) {
-    this.callback = callback;
-  }
-
-  set data(upd) {
-    this._data = upd; 
-
-    if (this.callback) 
-      this.callback(this._data);
-  }
-
-  get data() {
-    return this._json;
-  };
-  */
 }
