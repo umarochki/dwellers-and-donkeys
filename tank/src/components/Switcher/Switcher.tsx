@@ -1,11 +1,12 @@
 import React, { useCallback } from 'react'
-import { makeStyles } from '@material-ui/core/styles'
-import { ListItem } from '@material-ui/core'
+import { makeStyles, withStyles } from '@material-ui/core/styles'
+import { ListItem, Tooltip } from '@material-ui/core'
 import ListItemIcon from '@material-ui/core/ListItemIcon/ListItemIcon'
 import HomeIcon from '@material-ui/icons/Home'
 import LayersIcon from '@material-ui/icons/Layers'
+import FaceIcon from '@material-ui/icons/Face'
 import List from '@material-ui/core/List'
-import BusinessCenterIcon from '@material-ui/icons/BusinessCenter'
+import FlagIcon from '@material-ui/icons/Flag'
 import { useHistory } from 'react-router-dom'
 
 const switcherWidth = 60
@@ -40,28 +41,71 @@ const useStyles = makeStyles(() => ({
     }
 }))
 
+const CustomTooltip = withStyles(() => ({
+    tooltip: {
+        zIndex: 4000
+    },
+}))(Tooltip)
+
+export enum MenuType {
+    heroes = 'heroes',
+    locations = 'locations',
+    markers = 'markers',
+    unselect = 'unselect'
+}
+
+const mapTypeToIcon = (type: MenuType) => {
+    switch (type) {
+        case MenuType.heroes:
+            return <FaceIcon fontSize="large"/>
+        case MenuType.locations:
+            return <LayersIcon fontSize="large"/>
+        case MenuType.markers:
+            return <FlagIcon fontSize="large"/>
+        case MenuType.unselect:
+            return null
+    }
+}
+
+const mapTypeToTooltip = (type: MenuType): string => {
+    switch (type) {
+        case MenuType.heroes:
+            return 'Персонажи'
+        case MenuType.locations:
+            return 'Карты'
+        case MenuType.markers:
+            return 'Маркеры'
+        case MenuType.unselect:
+            return 'unknown'
+    }
+}
+
 interface Props {
     onClick: (event: React.KeyboardEvent | React.MouseEvent) => void
+    onSelect: (type: MenuType) => void
 }
 
 const Switcher: React.FC<Props> = props => {
-    const { onClick } = props
+    const { onClick, onSelect } = props
     const classes = useStyles()
     const history = useHistory()
 
     const goHome = useCallback(() => history.push(''), [history])
 
     return (
-        <List onClick={onClick} className={classes.switcher}>
+        <List className={classes.switcher}>
             <ListItem button className={classes.group} onClick={goHome}>
                 <ListItemIcon className={classes.icon}><HomeIcon fontSize="large"/></ListItemIcon>
             </ListItem>
-            <ListItem button className={classes.group}>
-                <ListItemIcon className={classes.icon_inactive}><LayersIcon fontSize="large"/></ListItemIcon>
-            </ListItem>
-            <ListItem button className={classes.group}>
-                <ListItemIcon className={classes.icon_inactive}><BusinessCenterIcon fontSize="large"/></ListItemIcon>
-            </ListItem>
+            {
+                [MenuType.locations, MenuType.heroes, MenuType.markers].map(type => (
+                    // <CustomTooltip title={mapTypeToTooltip(type)}>
+                    <ListItem button className={classes.group} onClick={() => onSelect(type)}>
+                        <ListItemIcon className={classes.icon_inactive}>{mapTypeToIcon(type)}</ListItemIcon>
+                    </ListItem>
+                    // </CustomTooltip>
+                ))
+            }
         </List>
     )
 }

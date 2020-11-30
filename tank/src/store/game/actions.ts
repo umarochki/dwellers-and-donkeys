@@ -4,14 +4,15 @@ import { Dispatch } from '..'
 import gameService from '../../services/game'
 import { push } from 'connected-react-router'
 import { AuthRoutes } from '../../routes'
+import { Game } from '../../models/game'
 
 export const createGame = (name: string, description: string) => {
     return (dispatch: Dispatch) => {
         dispatch(request())
 
         gameService.create({ name, description })
-            .then(() => {
-                dispatch(success())
+            .then((game: Game) => {
+                dispatch(success(game))
                 dispatch(push(AuthRoutes.tabletop))
             }, error => {
                 dispatch(failure(error))
@@ -20,6 +21,13 @@ export const createGame = (name: string, description: string) => {
     }
 
     function request() { return { type: gameConstants.CREATE_GAME_REQUEST_STARTED } }
-    function success() { return { type: gameConstants.CREATE_GAME_REQUEST_FINISHED } }
+    function success(game: Game) { return { type: gameConstants.CREATE_GAME_REQUEST_FINISHED, payload: game } }
     function failure(error: Error) { return { type: gameConstants.CREATE_GAME_REQUEST_ERROR, error } }
+}
+
+export const updateGameData = (data: object) => {
+    return {
+        type: gameConstants.UPDATE_GAME_DATA,
+        payload: data
+    }
 }

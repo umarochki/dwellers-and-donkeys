@@ -63,7 +63,7 @@ const StartPage = () => {
         dispatch(logout())
     }, [handleClose, dispatch])
 
-    if (user) {
+    if (!user) {
         return (
             <Grid
                 container

@@ -1,47 +1,60 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
-import io from 'socket.io-client'
-// import { WS_BASE } from './config'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectCurrentGame } from '../../store/game/selectors'
-import { getUrl } from '../../helpers/authHeader'
-// import { updateChatLog } from './actions'
+import { getUrlWithoutProtocol } from '../../helpers/authHeader'
+import { updateGameData } from '../../store/game/actions'
 
 const WebSocketContext = createContext({})
-
 export { WebSocketContext }
 
 const WebSocketProvider: React.FC = ({ children }) => {
     const dispatch = useDispatch()
     const game = useSelector(selectCurrentGame)
     
-    const [socket, setSocket] = useState<any>(null)
+    const [socket, setSocket] = useState<WebSocket | null>(null)
 
-    const sendMessage = useCallback((roomId: string, message: any) => {
+    const sendMessage = useCallback((type: string, meta: any) => {
         if (socket) {
-            const payload = {
-                roomId: roomId,
-                data: message
-            }
-            socket.send('{"type": "delete", "meta": null}')
-            // dispatch(updateChatLog(payload))
+            socket.send(JSON.stringify({ type, meta }))
+        }
+    }, [socket])
+
+    const closeSocket = useCallback(() => {
+        if (socket) {
+            socket.close(1000)
         }
     }, [socket])
 
     useEffect(() => {
-        if (!game) {
-            if (socket) {
-                socket.disconnect()
+        if (game) {
+            const newSocket = new WebSocket(`ws://${getUrlWithoutProtocol()}/ws/games/${game.invitation_code}`)
+
+            newSocket.onopen = () => {
+                console.info('[socket-open]: ')
             }
 
-            const newSocket = new WebSocket(`ws://localhost/ws/games/D14532A23785`) // ${game.invitation_code}`
+            newSocket.onmessage = (event: MessageEvent) => {
+                console.info(`[socket] Message: ${event.data}`)
+                dispatch(updateGameData(event.data))
+            }
 
-            newSocket.onmessage = function(event) {
-                alert(`[message] Data received from server: ${event.data}`)
+            newSocket.onclose = (event: CloseEvent) => {
+                if (event.wasClean) {
+                    console.info(`[socket] Соединение закрыто, код: ${event.code}, причина: ${event.reason}`)
+                } else {
+                    console.error('[socket] Соединение прервано')
+                }
+            }
+
+            newSocket.onerror = (error: Event) => {
+                console.error(`[socket-error] ${error}`)
             }
 
             setSocket(newSocket)
+        } else {
+            closeSocket()
         }
-    }, [game])
+    }, [game, closeSocket, dispatch])
 
     const ws = useMemo(() => ({
         init: !!socket,

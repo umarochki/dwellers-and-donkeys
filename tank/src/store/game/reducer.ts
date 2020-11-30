@@ -9,6 +9,7 @@ export interface GameState {
     error: Error | null
     currentGame: Game | null
     games: Game[]
+    currentGameData: object
 }
 
 const INITIAL_STATE: GameState = {
@@ -16,7 +17,8 @@ const INITIAL_STATE: GameState = {
     getGamesState: AsyncState.unknown,
     error: null,
     currentGame: null,
-    games: []
+    games: [],
+    currentGameData: {}
 }
 
 const gameReducer: Reducer<GameState> = (state = INITIAL_STATE, action) => {
@@ -41,6 +43,8 @@ const gameReducer: Reducer<GameState> = (state = INITIAL_STATE, action) => {
             }
         case gameConstants.GET_GAMES_REQUEST_ERROR:
             return { ...state, getGamesState: AsyncState.error }
+        case gameConstants.UPDATE_GAME_DATA:
+            return { ...state, currentGameData: action.payload }
         default:
             return state
     }

@@ -1,9 +1,10 @@
-import React from 'react'
+import React, { useCallback, useState } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import Drawer from '@material-ui/core/Drawer'
-import { Theme, GridList, GridListTile } from '@material-ui/core'
+import { GridList, GridListTile, Theme, Tooltip } from '@material-ui/core'
 import clsx from 'clsx'
-import Switcher from './Switcher'
+import Switcher, { MenuType } from './Switcher'
+
 const drawerWidth = 300
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -88,13 +89,25 @@ const mapsList = [
     'Witchwyn',
 ]
 
+const heroes = [
+    'Ant',
+    'Cat Smart',
+    'Girl Strong',
+    'Plant',
+    'Snake03',
+    'Troll',
+    'Boy Cunning', 'Cat Strong', 'Goblin', 'Plant02', 'Snake04', 'Troll02',
+    'Boy Smart',  'Dragon', 'Knight', 'Skeleton', 'Snake05', 'Wizard',
+    'Boy Strong.png', 'Girl Cunning.png', 'Mummy', 'Snake', 'Spider', 'Wolf',
+    'Cat Cunning.png', 'Girl Smart', 'Musician', 'Snake02', 'Thief'
+]
+
 const LeftDrawer: React.FC = () => {
     const classes = useStyles()
     const [open, setOpen] = React.useState(false)
+    const [type, setType] = useState<MenuType>(MenuType.unselect)
 
-    const toggleDrawer = (open: boolean) => (
-        event: React.KeyboardEvent | React.MouseEvent,
-    ) => {
+    const toggleDrawer = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent,) => {
         if (
             event.type === 'keydown' &&
             ((event as React.KeyboardEvent).key === 'Tab' ||
@@ -102,20 +115,69 @@ const LeftDrawer: React.FC = () => {
         ) {
             return
         }
-        setOpen(open)
+        setOpen(false)
     }
+
+    const handleSelect = useCallback((selectedType: MenuType) => {
+        if (type === selectedType) {
+            setType(type)
+            setOpen(true)
+        } else {
+            setType(MenuType.unselect)
+            setOpen(false)
+        }
+    }, [])
+
+    const renderSidebar = useCallback((type: string) => {
+        switch (type) {
+            case MenuType.markers:
+                return (
+                    <GridList cellHeight={70} cols={3}>
+                        {markersList.map((marker: string) => (
+                            <Tooltip title={marker}>
+                                <GridListTile key={marker} cols={1} className={classes.tile}>
+                                    <img src={marker} alt={marker} draggable className="draggable" />
+                                </GridListTile>
+                            </Tooltip>
+                        ))}
+                    </GridList>
+                )
+            case MenuType.heroes:
+                return (
+                    <GridList cellHeight={70} cols={3}>
+                        {heroes.map((hero: string) => (
+                            <Tooltip title={hero}>
+                                <GridListTile key={hero} cols={1} className={classes.tile}>
+                                    <img src={`heroes/${hero}.png`} alt={hero} draggable className="draggable" />
+                                </GridListTile>
+                            </Tooltip>
+                        ))}
+                    </GridList>
+                )
+            case MenuType.locations:
+                return (
+                    <GridList cellHeight={100} cols={1}>
+                        {mapsList.map((map: string) => (
+                            <Tooltip title={map}>
+                                <GridListTile key={map} cols={1} className={classes.tile}>
+                                    <img src={`locations/${map}.png`} alt={map} draggable className="draggable" />
+                                </GridListTile>
+                            </Tooltip>
+                        ))}
+                    </GridList>
+                )
+        }
+    }, [])
 
     return (
         <>
-            <Switcher onClick={toggleDrawer(true)}/>
+            <Switcher onClick={toggleDrawer(true)} onSelect={handleSelect}/>
             <Drawer
                 onEscapeKeyDown={() => setOpen(false)}
                 onBackdropClick={() => setOpen(false)}
                 anchor="left"
                 variant="permanent"
                 className={classes.drawer}
-                // modal={true}
-                // BackdropProps={{ invisible: true }}
                 classes={{
                     paper: clsx(
                         classes.drawerPaper,
@@ -125,21 +187,8 @@ const LeftDrawer: React.FC = () => {
                 open={open}
                 onClose={toggleDrawer(false)}
             >
-                <div className={classes.drawerInner} onClick={toggleDrawer(false)}>
-                    {/*<GridList cellHeight={70} cols={3}>*/}
-                    {/*    {markersList.map((marker: string) => (*/}
-                    {/*        <GridListTile key={marker} cols={1} className={classes.tile}>*/}
-                    {/*            <img src={marker} alt={marker} />*/}
-                    {/*        </GridListTile>*/}
-                    {/*    ))}*/}
-                    {/*</GridList>*/}
-                    <GridList cellHeight={100} cols={1}>
-                        {mapsList.map((map: string) => (
-                            <GridListTile key={map} cols={1} className={classes.tile}>
-                                <img src={`locations/${map}.png`} alt={map} />
-                            </GridListTile>
-                        ))}
-                    </GridList>
+                <div className={classes.drawerInner}>
+                    {renderSidebar(type)}
                 </div>
             </Drawer>
         </>

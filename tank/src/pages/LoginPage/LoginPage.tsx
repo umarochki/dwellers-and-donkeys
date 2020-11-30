@@ -124,7 +124,7 @@ const LoginPage = () => {
                                 value={loginValue}
                                 onChange={e => setLoginValue(e.target.value)}
                                 margin="normal"
-                                label="Имя"
+                                label="Логин"
                                 type="text"
                                 fullWidth
                             />

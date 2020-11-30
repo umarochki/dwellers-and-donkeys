@@ -7,6 +7,10 @@ import PersonCard from '../../components/Controls/PersonCard'
 import ChatPanel from '../../components/Controls/ChatPanel'
 import Gameboard from 'game-module/src/Gameboard'
 import { WebSocketContext } from '../../components/Contexts/WebSocketContext'
+import { useDispatch, useSelector } from 'react-redux'
+import { selectCurrentGame, selectCurrentGameData } from '../../store/game/selectors'
+import { push } from 'connected-react-router'
+import { AuthRoutes } from '../../routes'
 
 const drawerWidth = 240
 // https://codesandbox.io/s/ykk2x8k7xj?file=/src/App/index.js
@@ -90,42 +94,44 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const Tabletop = () => {
     const classes = useStyles()
-    const divRef = React.useRef()    // Ссылка на родителя холста
+    const dispatch = useDispatch()
+    const divRef = React.useRef()
     const boardRef = React.useRef()  // Ссылка на игровое поле
-    const ws = useContext(WebSocketContext)
 
-    const sendMessage = () => {
-        ws.sendMessage('id', {
-            message: 'msgInput'
-        })
+    const ws = useContext(WebSocketContext)
+    const gameData = useSelector(selectCurrentGameData)
+    const game = useSelector(selectCurrentGame)
+
+    if (!game) {
+        dispatch(push('/'))
     }
 
     React.useEffect(() => {
-
-        const gameboard = new Gameboard({
+        const gameBoard = new Gameboard({
             parent: divRef.current,
             // Нужно указать ширину/длину, иначе отчего-то хендлеры не робят
             width: divRef.current.clientWidth,
             height: divRef.current.clientHeight,
-            transparent: true
+            transparent: true,
             //backgroundColor: 0xfff000
             // TODO: isGameMaster: {boolean}
-
+            data: gameData,
+            sendMessage: ws.sendMessage
         })
 
         // Картинки беру у клиента из точки входа
-        var assets = [{ name: 'grid', path: 'locations/Bayport.png' }]
+        const assets = [{ name: 'grid', path: 'locations/Bayport.png' }]
 
         // Грузим холст и статики (пока так)
-        gameboard.preload(assets, () => {
+        gameBoard.preload(assets, () => {
             // Устанавливаем мапу
-            gameboard.setMap('locations/Bayport.png', () => {
+            gameBoard.setMap('locations/Bayport.png', () => {
                 // Сохраняем ссылку
-                boardRef.current = gameboard
+                boardRef.current = gameBoard
             })
         })
 
-    }, [])
+    }, [divRef])
 
     return (
         <div className={classes.root}>
@@ -137,7 +143,7 @@ const Tabletop = () => {
                         <Grid container spacing={3}>
                             <Grid item xs={5}>
                                 <div className={classes.people}>
-                                    <button onClick={sendMessage}/>
+                                    <PersonCard/>
                                     <PersonCard/>
                                     <PersonCard/>
                                     <PersonCard/>
@@ -149,7 +155,7 @@ const Tabletop = () => {
                                 <UserCard/>
                             </Grid>
                             <Grid item xs>
-                                <ChatPanel />
+                                <ChatPanel/>
                             </Grid>
                         </Grid>
                     </div>

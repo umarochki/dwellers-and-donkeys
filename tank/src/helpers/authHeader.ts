@@ -10,8 +10,12 @@ export function authHeader() {
 }
 
 export const getUrl = () => {
-    // if (window.location.host.includes('localhost')) {
-    //     return process.env.REACT_APP_PUBLIC_URL
-    // }
-    return 'http://localhost'
+    if (window.location.host.includes('localhost')) {
+        return 'http://localhost'
+    }
+    return ''
+}
+
+export const getUrlWithoutProtocol = () => {
+    return getUrl().replace(/(^\w+:|^)\/\//, '')
 }
