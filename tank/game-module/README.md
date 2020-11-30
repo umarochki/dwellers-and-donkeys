@@ -18,8 +18,9 @@ Based on Pixi.JS
 * Ключевые методы:
     * preload(callback) - Предзагрузка игровго поля
     * setMap(path, callback) - Установка мапы
-    * addObject(meta, callback) - Добавление объекта на поле. Callback опционально
-    * updateObjectPosition(meta, callback) - Изменение координат объекта. Callback опционально
+    * addObject(data, callback) - Добавление объекта на поле. Callback опционально
+    * deleteObject(data) - Удаление объектана поле. Callback опционально
+    * updateObjectPosition(data, callback) - Изменение координат объекта. Callback опционально
     * switchGrid() - Включение/выключение сетки (потом сделаю удобнее)
 
 ### Класс GameObject:
@@ -64,9 +65,9 @@ function App() {
 
     })
 
-    gameboard.eventManager.subscribe('map', (e) => console.log('Map has been changed!\n', e))
-    gameboard.eventManager.subscribe('add', (e) => console.log('New object!\n', e))
-    gameboard.eventManager.subscribe('update', (e) => console.log('Update!\n', e))
+    gameboard.eventManager.subscribe('map', (data) => console.log('Map has been changed!\n', data))
+    gameboard.eventManager.subscribe('add', (data) => console.log('New object!\n', data));
+    gameboard.eventManager.subscribe('update', (data) => console.log('Update!\n', data));
 
     // Картинки беру у клиента из точки входа
     var assets = [{ name: 'grid', path: './locations/{grid.png}' }]

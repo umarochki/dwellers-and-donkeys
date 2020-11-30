@@ -197,9 +197,25 @@ export default class Gameboard {
     });
   }
 
-  updateObjectPosition(data, callback) {
-    this.viewport.children[data.id + 1].updatePosition(data.xy[0], data.xy[1]);
+  updateObjectPosition(options, callback) {
+    this.viewport.children[options.id + 1].updatePosition(options.xy[0], options.xy[1]);
     typeof callback == "function" && callback();
+  }
+
+  deleteObject(options, callback) {
+
+    var object = this.viewport.children[options.id + 1];
+    object.parent.removeChild(object);
+
+    typeof callback == "function" && callback(); 
+  }
+
+  clear(options, callback) {
+    for (var i = this.viewport.children.length - 1; i >= 1; i--) {  
+      this.viewport.removeChild(this.viewport.children[i])
+    };
+
+    typeof callback == "function" && callback(); 
   }
 
   setMap(options, callback) {
