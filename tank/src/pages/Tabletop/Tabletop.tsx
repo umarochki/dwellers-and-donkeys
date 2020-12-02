@@ -8,9 +8,8 @@ import ChatPanel from '../../components/Controls/ChatPanel'
 // @ts-ignore
 import Gameboard from 'game-module/src/Gameboard'
 import { WebSocketContext } from '../../components/Contexts/WebSocketContext'
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 import { selectCurrentGame, selectCurrentGameData } from '../../store/game/selectors'
-import { push } from 'connected-react-router'
 
 const drawerWidth = 240
 // https://codesandbox.io/s/ykk2x8k7xj?file=/src/App/index.js
@@ -94,7 +93,6 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const Tabletop = () => {
     const classes = useStyles()
-    const dispatch = useDispatch()
     const divRef = React.useRef()
     const boardRef = React.useRef()  // Ссылка на игровое поле
 
@@ -103,10 +101,6 @@ const Tabletop = () => {
     const currentGameData = useSelector(selectCurrentGameData)
 
     const [myGameBoard, setMyGameBoard] = useState(null)
-
-    if (!game) {
-        dispatch(push('/'))
-    }
 
     useEffect(() => {
         if (game && game.invitation_code && divRef && divRef.current) {
@@ -160,6 +154,10 @@ const Tabletop = () => {
                 break
         }
     }, [myGameBoard, currentGameData])
+
+    if (!game) {
+        return null
+    }
 
     return (
         <div className={classes.root}>

@@ -95,7 +95,7 @@ const Switcher: React.FC<Props> = props => {
             {
                 [MenuType.locations, MenuType.heroes, MenuType.markers].map(type => (
                     // <CustomTooltip title={mapTypeToTooltip(type)}>
-                    <ListItem button className={classes.group} onClick={() => onSelect(type)}>
+                    <ListItem button className={classes.group} onClick={() => onSelect(type)} key={type}>
                         <ListItemIcon className={classes.icon_inactive}>{mapTypeToIcon(type)}</ListItemIcon>
                     </ListItem>
                     // </CustomTooltip>

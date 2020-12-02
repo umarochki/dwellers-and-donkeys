@@ -48,9 +48,9 @@ const gameReducer: Reducer<GameState> = (state = INITIAL_STATE, action) => {
         case gameConstants.UPDATE_GAME_DATA:
             return { ...state, currentGameData: action.payload }
         case gameConstants.CONNECT_GAME_STARTED:
-            return { ...state, currentGame: { invitation_code: action.payload }, connectGameState: AsyncState.inProcess }
+            return { ...state, currentGame: null, connectGameState: AsyncState.inProcess }
         case gameConstants.CONNECT_GAME_FINISHED:
-            return { ...state, currentGame: { connectGameState: AsyncState.success } }
+            return { ...state, currentGame: action.payload, connectGameState: AsyncState.success }
         case gameConstants.DISCONNECT_GAME:
             return {
                 ...state,

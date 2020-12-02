@@ -107,16 +107,16 @@ const LeftDrawer: React.FC = () => {
     const [open, setOpen] = React.useState(false)
     const [type, setType] = useState<MenuType>(MenuType.unselect)
 
-    // const toggleDrawer = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent,) => {
-    //     if (
-    //         event.type === 'keydown' &&
-    //         ((event as React.KeyboardEvent).key === 'Tab' ||
-    //             (event as React.KeyboardEvent).key === 'Shift')
-    //     ) {
-    //         return
-    //     }
-    //     setOpen(false)
-    // }
+    const toggleDrawer = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
+        if (
+            event.type === 'keydown' &&
+            ((event as React.KeyboardEvent).key === 'Tab' ||
+                (event as React.KeyboardEvent).key === 'Shift')
+        ) {
+            return
+        }
+        setOpen(open)
+    }
 
     const handleSelect = useCallback((selectedType: MenuType) => {
         if (type === selectedType) {
@@ -134,8 +134,8 @@ const LeftDrawer: React.FC = () => {
                 return (
                     <GridList cellHeight={70} cols={3}>
                         {markersList.map((marker: string) => (
-                            <Tooltip title={marker}>
-                                <GridListTile key={marker} cols={1} className={classes.tile}>
+                            <Tooltip title={marker} key={marker}>
+                                <GridListTile cols={1} className={classes.tile}>
                                     <img src={marker} alt={marker} draggable className="draggable" />
                                 </GridListTile>
                             </Tooltip>
@@ -146,8 +146,8 @@ const LeftDrawer: React.FC = () => {
                 return (
                     <GridList cellHeight={70} cols={3}>
                         {heroes.map((hero: string) => (
-                            <Tooltip title={hero}>
-                                <GridListTile key={hero} cols={1} className={classes.tile}>
+                            <Tooltip title={hero} key={hero}>
+                                <GridListTile cols={1} className={classes.tile}>
                                     <img src={`heroes/${hero}.png`} alt={hero} draggable className="draggable" />
                                 </GridListTile>
                             </Tooltip>
@@ -158,8 +158,8 @@ const LeftDrawer: React.FC = () => {
                 return (
                     <GridList cellHeight={100} cols={1}>
                         {mapsList.map((map: string) => (
-                            <Tooltip title={map}>
-                                <GridListTile key={map} cols={1} className={classes.tile}>
+                            <Tooltip title={map} key={map}>
+                                <GridListTile cols={1} className={classes.tile}>
                                     <img src={`locations/${map}.png`} alt={map} draggable className="draggable" />
                                 </GridListTile>
                             </Tooltip>
@@ -173,8 +173,8 @@ const LeftDrawer: React.FC = () => {
         <>
             <Switcher onClick={toggleDrawer(true)} onSelect={handleSelect}/>
             <Drawer
-                onEscapeKeyDown={() => setOpen(false)}
-                onBackdropClick={() => setOpen(false)}
+                // onEscapeKeyDown={() => setOpen(false)}
+                // onBackdropClick={() => setOpen(false)}
                 anchor="left"
                 variant="permanent"
                 className={classes.drawer}
