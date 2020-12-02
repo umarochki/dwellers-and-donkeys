@@ -107,16 +107,16 @@ const LeftDrawer: React.FC = () => {
     const [open, setOpen] = React.useState(false)
     const [type, setType] = useState<MenuType>(MenuType.unselect)
 
-    const toggleDrawer = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent,) => {
-        if (
-            event.type === 'keydown' &&
-            ((event as React.KeyboardEvent).key === 'Tab' ||
-                (event as React.KeyboardEvent).key === 'Shift')
-        ) {
-            return
-        }
-        setOpen(false)
-    }
+    // const toggleDrawer = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent,) => {
+    //     if (
+    //         event.type === 'keydown' &&
+    //         ((event as React.KeyboardEvent).key === 'Tab' ||
+    //             (event as React.KeyboardEvent).key === 'Shift')
+    //     ) {
+    //         return
+    //     }
+    //     setOpen(false)
+    // }
 
     const handleSelect = useCallback((selectedType: MenuType) => {
         if (type === selectedType) {
@@ -126,7 +126,7 @@ const LeftDrawer: React.FC = () => {
             setType(MenuType.unselect)
             setOpen(false)
         }
-    }, [])
+    }, [type])
 
     const renderSidebar = useCallback((type: string) => {
         switch (type) {
@@ -167,7 +167,7 @@ const LeftDrawer: React.FC = () => {
                     </GridList>
                 )
         }
-    }, [])
+    }, [classes.tile])
 
     return (
         <>

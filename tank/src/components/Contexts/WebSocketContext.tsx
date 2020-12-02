@@ -19,18 +19,12 @@ const WebSocketProvider: React.FC = ({ children }) => {
         }
     }, [socket])
 
-    const closeSocket = useCallback(() => {
-        if (socket) {
-            socket.close(1000)
-        }
-    }, [socket])
-
     useEffect(() => {
         if (game) {
             const newSocket = new WebSocket(`ws://${getUrlWithoutProtocol()}/ws/games/${game.invitation_code}`)
 
             newSocket.onopen = () => {
-                console.info('[socket-open]: ')
+                console.info('[socket]: WebSocket open')
                 dispatch(connectGameSuccess())
             }
 
@@ -54,15 +48,20 @@ const WebSocketProvider: React.FC = ({ children }) => {
             }
 
             setSocket(newSocket)
-        } else {
-            closeSocket()
         }
-    }, [game, closeSocket, dispatch])
+    }, [game, dispatch])
+
+    useEffect(() => {
+        if (!game && socket) {
+            socket.close(1000)
+            setSocket(null)
+        }
+    }, [game, socket])
 
     const ws = useMemo(() => ({
         init: !!socket,
         socket: socket,
-        sendMessage
+        sendMessage: sendMessage
     }), [sendMessage, socket])
 
     return (

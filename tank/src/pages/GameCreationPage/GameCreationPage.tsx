@@ -32,14 +32,14 @@ const GameCreationPage: React.FC = () => {
     const [activeStep, setActiveStep] = React.useState(0)
 
     const handleNext = () => setActiveStep(prevActiveStep => prevActiveStep + 1)
-    const handleBack = () => setActiveStep(prevActiveStep => prevActiveStep - 1)
-    const handleReset = () => setActiveStep(0)
+    // const handleBack = () => setActiveStep(prevActiveStep => prevActiveStep - 1)
+    // const handleReset = () => setActiveStep(0)
 
     const { register, handleSubmit, setValue, getValues } = useForm<Game>({
         shouldUnregister: false
     })
-    // @ts-ignore
-    const onSubmit = data => console.log('data', data)
+
+    // const onSubmit = data => console.log('data', data)
 
     const handleChooseMap = useCallback((mapId: string) => {
         setValue('map', mapId)

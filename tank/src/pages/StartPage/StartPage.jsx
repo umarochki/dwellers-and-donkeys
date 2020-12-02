@@ -7,7 +7,6 @@ import { makeStyles } from '@material-ui/core/styles'
 import StartPageHeader from './StartPageHeader'
 import CreatedGameWorlds from './CreatedGameWorlds'
 import seaDark from '../../assets/Sea_dark.png'
-import CreatedCharacters from './CreatedCharacters'
 import { Avatar, CircularProgress, Menu, MenuItem } from '@material-ui/core'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectCurrentUser } from '../../store/user/selectors'
@@ -105,7 +104,7 @@ const StartPage = () => {
                 <StartPageHeader className={classes.content}/>
                 <CreatedGameWorlds />
                 <img  src={seaDark} className={classes.seaDark} alt=""/>
-                <CreatedCharacters />
+                {/*<CreatedCharacters />*/}
             </main>
             <footer className={classes.footer}>
                 <Typography variant="h6" align="center" gutterBottom>
