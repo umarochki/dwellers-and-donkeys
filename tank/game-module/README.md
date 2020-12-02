@@ -75,7 +75,7 @@ function App() {
     // Грузим холст и статики (пока так)
     gameboard.preload(assets, () => {
         // Устанавливаем мапу
-        gameboard.setMap('./locations/{map.png}', () => {
+        gameboard.addObject({ sprite: './boy-smart.png', xy: [0, 0] }, () => {
             // Сохраняем ссылку
             boardRef.current = gameboard
 
