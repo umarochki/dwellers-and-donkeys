@@ -1,7 +1,7 @@
 import * as gameConstants from './constants'
 import { Reducer } from 'redux'
 import { AsyncState } from '../user/reducer'
-import { Game } from '../../models/game'
+import { Game, GameDataMessage } from '../../models/game'
 
 export interface GameState {
     createGameState: AsyncState
@@ -9,7 +9,7 @@ export interface GameState {
     error: Error | null
     currentGame: Game | null
     games: Game[]
-    currentGameData: object | null
+    currentGameData: GameDataMessage | null
     connectGameState: AsyncState
 }
 
@@ -48,7 +48,7 @@ const gameReducer: Reducer<GameState> = (state = INITIAL_STATE, action) => {
         case gameConstants.UPDATE_GAME_DATA:
             return { ...state, currentGameData: action.payload }
         case gameConstants.CONNECT_GAME_STARTED:
-            return { ...state, currentGame: null, connectGameState: AsyncState.inProcess }
+            return { ...state, currentGame: { invitation_code: action.payload }, connectGameState: AsyncState.inProcess }
         case gameConstants.CONNECT_GAME_FINISHED:
             return { ...state, connectGameState: AsyncState.success }
         case gameConstants.DISCONNECT_GAME:
@@ -59,7 +59,7 @@ const gameReducer: Reducer<GameState> = (state = INITIAL_STATE, action) => {
                 connected: false,
                 connectGameState: AsyncState.unknown
             }
-        case gameConstants.DISCONNECT_GAME_ERROR:
+        case gameConstants.CONNECT_GAME_ERROR:
             return {
                 ...state,
                 currentGame: null,

@@ -2,10 +2,21 @@ import React, { createContext, useCallback, useEffect, useMemo, useState } from 
 import { useDispatch, useSelector } from 'react-redux'
 import { selectCurrentGame } from '../../store/game/selectors'
 import { getUrlWithoutProtocol } from '../../helpers/authHeader'
-import { connectGameSuccess, disconnectGameError, updateGameData } from '../../store/game/actions'
+import { connectGameSuccess, connectGameError, updateGameData } from '../../store/game/actions'
 
-const WebSocketContext = createContext({})
+const WebSocketContext = createContext<WebSocketContextType>({
+    init: false,
+    socket: null,
+    sendMessage: () => {}
+})
+
 export { WebSocketContext }
+
+export interface WebSocketContextType {
+    init: boolean
+    socket: WebSocket | null
+    sendMessage: Function
+}
 
 const WebSocketProvider: React.FC = ({ children }) => {
     const dispatch = useDispatch()
@@ -15,6 +26,7 @@ const WebSocketProvider: React.FC = ({ children }) => {
 
     const sendMessage = useCallback((type: string, meta: any) => {
         if (socket) {
+            console.info('[socket] Send message:', type, meta)
             socket.send(JSON.stringify({ type, meta }))
         }
     }, [socket])
@@ -34,7 +46,7 @@ const WebSocketProvider: React.FC = ({ children }) => {
             }
 
             newSocket.onclose = (event: CloseEvent) => {
-                dispatch(disconnectGameError())
+                dispatch(connectGameError())
                 // 4404 - не найдено, 4404 -ошибка
                 if (event.wasClean) {
                     console.info(`[socket] Соединение закрыто, код: ${event.code}, причина: ${event.reason}`)
@@ -58,7 +70,7 @@ const WebSocketProvider: React.FC = ({ children }) => {
         }
     }, [game, socket])
 
-    const ws = useMemo(() => ({
+    const ws = useMemo<WebSocketContextType>(() => ({
         init: !!socket,
         socket: socket,
         sendMessage: sendMessage

@@ -68,12 +68,12 @@ const InvitationCodeDialog: React.FC<Props> = props => {
             </DialogContent>
             <DialogActions>
                 {isLoading
-                    ? (<CircularProgress size={26} className={classes.loader}/>)
+                    ? (<Button color="primary"><CircularProgress size={26} className={classes.loader}/></Button>)
                     : <>
                         <Button onClick={close} color="primary">
                             Отменить
                         </Button>
-                        <Button onClick={handleConnect} color="primary">
+                        <Button onClick={handleConnect} color="primary" disabled={!invitationCodeValue}>
                             Присоединиться
                         </Button>
                     </>}

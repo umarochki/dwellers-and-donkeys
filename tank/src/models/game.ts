@@ -11,3 +11,8 @@ export interface Game {
 export interface GameObject {
 
 }
+
+export interface GameDataMessage {
+    type: string
+    meta?: object
+}

@@ -7,11 +7,11 @@ import { makeStyles } from '@material-ui/core/styles'
 import StartPageHeader from './StartPageHeader'
 import CreatedGameWorlds from './CreatedGameWorlds'
 import seaDark from '../../assets/Sea_dark.png'
-import { Avatar, CircularProgress, Menu, MenuItem } from '@material-ui/core'
+import { Avatar, Menu, MenuItem } from '@material-ui/core'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectCurrentUser } from '../../store/user/selectors'
-import Grid from '@material-ui/core/Grid'
 import { logout } from '../../store/user/actions'
+import FullscreenLoader from '../../components/Containers/FullscreenLoader/FullscreenLoader'
 
 function Copyright() {
     return (
@@ -63,19 +63,7 @@ const StartPage = () => {
     }, [handleClose, dispatch])
 
     if (!user) {
-        return (
-            <Grid
-                container
-                spacing={0}
-                direction="column"
-                alignItems="center"
-                justify="center"
-                style={{ minHeight: '100vh' }}
-            >
-                <Grid item xs={3}>
-                    <CircularProgress size={45} className={classes.loginLoader}/>
-                </Grid>
-            </Grid>)
+        return <FullscreenLoader/>
     }
 
     return (

@@ -8,9 +8,11 @@ import ChatPanel from '../../components/Controls/ChatPanel'
 // @ts-ignore
 import Gameboard from 'game-module/src/Gameboard'
 import { WebSocketContext } from '../../components/Contexts/WebSocketContext'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { selectConnectGameState, selectCurrentGame, selectCurrentGameData } from '../../store/game/selectors'
 import { AsyncState } from '../../store/user/reducer'
+import FullscreenLoader from '../../components/Containers/FullscreenLoader/FullscreenLoader'
+import { push } from 'connected-react-router'
 
 
 const drawerWidth = 240
@@ -95,7 +97,8 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const Tabletop = () => {
     const classes = useStyles()
-    const divRef = React.useRef()
+    const dispatch = useDispatch()
+    const divRef = React.useRef<HTMLDivElement>(null)
     const boardRef = React.useRef()  // Ссылка на игровое поле
 
     const ws = useContext(WebSocketContext)
@@ -139,28 +142,32 @@ const Tabletop = () => {
     }, [game, divRef, ws, connectGameState])
 
     useEffect(() => {
-        if (!currentGameData || !myGameBoard) return
-
-        switch (currentGameData.type) {
-            case 'update':
-                myGameBoard.updateObjectPosition(currentGameData.meta)
-                break
-            case 'add':
-                myGameBoard.addObject(currentGameData.meta)
-                break
-            case 'delete':
-                myGameBoard.deleteObject(currentGameData.meta)
-                break
-            case 'refresh':
-            case 'clear':
-            default:
-                break
+        if (currentGameData && myGameBoard) {
+            switch (currentGameData.type) {
+                case 'update':
+                    myGameBoard.updateObjectPosition(currentGameData.meta)
+                    break
+                case 'add':
+                    myGameBoard.addObject(currentGameData.meta)
+                    break
+                case 'delete':
+                    myGameBoard.deleteObject(currentGameData.meta)
+                    break
+                case 'refresh':
+                case 'clear':
+                default:
+                    break
+            }
         }
     }, [myGameBoard, currentGameData])
 
-    // if (connectGameState !== AsyncState.success) {
-    //     return null
-    // }
+    if (connectGameState === AsyncState.inProcess) {
+        return <FullscreenLoader/>
+    }
+
+    if (connectGameState !== AsyncState.success) {
+        dispatch(push('/'))
+    }
 
     return (
         <div className={classes.root}>
