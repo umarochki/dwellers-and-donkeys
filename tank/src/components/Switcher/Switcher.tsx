@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
-import { ListItem } from '@material-ui/core'
+import { ListItem, Tooltip } from '@material-ui/core'
 import ListItemIcon from '@material-ui/core/ListItemIcon/ListItemIcon'
 import HomeIcon from '@material-ui/icons/Home'
 import LayersIcon from '@material-ui/icons/Layers'
@@ -13,7 +13,7 @@ const switcherWidth = 60
 
 const useStyles = makeStyles(() => ({
     switcher: {
-        zIndex: '2000',
+        zIndex: 2000,
         width: `${switcherWidth}px`,
         height: '100%',
         display: 'flex',
@@ -38,6 +38,9 @@ const useStyles = makeStyles(() => ({
         },
         paddingRight: '12px',
         paddingLeft: '11px',
+    },
+    tooltip: {
+        zIndex: 4000
     }
 }))
 
@@ -76,12 +79,13 @@ const mapTypeToTooltip = (type: MenuType): string => {
 }
 
 interface Props {
-    onClick: (event: React.KeyboardEvent | React.MouseEvent) => void
+    currentType: MenuType
+    close: (event: React.KeyboardEvent | React.MouseEvent) => void
     onSelect: (type: MenuType) => void
 }
 
 const Switcher: React.FC<Props> = props => {
-    const { onSelect } = props
+    const { currentType, onSelect } = props
     const classes = useStyles()
     const history = useHistory()
 
@@ -90,15 +94,17 @@ const Switcher: React.FC<Props> = props => {
     return (
         <List className={classes.switcher}>
             <ListItem button className={classes.group} onClick={goHome}>
-                <ListItemIcon className={classes.icon}><HomeIcon fontSize="large"/></ListItemIcon>
+                <ListItemIcon className={classes.icon_inactive}><HomeIcon fontSize="large"/></ListItemIcon>
             </ListItem>
             {
                 [MenuType.locations, MenuType.heroes, MenuType.markers].map(type => (
-                    // <CustomTooltip title={mapTypeToTooltip(type)}>
-                    <ListItem button className={classes.group} onClick={() => onSelect(type)} key={type}>
-                        <ListItemIcon className={classes.icon_inactive}>{mapTypeToIcon(type)}</ListItemIcon>
-                    </ListItem>
-                    // </CustomTooltip>
+                    <Tooltip title={mapTypeToTooltip(type)} className={classes.tooltip} style={{ zIndex: 5000 }}>
+                        <ListItem button className={classes.group} onClick={() => onSelect(type)} key={type}>
+                            <ListItemIcon className={type === currentType ? classes.icon : classes.icon_inactive}>
+                                {mapTypeToIcon(type)}
+                            </ListItemIcon>
+                        </ListItem>
+                    </Tooltip>
                 ))
             }
         </List>

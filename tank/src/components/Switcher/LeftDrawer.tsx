@@ -98,8 +98,8 @@ const heroes = [
     'Troll',
     'Boy Cunning', 'Cat Strong', 'Goblin', 'Plant02', 'Snake04', 'Troll02',
     'Boy Smart',  'Dragon', 'Knight', 'Skeleton', 'Snake05', 'Wizard',
-    'Boy Strong.png', 'Girl Cunning.png', 'Mummy', 'Snake', 'Spider', 'Wolf',
-    'Cat Cunning.png', 'Girl Smart', 'Musician', 'Snake02', 'Thief'
+    'Boy Strong', 'Girl Cunning', 'Mummy', 'Snake', 'Spider', 'Wolf',
+    'Cat Cunning', 'Girl Smart', 'Musician', 'Snake02', 'Thief'
 ]
 
 const LeftDrawer: React.FC = () => {
@@ -119,8 +119,8 @@ const LeftDrawer: React.FC = () => {
     }
 
     const handleSelect = useCallback((selectedType: MenuType) => {
-        if (type === selectedType) {
-            setType(type)
+        if (type !== selectedType) {
+            setType(selectedType)
             setOpen(true)
         } else {
             setType(MenuType.unselect)
@@ -171,10 +171,12 @@ const LeftDrawer: React.FC = () => {
 
     return (
         <>
-            <Switcher onClick={toggleDrawer(true)} onSelect={handleSelect}/>
+            <Switcher
+                currentType={type}
+                close={toggleDrawer(false)}
+                onSelect={handleSelect}
+            />
             <Drawer
-                // onEscapeKeyDown={() => setOpen(false)}
-                // onBackdropClick={() => setOpen(false)}
                 anchor="left"
                 variant="permanent"
                 className={classes.drawer}

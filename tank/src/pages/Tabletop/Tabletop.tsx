@@ -9,7 +9,9 @@ import ChatPanel from '../../components/Controls/ChatPanel'
 import Gameboard from 'game-module/src/Gameboard'
 import { WebSocketContext } from '../../components/Contexts/WebSocketContext'
 import { useSelector } from 'react-redux'
-import { selectCurrentGame, selectCurrentGameData } from '../../store/game/selectors'
+import { selectConnectGameState, selectCurrentGame, selectCurrentGameData } from '../../store/game/selectors'
+import { AsyncState } from '../../store/user/reducer'
+
 
 const drawerWidth = 240
 // https://codesandbox.io/s/ykk2x8k7xj?file=/src/App/index.js
@@ -99,11 +101,12 @@ const Tabletop = () => {
     const ws = useContext(WebSocketContext)
     const game = useSelector(selectCurrentGame)
     const currentGameData = useSelector(selectCurrentGameData)
+    const connectGameState = useSelector(selectConnectGameState)
 
     const [myGameBoard, setMyGameBoard] = useState(null)
 
     useEffect(() => {
-        if (game && game.invitation_code && divRef && divRef.current) {
+        if (connectGameState === AsyncState.success && game && game.invitation_code && divRef && divRef.current && ws) {
             const gameBoard = new Gameboard({
                 parent: divRef.current,
                 // Нужно указать ширину/длину, иначе отчего-то хендлеры не робят
@@ -125,7 +128,7 @@ const Tabletop = () => {
             // Грузим холст и статики (пока так)
             gameBoard.preload(assets, () => {
                 // Устанавливаем мапу
-                gameBoard.setMap('locations/Bayport.png', () => {
+                gameBoard.setMap({ sprite: 'locations/Bayport.png' }, () => {
                     // Сохраняем ссылку
                     boardRef.current = gameBoard
                 })
@@ -133,7 +136,7 @@ const Tabletop = () => {
 
             setMyGameBoard(gameBoard)
         }
-    }, [game, divRef, ws])
+    }, [game, divRef, ws, connectGameState])
 
     useEffect(() => {
         if (!currentGameData || !myGameBoard) return
@@ -155,9 +158,9 @@ const Tabletop = () => {
         }
     }, [myGameBoard, currentGameData])
 
-    if (!game) {
-        return null
-    }
+    // if (connectGameState !== AsyncState.success) {
+    //     return null
+    // }
 
     return (
         <div className={classes.root}>
