@@ -66,8 +66,7 @@ export default class GameObject extends Sprite {
       this.dragging = false;
       this.data = null;
 
-      this.eventManager.notify('update', {
-        save: true,
+      this.eventManager.notify('update_and_save', {
         id: this.id,
         xy: [this.x, this.y]
       })
@@ -90,7 +89,6 @@ export default class GameObject extends Sprite {
         this.last = newPoint;
 
         this.eventManager.notify('update', {
-          save: false,
           id: this.id,
           xy: [this.x, this.y]
         })
