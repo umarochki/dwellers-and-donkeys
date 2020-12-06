@@ -99,6 +99,16 @@ export default class Gameboard {
     });
   }
 
+  // Reset drag event handlers if draggable DOM-elements were recreated
+  resetDraggedDOMListeners() {
+    Array.prototype.map.call(document.querySelectorAll('[draggable="true"]'),
+      (element) => {
+        element.removeEventListener('dragstart', (e) => this.draggedDOM = e.target );
+        element.addEventListener('dragstart', (e) => this.draggedDOM = e.target );
+      }
+    );
+  }
+
   // Resize function window
   onResize(e) {
 
