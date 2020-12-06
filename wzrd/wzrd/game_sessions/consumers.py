@@ -64,8 +64,8 @@ class GameSessionConsumer(JsonWebsocketConsumer):
 
     def disconnect(self, close_code):
         game_session = self.get_game_session()
-        user_id = self.user_info["id"]
-        if user_id in game_session.active_users:
+        user_id = self.user_info.get("id")
+        if user_id in user_id in game_session.active_users:
             del game_session.active_users[user_id]
             game_session.save()
 
