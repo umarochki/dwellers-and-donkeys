@@ -170,7 +170,7 @@ const ChatPanel: React.FC<Props> = props => {
     const roll = useCallback(() => {
         if (ws && connectGameState === AsyncState.success) {
             ws.sendMessage('roll', dices.reduce((obj: any, dice) => {
-                obj[dice.type] = dice.count
+                obj[`d${dice.type}`] = dice.count
                 return obj
             }, {}))
             setDices(emptyDices)

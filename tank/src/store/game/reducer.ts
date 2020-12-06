@@ -11,7 +11,6 @@ export interface GameState {
     games: Game[]
     currentGameData: SocketMessage | null
     connectGameState: AsyncState
-    invitation_code: string | null
 }
 
 const INITIAL_STATE: GameState = {
@@ -22,23 +21,23 @@ const INITIAL_STATE: GameState = {
     games: [],
     currentGameData: null,
     connectGameState: AsyncState.unknown,
-    invitation_code: null
 }
 
 const gameReducer: Reducer<GameState> = (state = INITIAL_STATE, action) => {
     switch (action.type) {
         case gameConstants.CREATE_GAME_REQUEST_STARTED:
-            return { ...state, loginState: AsyncState.inProcess }
+            return { ...state, createGameState: AsyncState.inProcess, connectGameState: AsyncState.inProcess }
         case gameConstants.CREATE_GAME_REQUEST_FINISHED:
             return {
                 ...state,
+                connectGameState: AsyncState.inProcess,
                 createGameState: AsyncState.success,
                 currentGame: action.payload,
             }
         case gameConstants.CREATE_GAME_REQUEST_ERROR:
-            return { ...state, loginState: AsyncState.error }
+            return { ...state, createGameState: AsyncState.error }
         case gameConstants.GET_GAMES_REQUEST_STARTED:
-            return { ...state, loginState: AsyncState.inProcess }
+            return { ...state, getGamesState: AsyncState.inProcess }
         case gameConstants.GET_GAMES_REQUEST_FINISHED:
             return {
                 ...state,
@@ -52,15 +51,7 @@ const gameReducer: Reducer<GameState> = (state = INITIAL_STATE, action) => {
         case gameConstants.CONNECT_GAME_STARTED:
             return {
                 ...state,
-                currentGame: null,
-                invitation_code: action.payload,
-                connectGameState: AsyncState.inProcess
-            }
-        case gameConstants.CONNECT_GAME_BY_CODE:
-            return {
-                ...state,
-                currentGame: { invitation_code: state.invitation_code || '' },
-                invitation_code: null,
+                currentGame: { invitation_code: action.payload },
                 connectGameState: AsyncState.inProcess
             }
         case gameConstants.CONNECT_GAME_FINISHED:

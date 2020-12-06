@@ -12,8 +12,8 @@ export const createGame = (name: string, description: string) => {
 
         gameService.create({ name, description })
             .then((game: Game) => {
-                dispatch(push(AuthRoutes.tabletop))
                 dispatch(success(game))
+                dispatch(push(AuthRoutes.tabletop))
             }, error => {
                 dispatch(failure(error))
                 dispatch(alertActions.error(error))
@@ -39,13 +39,6 @@ export const connectGame = (code: string) => {
     }
 
     function request(code: string) { return { type: gameConstants.CONNECT_GAME_STARTED, payload: code } }
-}
-
-export const connectGameByCode = () => {
-    return (dispatch: Dispatch) => {
-        dispatch(request())
-    }
-    function request() { return { type: gameConstants.CONNECT_GAME_BY_CODE } }
 }
 
 export const connectGameSuccess = () => {
