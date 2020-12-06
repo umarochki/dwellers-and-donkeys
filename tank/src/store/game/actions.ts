@@ -34,11 +34,18 @@ export const updateGameData = (data: object) => {
 
 export const connectGame = (code: string) => {
     return (dispatch: Dispatch) => {
-        dispatch(push(AuthRoutes.tabletop))
         dispatch(request(code))
+        dispatch(push(AuthRoutes.tabletop))
     }
 
     function request(code: string) { return { type: gameConstants.CONNECT_GAME_STARTED, payload: code } }
+}
+
+export const connectGameByCode = () => {
+    return (dispatch: Dispatch) => {
+        dispatch(request())
+    }
+    function request() { return { type: gameConstants.CONNECT_GAME_BY_CODE } }
 }
 
 export const connectGameSuccess = () => {

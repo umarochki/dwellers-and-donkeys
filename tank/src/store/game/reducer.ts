@@ -11,6 +11,7 @@ export interface GameState {
     games: Game[]
     currentGameData: SocketMessage | null
     connectGameState: AsyncState
+    invitation_code: string | null
 }
 
 const INITIAL_STATE: GameState = {
@@ -20,7 +21,8 @@ const INITIAL_STATE: GameState = {
     currentGame: null,
     games: [],
     currentGameData: null,
-    connectGameState: AsyncState.unknown
+    connectGameState: AsyncState.unknown,
+    invitation_code: null
 }
 
 const gameReducer: Reducer<GameState> = (state = INITIAL_STATE, action) => {
@@ -48,7 +50,19 @@ const gameReducer: Reducer<GameState> = (state = INITIAL_STATE, action) => {
         case gameConstants.UPDATE_GAME_DATA:
             return { ...state, currentGameData: action.payload }
         case gameConstants.CONNECT_GAME_STARTED:
-            return { ...state, currentGame: { invitation_code: action.payload }, connectGameState: AsyncState.inProcess }
+            return {
+                ...state,
+                currentGame: null,
+                invitation_code: action.payload,
+                connectGameState: AsyncState.inProcess
+            }
+        case gameConstants.CONNECT_GAME_BY_CODE:
+            return {
+                ...state,
+                currentGame: { invitation_code: state.invitation_code || '' },
+                invitation_code: null,
+                connectGameState: AsyncState.inProcess
+            }
         case gameConstants.CONNECT_GAME_FINISHED:
             return { ...state, connectGameState: AsyncState.success }
         case gameConstants.DISCONNECT_GAME:

@@ -13,7 +13,7 @@ import { selectConnectGameState, selectCurrentGame, selectCurrentGameData } from
 import { AsyncState } from '../../store/user/reducer'
 import FullscreenLoader from '../../components/Containers/FullscreenLoader/FullscreenLoader'
 import { push } from 'connected-react-router'
-import { disconnectGame } from '../../store/game/actions'
+import { connectGameByCode, disconnectGame } from '../../store/game/actions'
 import { GameDataMessage } from '../../models/game'
 
 
@@ -124,6 +124,12 @@ const Tabletop = () => {
     }, [dispatch])
 
     useEffect(() => {
+        if (connectGameState === AsyncState.inProcess) {
+            dispatch(connectGameByCode())
+        }
+    }, [dispatch, connectGameState])
+
+    useEffect(() => {
         if (connectGameState === AsyncState.success && game && game.invitation_code && divRef && divRef.current && ws) {
             const gameBoard = new Gameboard({
                 parent: divRef.current,
@@ -136,7 +142,10 @@ const Tabletop = () => {
             })
 
             gameBoard.eventManager.subscribe('map', (data: any) => ws.sendMessage('map', data))
-            gameBoard.eventManager.subscribe('add', (data: any) => ws.sendMessage('add', data))
+            gameBoard.eventManager.subscribe('add', (data: any) => {
+                console.log('ADDDD')
+                ws.sendMessage('add', data)
+            })
             gameBoard.eventManager.subscribe('update', (data: any) => ws.sendMessage('update', data))
             gameBoard.eventManager.subscribe('delete', (data: any) => ws.sendMessage('delete', data))
 
@@ -157,7 +166,7 @@ const Tabletop = () => {
     }, [game, divRef, ws, connectGameState])
 
     useEffect(() => {
-        if (currentGameData && myGameBoard && connectGameState === AsyncState.success) {
+        if (currentGameData && myGameBoard !== null && connectGameState === AsyncState.success) {
             switch (currentGameData.type) {
                 case 'update':
                     myGameBoard.updateObjectPosition(currentGameData.meta)
@@ -183,7 +192,9 @@ const Tabletop = () => {
         return <FullscreenLoader/>
     }
 
-    if (connectGameState !== AsyncState.success) {
+    console.log('connectGameState', connectGameState)
+
+    if (connectGameState === AsyncState.error || connectGameState === AsyncState.unknown) {
         dispatch(push('/'))
     }
 

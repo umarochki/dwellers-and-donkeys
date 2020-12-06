@@ -2,7 +2,8 @@ import React, { createContext, useCallback, useEffect, useMemo, useState } from 
 import { useDispatch, useSelector } from 'react-redux'
 import { selectCurrentGame } from '../../store/game/selectors'
 import { getUrlWithoutProtocol } from '../../helpers/authHeader'
-import { connectGameSuccess, connectGameError, updateGameData } from '../../store/game/actions'
+import { connectGameError, connectGameSuccess, updateGameData } from '../../store/game/actions'
+import { AuthRoutes } from '../../routes'
 
 const WebSocketContext = createContext<WebSocketContextType>({
     init: false,
@@ -21,7 +22,7 @@ export interface WebSocketContextType {
 const WebSocketProvider: React.FC = ({ children }) => {
     const dispatch = useDispatch()
     const game = useSelector(selectCurrentGame)
-    
+
     const [socket, setSocket] = useState<WebSocket | null>(null)
 
     const sendMessage = useCallback((type: string, meta: any) => {
@@ -32,7 +33,7 @@ const WebSocketProvider: React.FC = ({ children }) => {
     }, [socket])
 
     useEffect(() => {
-        if (game) {
+        if (game && window.location.pathname === AuthRoutes.tabletop) {
             const newSocket = new WebSocket(`ws://${getUrlWithoutProtocol()}/ws/games/${game.invitation_code}`)
 
             newSocket.onopen = () => {

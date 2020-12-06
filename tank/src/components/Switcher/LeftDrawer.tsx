@@ -136,7 +136,7 @@ const LeftDrawer: React.FC = () => {
                         {markersList.map((marker: string) => (
                             <Tooltip title={marker} key={marker}>
                                 <GridListTile cols={1} className={classes.tile}>
-                                    <img src={marker} alt={marker} draggable className="draggable" />
+                                    <img src={marker} alt={marker} draggable/>
                                 </GridListTile>
                             </Tooltip>
                         ))}
@@ -146,11 +146,9 @@ const LeftDrawer: React.FC = () => {
                 return (
                     <GridList cellHeight={70} cols={3}>
                         {heroes.map((hero: string) => (
-                            <Tooltip title={hero} key={hero}>
-                                <GridListTile cols={1} className={classes.tile}>
-                                    <img src={`heroes/${hero}.png`} alt={hero} draggable className="draggable" />
-                                </GridListTile>
-                            </Tooltip>
+                            <GridListTile cols={1} className={classes.tile}>
+                                <img src={`heroes/${hero}.png`} alt={hero} draggable/>
+                            </GridListTile>
                         ))}
                     </GridList>
                 )
@@ -160,7 +158,7 @@ const LeftDrawer: React.FC = () => {
                         {mapsList.map((map: string) => (
                             <Tooltip title={map} key={map}>
                                 <GridListTile cols={1} className={classes.tile}>
-                                    <img src={`locations/${map}.png`} alt={map} draggable className="draggable" />
+                                    <img src={`locations/${map}.png`} alt={map} draggable/>
                                 </GridListTile>
                             </Tooltip>
                         ))}
