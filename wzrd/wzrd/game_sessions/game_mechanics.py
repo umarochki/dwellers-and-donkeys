@@ -7,7 +7,7 @@ POSSIBLE_DICE = (4, 6, 8, 10, 12, 20, 100)
 def roll(meta: dict):
     total = 0
     for k, v in meta.items():
-        match = re.match(r"d(\d)", k)
+        match = re.match(r"d(\d+)", k)
         if not match:
             raise ValueError(f"Wrong dice format {k}!")
 
