@@ -50,6 +50,8 @@ export default class Gameboard {
     if (!options.view)
       options.parent.appendChild(this.app.view);
 
+    this.objs = { };
+
     return this;
   }
 
@@ -181,7 +183,7 @@ export default class Gameboard {
            (e.layerY - this.viewport.y) / this.viewport.scale.y],
     })
     */
-    
+
     this.eventManager.notify('add', {
       sprite: this.draggedDOM.src,
       xy: [(e.layerX - this.viewport.x) / this.viewport.scale.x, 
@@ -213,6 +215,8 @@ export default class Gameboard {
       });
 
       this.viewport.addChild(obj);
+      this.objs[options.id] = this.viewport.children.length - 1;
+
       this.draggedDOM = undefined;
 
       typeof callback == "function" && callback();
@@ -221,13 +225,19 @@ export default class Gameboard {
   }
 
   updateObjectPosition(options, callback) {
-    this.viewport.children[options.id + 1].updatePosition(options.xy[0], options.xy[1]);
+
+    if (!this.objs[options.id] || !this.viewport.children[this.objs[options.id]]) {
+      console.log('Cannot find an element with id: ', options.id);
+      return;
+    }
+
+    this.viewport.children[this.objs[options.id]].updatePosition(options.xy[0], options.xy[1]);
     typeof callback == "function" && callback();
   }
 
   deleteObject(options, callback) {
 
-    var object = this.viewport.children[options.id + 1];
+    var object = this.viewport.children[this.objs[options.id]];
     object.parent.removeChild(object);
 
     typeof callback == "function" && callback(); 
