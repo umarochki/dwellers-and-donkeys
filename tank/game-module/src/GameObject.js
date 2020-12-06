@@ -93,8 +93,8 @@ export default class GameObject extends Sprite {
   }
 
   updatePosition(x, y) {
-      this.x += x;
-      this.y += y;
+      this.x = x;
+      this.y = y;
     }
 
 }
