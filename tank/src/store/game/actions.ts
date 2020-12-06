@@ -12,8 +12,8 @@ export const createGame = (name: string, description: string) => {
 
         gameService.create({ name, description })
             .then((game: Game) => {
-                dispatch(push(AuthRoutes.tabletop))
                 dispatch(success(game))
+                dispatch(push(AuthRoutes.tabletop))
             }, error => {
                 dispatch(failure(error))
                 dispatch(alertActions.error(error))

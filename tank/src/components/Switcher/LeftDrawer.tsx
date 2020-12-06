@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import Drawer from '@material-ui/core/Drawer'
 import { GridList, GridListTile, Theme, Tooltip } from '@material-ui/core'
@@ -65,10 +65,10 @@ const useStyles = makeStyles((theme: Theme) => ({
 }))
 
 const markersList = [
-    'markers/Bonfire.png',
-    'markers/Castle.png',
-    'markers/Tavern.png',
-    'markers/Tree.png',
+    'Bonfire',
+    'Castle',
+    'Tavern',
+    'Tree',
 ]
 
 const mapsList = [
@@ -102,10 +102,24 @@ const heroes = [
     'Cat Cunning', 'Girl Smart', 'Musician', 'Snake02', 'Thief'
 ]
 
-const LeftDrawer: React.FC = () => {
+interface Props {
+    onOpen: Function
+}
+const LeftDrawer: React.FC<Props> = props => {
+    const { onOpen } = props
     const classes = useStyles()
     const [open, setOpen] = React.useState(false)
     const [type, setType] = useState<MenuType>(MenuType.unselect)
+
+    useEffect(() => {
+        if (open === true) {
+            const t = setTimeout(() => {
+                onOpen()
+            }, 3000)
+
+            return () => clearTimeout(t)
+        }
+    }, [onOpen, open])
 
     const toggleDrawer = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
         if (
@@ -136,7 +150,7 @@ const LeftDrawer: React.FC = () => {
                         {markersList.map((marker: string) => (
                             <Tooltip title={marker} key={marker}>
                                 <GridListTile cols={1} className={classes.tile}>
-                                    <img src={marker} alt={marker} draggable className="draggable" />
+                                    <img src={`markers/${marker}.png`} alt={marker} draggable/>
                                 </GridListTile>
                             </Tooltip>
                         ))}
@@ -148,7 +162,7 @@ const LeftDrawer: React.FC = () => {
                         {heroes.map((hero: string) => (
                             <Tooltip title={hero} key={hero}>
                                 <GridListTile cols={1} className={classes.tile}>
-                                    <img src={`heroes/${hero}.png`} alt={hero} draggable className="draggable" />
+                                    <img src={`heroes/${hero}.png`} alt={hero} draggable/>
                                 </GridListTile>
                             </Tooltip>
                         ))}
@@ -160,7 +174,7 @@ const LeftDrawer: React.FC = () => {
                         {mapsList.map((map: string) => (
                             <Tooltip title={map} key={map}>
                                 <GridListTile cols={1} className={classes.tile}>
-                                    <img src={`locations/${map}.png`} alt={map} draggable className="draggable" />
+                                    <img src={`locations/${map}.png`} alt={map} draggable/>
                                 </GridListTile>
                             </Tooltip>
                         ))}

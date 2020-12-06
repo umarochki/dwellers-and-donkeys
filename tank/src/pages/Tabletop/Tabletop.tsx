@@ -13,6 +13,8 @@ import { selectConnectGameState, selectCurrentGame, selectCurrentGameData } from
 import { AsyncState } from '../../store/user/reducer'
 import FullscreenLoader from '../../components/Containers/FullscreenLoader/FullscreenLoader'
 import { push } from 'connected-react-router'
+import { disconnectGame } from '../../store/game/actions'
+import { GameDataMessage } from '../../models/game'
 
 
 const drawerWidth = 240
@@ -69,28 +71,34 @@ const useStyles = makeStyles((theme: Theme) =>
             marginBottom: '12px'
         },
         controls: {
-            height: '238px',
+            height: 250,
             backgroundColor: '#334055',
             display: 'flex'
         },
         people: {
             display: 'flex',
+            height: '100%',
+            padding: theme.spacing(1),
+            marginRight: theme.spacing(1),
             '& > *': {
                 cursor: 'pointer',
                 backgroundColor: '#43536B',
-                margin: theme.spacing(1),
                 minWidth: theme.spacing(20),
-                height: theme.spacing(27),
+                height: '100%',
                 display: 'flex',
                 alightItems: 'center',
                 justifyContent: 'center',
                 direction: 'column',
-                paddingTop: theme.spacing(2)
+                paddingTop: theme.spacing(2),
+                marginRight: theme.spacing(2)
             },
             overflowX: 'auto',
             '&::-webkit-scrollbar': {
                 display: 'none'
             }
+        },
+        controlPanel: {
+            maxHeight: '100%'
         }
     }),
 )
@@ -107,9 +115,16 @@ const Tabletop = () => {
     const connectGameState = useSelector(selectConnectGameState)
 
     const [myGameBoard, setMyGameBoard] = useState(null)
+    const [messages, setMessages] = useState<GameDataMessage[]>([])
 
     useEffect(() => {
-        if (connectGameState === AsyncState.success && game && game.invitation_code && divRef && divRef.current && ws) {
+        return () => {
+            dispatch(disconnectGame())
+        }
+    }, [dispatch])
+
+    useEffect(() => {
+        if (!myGameBoard && connectGameState === AsyncState.success && game && game.invitation_code && divRef && divRef.current && ws) {
             const gameBoard = new Gameboard({
                 parent: divRef.current,
                 // Нужно указать ширину/длину, иначе отчего-то хендлеры не робят
@@ -120,10 +135,10 @@ const Tabletop = () => {
                 // TODO: isGameMaster: {boolean}
             })
 
-            gameBoard.eventManager.subscribe('map', (e: any) => ws.sendMessage('map', e))
-            gameBoard.eventManager.subscribe('add', (e: any) => ws.sendMessage('add', e))
-            gameBoard.eventManager.subscribe('update', (e: any) => ws.sendMessage('update', e))
-            gameBoard.eventManager.subscribe('delete', (e: any) => ws.sendMessage('delete', e))
+            gameBoard.eventManager.subscribe('map', (data: any) => ws.sendMessage('map', data))
+            gameBoard.eventManager.subscribe('add', (data: any) => ws.sendMessage('add', data))
+            gameBoard.eventManager.subscribe('update', (data: any) => ws.sendMessage('update', data))
+            gameBoard.eventManager.subscribe('delete', (data: any) => ws.sendMessage('delete', data))
 
             // Картинки беру у клиента из точки входа
             const assets = [{ name: 'grid', path: 'locations/Bayport.png' }]
@@ -142,7 +157,7 @@ const Tabletop = () => {
     }, [game, divRef, ws, connectGameState])
 
     useEffect(() => {
-        if (currentGameData && myGameBoard) {
+        if (currentGameData && myGameBoard !== null && connectGameState === AsyncState.success) {
             switch (currentGameData.type) {
                 case 'update':
                     myGameBoard.updateObjectPosition(currentGameData.meta)
@@ -153,31 +168,36 @@ const Tabletop = () => {
                 case 'delete':
                     myGameBoard.deleteObject(currentGameData.meta)
                     break
+                case 'chat':
+                    setMessages(prev => [...prev, currentGameData.meta])
+                    break
                 case 'refresh':
                 case 'clear':
                 default:
                     break
             }
         }
-    }, [myGameBoard, currentGameData])
+    }, [myGameBoard, currentGameData, connectGameState])
 
     if (connectGameState === AsyncState.inProcess) {
         return <FullscreenLoader/>
     }
 
-    if (connectGameState !== AsyncState.success) {
+    if (connectGameState === AsyncState.error || connectGameState === AsyncState.unknown) {
         dispatch(push('/'))
     }
 
     return (
         <div className={classes.root}>
             <div className={classes.appFrame}>
-                <LeftDrawer/>
+                <LeftDrawer onOpen={() => {
+                    myGameBoard && myGameBoard.resetDraggedDOMListeners()
+                }}/>
                 <main className={classes.content}>
                     <div className={classes.map} ref={divRef}/>
                     <div className={classes.controls}>
-                        <Grid container spacing={3}>
-                            <Grid item xs={5}>
+                        <Grid container>
+                            <Grid item xs={5} className={classes.controlPanel}>
                                 <div className={classes.people}>
                                     <PersonCard/>
                                     <PersonCard/>
@@ -187,11 +207,11 @@ const Tabletop = () => {
                                     <PersonCard/>
                                 </div>
                             </Grid>
-                            <Grid item xs={2}>
+                            <Grid item xs={2} className={classes.controlPanel}>
                                 <UserCard/>
                             </Grid>
-                            <Grid item xs>
-                                <ChatPanel/>
+                            <Grid item xs className={classes.controlPanel}>
+                                <ChatPanel data={messages}/>
                             </Grid>
                         </Grid>
                     </div>
