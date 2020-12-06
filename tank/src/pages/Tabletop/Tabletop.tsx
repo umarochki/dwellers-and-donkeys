@@ -124,7 +124,7 @@ const Tabletop = () => {
     }, [dispatch])
 
     useEffect(() => {
-        if (connectGameState === AsyncState.success && game && game.invitation_code && divRef && divRef.current && ws) {
+        if (!myGameBoard && connectGameState === AsyncState.success && game && game.invitation_code && divRef && divRef.current && ws) {
             const gameBoard = new Gameboard({
                 parent: divRef.current,
                 // Нужно указать ширину/длину, иначе отчего-то хендлеры не робят
@@ -190,7 +190,9 @@ const Tabletop = () => {
     return (
         <div className={classes.root}>
             <div className={classes.appFrame}>
-                <LeftDrawer/>
+                <LeftDrawer onOpen={() => {
+                    myGameBoard && myGameBoard.resetDraggedDOMListeners()
+                }}/>
                 <main className={classes.content}>
                     <div className={classes.map} ref={divRef}/>
                     <div className={classes.controls}>

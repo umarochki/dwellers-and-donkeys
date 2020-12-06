@@ -130,11 +130,13 @@ const ChatMessage: React.FC<MessageProps> = props => {
     const { message } = props
 
     const date = new Date(message.time)
+    const h = date.getHours()
+    const min = date.getMinutes()
 
     if (message.type === 'roll') {
         return (
             <div className={classes.chatMessage}>
-                <span className={classes.diceSquare}>{message.total}</span>({date.getHours()}:{date.getMinutes()})
+                <span className={classes.diceSquare}>{message.total}</span>({h > 9 ? h : '0' + h}:{min > 9 ? min : '0' + min})
             </div>
         )
     }
