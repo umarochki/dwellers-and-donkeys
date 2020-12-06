@@ -86,9 +86,8 @@ const useStyles = makeStyles((theme: Theme) =>
                 minWidth: theme.spacing(20),
                 height: '100%',
                 display: 'flex',
-                alightItems: 'center',
-                justifyContent: 'center',
-                direction: 'column',
+                alignItems: 'center',
+                flexDirection: 'column',
                 paddingTop: theme.spacing(2),
                 marginRight: theme.spacing(2)
             },
@@ -116,6 +115,7 @@ const Tabletop = () => {
 
     const [myGameBoard, setMyGameBoard] = useState(null)
     const [messages, setMessages] = useState<GameDataMessage[]>([])
+    const [users, setUsers] = useState<GameDataMessage[]>([])
 
     useEffect(() => {
         return () => {
@@ -124,7 +124,9 @@ const Tabletop = () => {
     }, [dispatch])
 
     useEffect(() => {
-        if (!myGameBoard && connectGameState === AsyncState.success && game && game.invitation_code && divRef && divRef.current && ws) {
+        if (!myGameBoard && connectGameState === AsyncState.success && game && game.invitation_code && divRef && divRef.current && ws.socket) {
+            ws.sendMessage('refresh')
+
             const gameBoard = new Gameboard({
                 parent: divRef.current,
                 // Нужно указать ширину/длину, иначе отчего-то хендлеры не робят
@@ -154,7 +156,7 @@ const Tabletop = () => {
 
             setMyGameBoard(gameBoard)
         }
-    }, [game, divRef, ws, connectGameState])
+    }, [game, divRef, ws, connectGameState, myGameBoard])
 
     useEffect(() => {
         if (currentGameData && myGameBoard !== null && connectGameState === AsyncState.success) {
@@ -172,6 +174,9 @@ const Tabletop = () => {
                     setMessages(prev => [...prev, currentGameData.meta])
                     break
                 case 'refresh':
+                    setUsers(currentGameData.meta.active_users)
+                    setMessages(currentGameData.meta.chat)
+                    break
                 case 'clear':
                 default:
                     break
@@ -199,12 +204,7 @@ const Tabletop = () => {
                         <Grid container>
                             <Grid item xs={5} className={classes.controlPanel}>
                                 <div className={classes.people}>
-                                    <PersonCard/>
-                                    <PersonCard/>
-                                    <PersonCard/>
-                                    <PersonCard/>
-                                    <PersonCard/>
-                                    <PersonCard/>
+                                    {users.map(user => <PersonCard user={user}/>)}
                                 </div>
                             </Grid>
                             <Grid item xs={2} className={classes.controlPanel}>

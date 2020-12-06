@@ -2,7 +2,7 @@ import React from 'react'
 import { Avatar, Card, Theme } from '@material-ui/core'
 import { createStyles, makeStyles } from '@material-ui/core/styles'
 import clsx from 'clsx'
-import { primary900 } from '../../styles/colors'
+import { primary50, primary900 } from '../../styles/colors'
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -17,21 +17,29 @@ const useStyles = makeStyles((theme: Theme) =>
         },
         avatarDark: {
             backgroundColor: primary900,
+        },
+        name: {
+            color: primary50,
+            fontWeight: 'bold',
+            fontSize: '1.2rem',
+            marginTop: theme.spacing(1)
         }
     })
 )
 
 interface Props {
+    user: string
     selected?: boolean
 }
 
 const PersonCard: React.FC<Props> = props => {
     const classes = useStyles()
-    const { selected } = props
+    const { user, selected } = props
 
     return (
         <Card raised={selected} className={classes.root}>
             <Avatar className={clsx(classes.avatarLarge, classes.avatarDark)}/>
+            <span className={classes.name}>{user}</span>
         </Card>
     )
 }
