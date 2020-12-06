@@ -157,7 +157,6 @@ const Tabletop = () => {
             gameBoard.eventManager.subscribe('add', (data: any) => ws.sendMessage('add', data))
             gameBoard.eventManager.subscribe('update', (data: any) => ws.sendMessage('update', data))
             gameBoard.eventManager.subscribe('update_and_save', (data: any) => ws.sendMessage('update_and_save', data))
-            gameBoard.eventManager.subscribe('refresh', (data: any) => ws.sendMessage('refresh', data))
             gameBoard.eventManager.subscribe('delete', (data: any) => ws.sendMessage('delete', data))
 
             // Картинки беру у клиента из точки входа
@@ -194,6 +193,7 @@ const Tabletop = () => {
                 case 'refresh':
                     setUsers(currentGameData.meta.active_users)
                     setMessages(currentGameData.meta.chat)
+                    myGameBoard.refresh(currentGameData.meta);
                     break
                 case 'clear':
                 default:
