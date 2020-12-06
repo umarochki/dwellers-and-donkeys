@@ -10,10 +10,7 @@ export function authHeader() {
 }
 
 export const getUrl = () => {
-    if (window.location.host.includes('localhost')) {
-        return 'http://localhost'
-    }
-    return ''
+    return `http://${window.location.host}`
 }
 
 export const getUrlWithoutProtocol = () => {
