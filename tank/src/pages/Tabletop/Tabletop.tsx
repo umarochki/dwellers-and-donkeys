@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
-import LeftDrawer from '../../components/Switcher/LeftDrawer'
+import LeftDrawer, { heroes, mapsList, markersList } from '../../components/Switcher/LeftDrawer'
 import { Grid } from '@material-ui/core'
 import UserCard from '../../components/Controls/UserCard'
 import PersonCard from '../../components/Controls/PersonCard'
@@ -116,6 +116,22 @@ const Tabletop = () => {
     const [myGameBoard, setMyGameBoard] = useState(null)
     const [messages, setMessages] = useState<GameDataMessage[]>([])
     const [users, setUsers] = useState<GameDataMessage[]>([])
+
+    // Preload images
+    useEffect(() => {
+        heroes.forEach((hero: string) => {
+            const img = new Image()
+            img.src = `heroes/${hero}.png`
+        })
+        markersList.forEach((marker: string) => {
+            const img = new Image()
+            img.src = `markers/${marker}.png`
+        })
+        mapsList.forEach((location: string) => {
+            const img = new Image()
+            img.src = `locations/${location}.png`
+        })
+    }, [])
 
     useEffect(() => {
         return () => {

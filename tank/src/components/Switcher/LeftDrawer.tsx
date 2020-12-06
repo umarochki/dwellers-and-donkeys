@@ -64,14 +64,14 @@ const useStyles = makeStyles((theme: Theme) => ({
     }
 }))
 
-const markersList = [
+export const markersList = [
     'Bonfire',
     'Castle',
     'Tavern',
     'Tree',
 ]
 
-const mapsList = [
+export const mapsList = [
     'Bayport',
     'Blackacre',
     'Campfire',
@@ -89,7 +89,7 @@ const mapsList = [
     'Witchwyn',
 ]
 
-const heroes = [
+export const heroes = [
     'Ant',
     'Cat Smart',
     'Girl Strong',
