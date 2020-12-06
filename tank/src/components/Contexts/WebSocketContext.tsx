@@ -23,7 +23,7 @@ export interface WebSocketContextType {
 const WebSocketProvider: React.FC = ({ children }) => {
     const dispatch = useDispatch()
     const game = useSelector(selectCurrentGame)
-    let location = useLocation()
+    const location = useLocation()
 
     const [socket, setSocket] = useState<WebSocket | null>(null)
 
@@ -35,7 +35,7 @@ const WebSocketProvider: React.FC = ({ children }) => {
     }, [socket])
 
     useEffect(() => {
-        if (game && location.pathname === AuthRoutes.tabletop) {
+        if (game && location && location.pathname === AuthRoutes.tabletop) {
             const newSocket = new WebSocket(`ws://${getUrlWithoutProtocol()}/ws/games/${game.invitation_code}`)
 
             newSocket.onopen = () => {
@@ -63,7 +63,7 @@ const WebSocketProvider: React.FC = ({ children }) => {
                 console.error(`[socket-error] ${error}`)
             }
         }
-    }, [game, dispatch, location.pathname])
+    }, [game, dispatch, location])
 
     useEffect(() => {
         if (!game && socket) {

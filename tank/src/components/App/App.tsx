@@ -11,6 +11,7 @@ import { useDispatch } from 'react-redux'
 import { getMyself } from '../../store/user/actions'
 import { ConnectedRouter } from 'connected-react-router'
 import { history } from '../../helpers/history'
+import WebSocketProvider from '../Contexts/WebSocketContext'
 
 const App = () => {
     const dispatch = useDispatch()
@@ -21,14 +22,16 @@ const App = () => {
 
     return (
         <ThemeProvider theme={theme}>
-            <CssBaseline />
+            <CssBaseline/>
             <ConnectedRouter history={history}>
-                <Switch>
-                    <Route path="/" exact component={StartPage}/>
-                    <Route path={NonAuthRoutes.login} exact component={LoginPage}/>
-                    <Route path={AuthRoutes.newGame} exact component={GameCreationPage}/>
-                    <Route path={AuthRoutes.tabletop} exact component={Tabletop}/>
-                </Switch>
+                <WebSocketProvider>
+                    <Switch>
+                        <Route path="/" exact component={StartPage}/>
+                        <Route path={NonAuthRoutes.login} exact component={LoginPage}/>
+                        <Route path={AuthRoutes.newGame} exact component={GameCreationPage}/>
+                        <Route path={AuthRoutes.tabletop} exact component={Tabletop}/>
+                    </Switch>
+                </WebSocketProvider>
             </ConnectedRouter>
         </ThemeProvider>
     )
