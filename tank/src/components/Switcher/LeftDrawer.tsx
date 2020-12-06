@@ -111,16 +111,6 @@ const LeftDrawer: React.FC<Props> = props => {
     const [open, setOpen] = React.useState(false)
     const [type, setType] = useState<MenuType>(MenuType.unselect)
 
-    useEffect(() => {
-        if (open === true) {
-            const t = setTimeout(() => {
-                onOpen()
-            }, 3000)
-
-            return () => clearTimeout(t)
-        }
-    }, [onOpen, open])
-
     const toggleDrawer = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
         if (
             event.type === 'keydown' &&
@@ -141,6 +131,12 @@ const LeftDrawer: React.FC<Props> = props => {
             setOpen(false)
         }
     }, [type])
+
+    React.useEffect(()=>{
+        if (open === true) {
+            onOpen()
+        }
+    }, [type, open])
 
     const renderSidebar = useCallback((type: string) => {
         switch (type) {

@@ -96,6 +96,8 @@ class GameSessionConsumer(JsonWebsocketConsumer):
         if action_type == "add":
             object_id = game_session.last_object_id
             game_session.game_objects[object_id] = meta
+
+            message_type = "send_all"
             json_data["meta"]["id"] = object_id
             game_session.last_object_id += 1
             game_session.save()
