@@ -65,6 +65,12 @@ export default class GameObject extends Sprite {
       this.parent.pause = false;
       this.dragging = false;
       this.data = null;
+
+      this.eventManager.notify('update', {
+        save: true,
+        id: this.id,
+        xy: [this.x, this.y]
+      })
     }
 
     function onDragMove(e) {
@@ -84,6 +90,7 @@ export default class GameObject extends Sprite {
         this.last = newPoint;
 
         this.eventManager.notify('update', {
+          save: false,
           id: this.id,
           xy: [this.x, this.y]
         })
