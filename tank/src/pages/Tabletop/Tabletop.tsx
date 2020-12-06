@@ -13,6 +13,7 @@ import { selectConnectGameState, selectCurrentGame, selectCurrentGameData } from
 import { AsyncState } from '../../store/user/reducer'
 import FullscreenLoader from '../../components/Containers/FullscreenLoader/FullscreenLoader'
 import { push } from 'connected-react-router'
+import { disconnectGame } from '../../store/game/actions'
 
 
 const drawerWidth = 240
@@ -69,23 +70,26 @@ const useStyles = makeStyles((theme: Theme) =>
             marginBottom: '12px'
         },
         controls: {
-            height: '238px',
+            height: 250,
             backgroundColor: '#334055',
             display: 'flex'
         },
         people: {
             display: 'flex',
+            height: '100%',
+            padding: theme.spacing(1),
+            marginRight: theme.spacing(1),
             '& > *': {
                 cursor: 'pointer',
                 backgroundColor: '#43536B',
-                margin: theme.spacing(1),
                 minWidth: theme.spacing(20),
-                height: theme.spacing(27),
+                height: '100%',
                 display: 'flex',
                 alightItems: 'center',
                 justifyContent: 'center',
                 direction: 'column',
-                paddingTop: theme.spacing(2)
+                paddingTop: theme.spacing(2),
+                marginRight: theme.spacing(2)
             },
             overflowX: 'auto',
             '&::-webkit-scrollbar': {
@@ -109,6 +113,12 @@ const Tabletop = () => {
     const [myGameBoard, setMyGameBoard] = useState(null)
 
     useEffect(() => {
+        return () => {
+            dispatch(disconnectGame())
+        }
+    }, [dispatch])
+
+    useEffect(() => {
         if (connectGameState === AsyncState.success && game && game.invitation_code && divRef && divRef.current && ws) {
             const gameBoard = new Gameboard({
                 parent: divRef.current,
@@ -120,10 +130,10 @@ const Tabletop = () => {
                 // TODO: isGameMaster: {boolean}
             })
 
-            gameBoard.eventManager.subscribe('map', (e: any) => ws.sendMessage('map', e))
-            gameBoard.eventManager.subscribe('add', (e: any) => ws.sendMessage('add', e))
-            gameBoard.eventManager.subscribe('update', (e: any) => ws.sendMessage('update', e))
-            gameBoard.eventManager.subscribe('delete', (e: any) => ws.sendMessage('delete', e))
+            gameBoard.eventManager.subscribe('map', (data: any) => ws.sendMessage('map', data))
+            gameBoard.eventManager.subscribe('add', (data: any) => ws.sendMessage('add', data))
+            gameBoard.eventManager.subscribe('update', (data: any) => ws.sendMessage('update', data))
+            gameBoard.eventManager.subscribe('delete', (data: any) => ws.sendMessage('delete', data))
 
             // Картинки беру у клиента из точки входа
             const assets = [{ name: 'grid', path: 'locations/Bayport.png' }]
@@ -142,7 +152,7 @@ const Tabletop = () => {
     }, [game, divRef, ws, connectGameState])
 
     useEffect(() => {
-        if (currentGameData && myGameBoard) {
+        if (currentGameData && myGameBoard && connectGameState === AsyncState.success) {
             switch (currentGameData.type) {
                 case 'update':
                     myGameBoard.updateObjectPosition(currentGameData.meta)
@@ -159,7 +169,7 @@ const Tabletop = () => {
                     break
             }
         }
-    }, [myGameBoard, currentGameData])
+    }, [myGameBoard, currentGameData, connectGameState])
 
     if (connectGameState === AsyncState.inProcess) {
         return <FullscreenLoader/>
@@ -176,7 +186,7 @@ const Tabletop = () => {
                 <main className={classes.content}>
                     <div className={classes.map} ref={divRef}/>
                     <div className={classes.controls}>
-                        <Grid container spacing={3}>
+                        <Grid container>
                             <Grid item xs={5}>
                                 <div className={classes.people}>
                                     <PersonCard/>
