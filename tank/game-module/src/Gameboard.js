@@ -245,6 +245,8 @@ export default class Gameboard {
 
   refresh(options, callback) {
 
+    this.clear();
+
     let promises = [];
 
     for (let key in options.game_objects) {
