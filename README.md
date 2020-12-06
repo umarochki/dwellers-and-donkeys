@@ -84,11 +84,38 @@ POST /api/v1/games [Создать игру]
 Формат ответа:
 {
     "type": "refresh",
-    "meta": [
-        { "id": 1, "hp": 20, ... },
-        { "id": 3, "hp": 15, ... },
-        { "id": 5, "hp": 14, ... },
-    ]
+    "meta": {
+        "game_objects": {
+            "1": {},
+            "2": {},
+            ...
+        },
+        "chat": [
+            {
+                "type": "message",
+                "time": "2020-12-06 12:51:41.977600", (utc)
+                "message": "MESSAGE",
+                "sender": "testuser"
+            }, 
+            {
+                "type": "roll",
+                "time": '2020-12-06 12:51:41.977600', (utc)
+                "dice": {
+                    "d6": 2,
+                    "d20": 1
+                },
+                "total": 24,
+                "sender": "testuser"
+            },
+            ...  
+        ],
+        "active_users": [
+            "sevenzik",
+            "dakenezy",
+            "kolasteu",
+            "alyatt"
+        ]
+    }
 } 
 
 Почистить доску:
@@ -98,5 +125,47 @@ POST /api/v1/games [Создать игру]
 }
 
 Формат ответа: такой же
+
+Сообщение в чат:
+Формат запроса:
+{
+    "type": "chat",
+    "meta": "MESSAGE"
+} 
+
+Формат ответа:
+{
+    "type": "chat":
+    "meta": {
+        "type": "message",
+        "time": "2020-12-06T13:11:08Z",
+        "message": "MESSAGE",
+        "sender": "testuser"
+    }
+}
+
+Бросок кубика(ов):
+{
+    "type": "roll",
+    "meta": {
+        "d6": 2,
+        "d20": 1
+    }
+}
+
+Формат ответа:
+{
+    "type": "chat",
+    "meta": {
+        "type": "roll",
+        "time": "2020-12-06T13:11:08Z",
+        "dice": {
+            "d6": 2,
+            "d20": 1
+        },
+        "total": 24,
+        "sender": "testuser"
+    }
+}
 
 ```
