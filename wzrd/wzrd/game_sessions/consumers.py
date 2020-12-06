@@ -1,24 +1,30 @@
 import json
 import logging
 import pydash as _
-
+from datetime import datetime
 
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import JsonWebsocketConsumer
 
 from wzrd.users.redis import auth_manager
 from wzrd.users.models import User
+from . game_mechanics import roll
 from .models import Session
 
 
 class GameSessionConsumer(JsonWebsocketConsumer):
     UPDATE_FIELDS = ("xy", "sprite")
-    ACTION_TYPES = ("add", "delete", "update", "refresh", "clear")
+    ACTION_TYPES = ("add", "delete", "update", "refresh", "clear", "active_users", "roll", "chat")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.user_info = {}
         self.session_name = None
+
+    def get_user(self):
+        if not self.user_info:
+            return None
+        return User.objects.get(id=self.user_info["id"])
 
     def get_game_session(self):
         return Session.objects.filter(invitation_code=self.session_name).first()
@@ -28,12 +34,25 @@ class GameSessionConsumer(JsonWebsocketConsumer):
 
         token = _.get(self.scope, "cookies.auth_token")
         self.user_info = auth_manager.get_user_info(token)
-        # if not self.user_info:
-        #     return self.close(code=401)
+        logging.warning(self.user_info)
+        if not self.user_info:
+            return self.close(code=4401)
 
-        if not self.get_game_session():
-            
+        user = self.get_user()
+        game_session = self.get_game_session()
+
+        if not game_session:
             return self.close(code=4400)
+
+        if not user.sessions.filter(id=game_session.id).exists():
+            user.sessions.add(game_session)
+            user.save()
+
+        if user.username in game_session.active_users:
+            pass
+
+        game_session.active_users[user.username] = self.channel_name
+        game_session.save()
 
         # Join session group
         async_to_sync(self.channel_layer.group_add)(
@@ -44,6 +63,12 @@ class GameSessionConsumer(JsonWebsocketConsumer):
         self.accept()
 
     def disconnect(self, close_code):
+        game_session = self.get_game_session()
+        user_id = self.user_info["id"]
+        if user_id in game_session.active_users:
+            del game_session.active_users[user_id]
+            game_session.save()
+
         async_to_sync(self.channel_layer.group_discard)(
             self.session_name,
             self.channel_name
@@ -108,12 +133,45 @@ class GameSessionConsumer(JsonWebsocketConsumer):
             message_type = "send_me"
             json_data["meta"] = {
                 "game_objects": list(game_session.game_objects.values()),
+                "active_users": list(game_session.active_users.keys()),
+                "chat": game_session.chat,
             }
 
         elif action_type == "clear":
             game_session.game_objects = {}
             game_session.last_object_id = 1
             game_session.save()
+
+        elif action_type == "chat":
+            message_type = "send_all"
+            chat_message = {
+                "type": "message",
+                "time": datetime.strftime(datetime.utcnow(), "%Y-%m-%dT%H:%M:%S%zZ"),
+                "message": meta,
+                "sender": self.user_info["username"],
+            }
+            game_session.chat.append(chat_message)
+            game_session.save()
+
+        elif action_type == "roll":
+            rolled = roll(meta)
+            chat_message = {
+                "type": "roll",
+                "time": datetime.strftime(datetime.utcnow(), "%Y-%m-%dT%H:%M:%S%zZ"),
+                "dice": meta,
+                "total": rolled,
+                "sender": self.user_info["username"],
+            }
+            game_session.chat.append(chat_message)
+            game_session.save()
+
+            message_type = "send_all"
+            json_data["type"] = "chat"
+            json_data["meta"] = chat_message
+
+        elif action_type == "active_users":
+            message_type = "send_me"
+            json_data["meta"] = list(game_session.active_users.keys())
 
         self.start_sending(message_type, json_data)
 
