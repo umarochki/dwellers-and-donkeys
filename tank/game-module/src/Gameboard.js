@@ -60,6 +60,7 @@ export default class Gameboard {
   preload(assets, callback) {
 
     const appView = this.app.view;
+
     // Prevent pinch gesture
     appView.addEventListener('wheel', e => { e.preventDefault(); }, { passive: false });
 
@@ -125,7 +126,10 @@ export default class Gameboard {
         worldWidth: world.width,
         worldHeight: world.height,
 
-        interaction: this.app.renderer.plugins.interaction 
+        interaction: this.app.renderer.plugins.interaction,
+
+        // To prevent interaction with overlay DOM's
+        divWheel: this.app.view
     })
 
     // Add the viewport to the stage
