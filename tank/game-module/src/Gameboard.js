@@ -172,6 +172,7 @@ export default class Gameboard {
     // Check for dropping correct object
     if (!this.draggedDOM) return;
 
+    /*
     this.addObject({
       sprite: this.draggedDOM.src,
       width: this.draggedDOM.clientWidth,
@@ -179,7 +180,14 @@ export default class Gameboard {
       xy: [(e.layerX - this.viewport.x) / this.viewport.scale.x, 
            (e.layerY - this.viewport.y) / this.viewport.scale.y],
     })
+    */
     
+    this.eventManager.notify('add', {
+      sprite: this.draggedDOM.src,
+      xy: [(e.layerX - this.viewport.x) / this.viewport.scale.x, 
+           (e.layerY - this.viewport.y) / this.viewport.scale.y]
+    })
+
   }
 
   /* Add object to the viewpoint
@@ -195,7 +203,7 @@ export default class Gameboard {
     this._safeLoad(options.sprite, () => {
 
       const obj = new GameObject({
-        id: this.viewport.children.length - 1,
+        id: options.id,
         eventManager: this.eventManager, 
         texture: this.app.loader.resources[options.sprite].texture,
         src: options.sprite,
@@ -208,6 +216,7 @@ export default class Gameboard {
       this.draggedDOM = undefined;
 
       typeof callback == "function" && callback();
+      return Promise.resolve();
     });
   }
 
@@ -222,6 +231,25 @@ export default class Gameboard {
     object.parent.removeChild(object);
 
     typeof callback == "function" && callback(); 
+  }
+
+  refresh(options, callback) {
+
+    let promises = [];
+
+    for (let key in options.game_objects) {
+      promises.push(
+        this.addObject({
+          id: parseInt(key),
+          sprite: options.game_objects[key].sprite,
+          width: 0, // TODO:
+          height: 0, // TODO:
+          xy: options.game_objects[key].xy
+        })
+      )
+    }
+
+    Promise.all(promises).then(() => typeof callback == "function" && callback());
   }
 
   clear(options, callback) {

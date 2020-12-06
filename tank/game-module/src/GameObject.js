@@ -46,11 +46,6 @@ export default class GameObject extends Sprite {
       .on('mousemove', onDragMove)
       .on('touchmove', onDragMove);
 
-    this.eventManager.notify('add', {
-      id: options.id,
-      sprite: options.src,
-      xy: options.xy
-    })
     
     function onDragStart(event) {
 
