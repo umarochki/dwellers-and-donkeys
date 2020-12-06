@@ -104,7 +104,7 @@ class GameSessionConsumer(JsonWebsocketConsumer):
             obj = game_session.game_objects.get(str(meta["id"]))
             if not obj:
                 json_data["type"] = "error"
-                json_data["meta"] = f"Tried non-existant action_type {action_type}"
+                json_data["meta"] = f"Object [{meta['id']}] not found!"
                 logging.warning(f"[WS {self.session_name} UPDATE] Object [{meta['id']}] not found!")
                 return self.start_sending("send_me", json_data)
 
