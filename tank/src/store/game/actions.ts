@@ -34,8 +34,8 @@ export const updateGameData = (data: object) => {
 
 export const connectGame = (code: string) => {
     return (dispatch: Dispatch) => {
-        dispatch(request(code))
         dispatch(push(AuthRoutes.tabletop))
+        dispatch(request(code))
     }
 
     function request(code: string) { return { type: gameConstants.CONNECT_GAME_STARTED, payload: code } }

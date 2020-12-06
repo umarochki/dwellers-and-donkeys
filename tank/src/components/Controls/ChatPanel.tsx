@@ -13,6 +13,7 @@ import { WebSocketContext } from '../Contexts/WebSocketContext'
 import { useSelector } from 'react-redux'
 import { selectConnectGameState } from '../../store/game/selectors'
 import { AsyncState } from '../../store/user/reducer'
+import { GameDataMessage } from '../../models/game'
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -29,7 +30,9 @@ const useStyles = makeStyles((theme: Theme) =>
             padding: theme.spacing(1),
             flexGrow: 1,
             display: 'flex',
-            flexDirection: 'column'
+            flexDirection: 'column',
+            color: primary200,
+            maxHeight: '100%'
         },
         chatInput: {
             padding: theme.spacing(1),
@@ -37,7 +40,6 @@ const useStyles = makeStyles((theme: Theme) =>
             height: 50,
             marginTop: 'auto',
             display: 'flex',
-            color: primary200,
             alignItems: 'center'
         },
         rolls: {
@@ -59,11 +61,22 @@ const useStyles = makeStyles((theme: Theme) =>
             alignItems: 'center',
             marginRight: theme.spacing(1)
         },
+        chatContent: {
+            flexGrow: 1,
+            overflow: 'auto'
+        },
+        chatMessage: {
+            height: 30,
+            marginBottom: theme.spacing(1),
+            display: 'flex',
+            alignItems: 'flex-end'
+        },
         chatInputBtn: {
             marginLeft: 'auto',
             color: primary200,
         },
         miniDices: {
+            width: 0,
             display: 'flex',
             '-ms-overflow-style': 'none',
             scrollbarWidth: 'none',
@@ -74,7 +87,9 @@ const useStyles = makeStyles((theme: Theme) =>
         diceSquare: {
             marginRight: theme.spacing(1),
             marginLeft: theme.spacing(1),
-            width: 30,
+            paddingLeft: theme.spacing(1),
+            paddingRight: theme.spacing(1),
+            minWidth: 30,
             height: 30,
             border: `2px solid ${primary200}`,
             display: 'flex',
@@ -85,8 +100,6 @@ const useStyles = makeStyles((theme: Theme) =>
         }
     })
 )
-
-interface Props {}
 
 interface Dice {
     type: string
@@ -108,7 +121,37 @@ const MiniDice: React.FC<Dice> = props => {
     )
 }
 
-const ChatPanel: React.FC<Props> = () => {
+interface MessageProps {
+    message: GameDataMessage
+}
+
+const ChatMessage: React.FC<MessageProps> = props => {
+    const classes = useStyles()
+    const { message } = props
+
+    const date = new Date(message.time)
+
+    if (message.type === 'roll') {
+        return (
+            <div className={classes.chatMessage}>
+                <span className={classes.diceSquare}>{message.total}</span>({date.getHours()}:{date.getMinutes()})
+            </div>
+        )
+    }
+
+    return (
+        <div className={classes.chatMessage}>
+            {message.message}
+        </div>
+    )
+}
+
+interface Props {
+    data: GameDataMessage[]
+}
+
+const ChatPanel: React.FC<Props> = props => {
+    const { data } = props
     const classes = useStyles()
     const ws = useContext(WebSocketContext)
     const connectGameState = useSelector(selectConnectGameState)
@@ -138,6 +181,9 @@ const ChatPanel: React.FC<Props> = () => {
         <div className={classes.root}>
             <Card className={classes.content}>
                 <div className={classes.chat}>
+                    <div className={classes.chatContent}>
+                        {data.map(item => <ChatMessage message={item}/>)}
+                    </div>
                     <div className={classes.chatInput}>
                         <div className={classes.miniDices}>
                             {dices.map(dice => <MiniDice key={dice.type} {...dice} />)}

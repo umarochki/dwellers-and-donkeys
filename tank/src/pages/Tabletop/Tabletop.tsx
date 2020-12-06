@@ -14,6 +14,7 @@ import { AsyncState } from '../../store/user/reducer'
 import FullscreenLoader from '../../components/Containers/FullscreenLoader/FullscreenLoader'
 import { push } from 'connected-react-router'
 import { disconnectGame } from '../../store/game/actions'
+import { GameDataMessage } from '../../models/game'
 
 
 const drawerWidth = 240
@@ -95,6 +96,9 @@ const useStyles = makeStyles((theme: Theme) =>
             '&::-webkit-scrollbar': {
                 display: 'none'
             }
+        },
+        controlPanel: {
+            maxHeight: '100%'
         }
     }),
 )
@@ -111,6 +115,7 @@ const Tabletop = () => {
     const connectGameState = useSelector(selectConnectGameState)
 
     const [myGameBoard, setMyGameBoard] = useState(null)
+    const [messages, setMessages] = useState<GameDataMessage[]>([])
 
     useEffect(() => {
         return () => {
@@ -163,6 +168,9 @@ const Tabletop = () => {
                 case 'delete':
                     myGameBoard.deleteObject(currentGameData.meta)
                     break
+                case 'chat':
+                    setMessages(prev => [...prev, currentGameData.meta])
+                    break
                 case 'refresh':
                 case 'clear':
                 default:
@@ -187,7 +195,7 @@ const Tabletop = () => {
                     <div className={classes.map} ref={divRef}/>
                     <div className={classes.controls}>
                         <Grid container>
-                            <Grid item xs={5}>
+                            <Grid item xs={5} className={classes.controlPanel}>
                                 <div className={classes.people}>
                                     <PersonCard/>
                                     <PersonCard/>
@@ -197,11 +205,11 @@ const Tabletop = () => {
                                     <PersonCard/>
                                 </div>
                             </Grid>
-                            <Grid item xs={2}>
+                            <Grid item xs={2} className={classes.controlPanel}>
                                 <UserCard/>
                             </Grid>
-                            <Grid item xs>
-                                <ChatPanel/>
+                            <Grid item xs className={classes.controlPanel}>
+                                <ChatPanel data={messages}/>
                             </Grid>
                         </Grid>
                     </div>
