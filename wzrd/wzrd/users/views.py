@@ -57,8 +57,15 @@ class UserViewSet(viewsets.ModelViewSet, IsAuthorisedMixin):
         if not serializer.is_valid():
             return JsonResponse({"errors": serializer.errors}, status=400)
 
-        User.objects.create_user(**body)
-        return HttpResponse("OK!", status=200)
+        response = HttpResponse("OK!", status=201)
+        user = User.objects.create_user(**body)
+        auth_token = auth_manager.add_token(**{
+            field: getattr(user, field)
+            for field in ("id", "username", "first_name")
+            if getattr(user, field) is not None
+        })
+        response.set_cookie("auth_token", auth_token)
+        return response
 
     @is_authorized
     @action(detail=False, methods=['GET', 'POST'])
