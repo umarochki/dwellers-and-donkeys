@@ -13,6 +13,12 @@ from . game_mechanics import roll
 from .models import Session
 
 
+@database_sync_to_async
+@lru_cache(maxsize=128)
+def get_game_session(session_name):
+    return Session.objects.filter(invitation_code=session_name).first()
+
+
 class GameSessionConsumer(AsyncJsonWebsocketConsumer):
     UPDATE_FIELDS = ("xy", "sprite")
     ACTION_TYPES = ("add", "delete", "update", "update_and_save", "refresh", "clear", "active_users", "roll", "chat")
@@ -36,11 +42,6 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
             user.save()
 
     @database_sync_to_async
-    @lru_cache(maxsize=128)
-    def get_game_session(self, session_name):
-        return Session.objects.filter(invitation_code=session_name).first()
-
-    @database_sync_to_async
     def save_game_session(self, session):
         session.save()
 
@@ -54,7 +55,7 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
             return self.close(code=4401)
 
         user = await self.get_user()
-        game_session = await self.get_game_session(self.session_name)
+        game_session = await get_game_session(self.session_name)
 
         if not game_session:
             return self.close(code=4400)
@@ -69,7 +70,7 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
         await self.accept()
 
     async def disconnect(self, close_code):
-        game_session = await self.get_game_session(self.session_name)
+        game_session = await get_game_session(self.session_name)
         user_id = self.user_info.get("id")
         if user_id and user_id in game_session.active_users:
             del game_session.active_users[user_id]
@@ -89,7 +90,7 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
             logging.warning(f"[WS {self.session_name}] Tried non-existant action_type {action_type}")
             return await self.start_sending("send_me", json_data)
 
-        game_session = await self.get_game_session(self.session_name)
+        game_session = await get_game_session(self.session_name)
         if not game_session:
             json_data["type"] = "error"
             json_data["meta"] = "Game session not found!"
