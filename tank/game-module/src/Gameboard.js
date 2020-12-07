@@ -49,9 +49,6 @@ export default class Gameboard {
     if (!options.view)
       options.parent.appendChild(this.app.view);
 
-    // A map where object.id -> object order number in viewport.children list
-    this.objs = { };
-
     return this;
   }
 
@@ -221,46 +218,34 @@ export default class Gameboard {
 
       const obj = this.createObject(options);
       this.viewport.addChild(obj);
-      this.objs[options.id] = this.viewport.children.length - 1;
       
       typeof callback == "function" && callback();
     });
   }
 
-  addObject(options, callback) {
-
-    return new Promise((resolve, reject) => {
-      this._safeLoad([options.sprite], () => {
-
-        const obj = this.createObject(options);
-        this.viewport.addChild(obj);
-        this.objs[options.id] = this.viewport.children.length - 1;
-        
-        typeof callback == "function" && callback();
-      });
-    })
-  }
-
   updateObjectPosition(options, callback) {
 
-    if (!this.objs[options.id] || !this.viewport.children[this.objs[options.id]]) {
+    var obj = this.viewport.children.find(x => x.id === options.id)
+
+    if (!obj) {
       console.warn('Cannot find an element with id: ', options.id);
       return;
     }
 
-    this.viewport.children[this.objs[options.id]].updatePosition(options.xy[0], options.xy[1]);
+    obj.updatePosition(options.xy[0], options.xy[1]);
     typeof callback == "function" && callback();
   }
 
   deleteObject(options, callback) {
 
-    if (!this.objs[options.id] || !this.viewport.children[this.objs[options.id]]) {
+    var obj = this.viewport.children.find(x => x.id === options.id)
+
+    if (!obj) {
       console.warn('Cannot find an element with id: ', options.id);
       return;
     }
 
-    var object = this.viewport.children[this.objs[options.id]];
-    object.parent.removeChild(object);
+    obj.parent.removeChild(obj);
 
     typeof callback == "function" && callback(); 
   }
@@ -276,9 +261,8 @@ export default class Gameboard {
 
     this._safeLoad(resources, () => {
       for (let key in options.game_objects) {
-        var obj = this.createObject({ ...options.game_objects[key], id: parseInt(key)})
+        var obj = this.createObject(options.game_objects[key])
         this.viewport.addChild(obj);
-        this.objs[options.id] = this.viewport.children.length - 1;
       }
 
       typeof callback == "function" && callback()
