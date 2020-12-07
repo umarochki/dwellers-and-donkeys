@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import Drawer from '@material-ui/core/Drawer'
 import { GridList, GridListTile, Theme, Tooltip } from '@material-ui/core'
@@ -136,7 +136,7 @@ const LeftDrawer: React.FC<Props> = props => {
         if (open === true) {
             onOpen()
         }
-    }, [type, open])
+    }, [type, open, onOpen])
 
     const renderSidebar = useCallback((type: string) => {
         switch (type) {
@@ -164,18 +164,18 @@ const LeftDrawer: React.FC<Props> = props => {
                         ))}
                     </GridList>
                 )
-            case MenuType.locations:
-                return (
-                    <GridList cellHeight={100} cols={1}>
-                        {mapsList.map((map: string) => (
-                            <Tooltip title={map} key={map}>
-                                <GridListTile cols={1} className={classes.tile}>
-                                    <img src={`locations/${map}.png`} alt={map} draggable/>
-                                </GridListTile>
-                            </Tooltip>
-                        ))}
-                    </GridList>
-                )
+            // case MenuType.locations:
+            //     return (
+            //         <GridList cellHeight={100} cols={1}>
+            //             {mapsList.map((map: string) => (
+            //                 <Tooltip title={map} key={map}>
+            //                     <GridListTile cols={1} className={classes.tile}>
+            //                         <img src={`locations/${map}.png`} alt={map} draggable/>
+            //                     </GridListTile>
+            //                 </Tooltip>
+            //             ))}
+            //         </GridList>
+            //     )
         }
     }, [classes.tile])
 

@@ -4,6 +4,7 @@ import * as userConstants from './constants'
 import { push } from 'connected-react-router'
 import { User } from '../../models/user'
 import { Dispatch } from '..'
+import { NonAuthRoutes } from '../../routes'
 
 export const login = (username: string, password: string) => {
     return (dispatch: Dispatch) => {
@@ -64,7 +65,8 @@ export const getMyself = () => {
                 dispatch(success(user))
             }, error => {
                 dispatch(failure(error))
-                dispatch(alertActions.error(error))
+                // dispatch(alertActions.error(error))
+                dispatch(push(NonAuthRoutes.login))
             })
     }
 

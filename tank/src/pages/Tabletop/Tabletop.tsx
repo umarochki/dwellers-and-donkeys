@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
-import LeftDrawer, { heroes, mapsList, markersList } from '../../components/Switcher/LeftDrawer'
+import LeftDrawer, { heroes, markersList } from '../../components/Switcher/LeftDrawer'
 import { Grid } from '@material-ui/core'
 import UserCard from '../../components/Controls/UserCard'
 import PersonCard from '../../components/Controls/PersonCard'
@@ -15,7 +15,7 @@ import FullscreenLoader from '../../components/Containers/FullscreenLoader/Fulls
 import { push } from 'connected-react-router'
 import { disconnectGame } from '../../store/game/actions'
 import { GameDataMessage } from '../../models/game'
-import {ConnectedUser} from "../../models/user";
+import { ConnectedUser } from '../../models/user'
 
 
 const drawerWidth = 240
@@ -128,10 +128,10 @@ const Tabletop = () => {
             const img = new Image()
             img.src = `markers/${marker}.png`
         })
-        mapsList.forEach((location: string) => {
-            const img = new Image()
-            img.src = `locations/${location}.png`
-        })
+        // mapsList.forEach((location: string) => {
+        //     const img = new Image()
+        //     img.src = `locations/${location}.png`
+        // })
     }, [])
 
     useEffect(() => {
@@ -168,8 +168,8 @@ const Tabletop = () => {
             markersList.forEach((marker: string) =>
                 assets.push({ name: marker, path: `markers/${marker}.png` }))
 
-            mapsList.forEach((location: string) =>
-                assets.push({ name: location, path: `locations/${location}.png` }))
+            // mapsList.forEach((location: string) =>
+            //     assets.push({ name: location, path: `locations/${location}.png` }))
 
             // Грузим холст и статики (пока так)
             gameBoard.preload(assets, () => {

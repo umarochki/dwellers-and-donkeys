@@ -3,7 +3,6 @@ import { makeStyles } from '@material-ui/core/styles'
 import { ListItem, Tooltip } from '@material-ui/core'
 import ListItemIcon from '@material-ui/core/ListItemIcon/ListItemIcon'
 import HomeIcon from '@material-ui/icons/Home'
-import LayersIcon from '@material-ui/icons/Layers'
 import FaceIcon from '@material-ui/icons/Face'
 import List from '@material-ui/core/List'
 import FlagIcon from '@material-ui/icons/Flag'
@@ -46,7 +45,7 @@ const useStyles = makeStyles(() => ({
 
 export enum MenuType {
     heroes = 'heroes',
-    locations = 'locations',
+    // locations = 'locations',
     markers = 'markers',
     unselect = 'unselect'
 }
@@ -55,8 +54,8 @@ const mapTypeToIcon = (type: MenuType) => {
     switch (type) {
         case MenuType.heroes:
             return <FaceIcon fontSize="large"/>
-        case MenuType.locations:
-            return <LayersIcon fontSize="large"/>
+        // case MenuType.locations:
+        //     return <LayersIcon fontSize="large"/>
         case MenuType.markers:
             return <FlagIcon fontSize="large"/>
         case MenuType.unselect:
@@ -69,8 +68,8 @@ const mapTypeToTooltip = (type: MenuType): string => {
     switch (type) {
         case MenuType.heroes:
             return 'Персонажи'
-        case MenuType.locations:
-            return 'Карты'
+        // case MenuType.locations:
+        //     return 'Карты'
         case MenuType.markers:
             return 'Маркеры'
         case MenuType.unselect:
@@ -97,7 +96,7 @@ const Switcher: React.FC<Props> = props => {
                 <ListItemIcon className={classes.icon_inactive}><HomeIcon fontSize="large"/></ListItemIcon>
             </ListItem>
             {
-                [MenuType.locations, MenuType.heroes, MenuType.markers].map(type => (
+                [MenuType.heroes, MenuType.markers].map(type => (
                     <Tooltip title={mapTypeToTooltip(type)} className={classes.tooltip} style={{ zIndex: 5000 }} key={type}>
                         <ListItem button className={classes.group} onClick={() => onSelect(type)}>
                             <ListItemIcon className={type === currentType ? classes.icon : classes.icon_inactive}>
