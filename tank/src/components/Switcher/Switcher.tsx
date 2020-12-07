@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
-import { ListItem, Tooltip } from '@material-ui/core'
+import { ListItem } from '@material-ui/core'
 import ListItemIcon from '@material-ui/core/ListItemIcon/ListItemIcon'
 import HomeIcon from '@material-ui/icons/Home'
 import FaceIcon from '@material-ui/icons/Face'
@@ -97,13 +97,11 @@ const Switcher: React.FC<Props> = props => {
             </ListItem>
             {
                 [MenuType.heroes, MenuType.markers].map(type => (
-                    <Tooltip title={mapTypeToTooltip(type)} className={classes.tooltip} style={{ zIndex: 5000 }} key={type}>
-                        <ListItem button className={classes.group} onClick={() => onSelect(type)}>
-                            <ListItemIcon className={type === currentType ? classes.icon : classes.icon_inactive}>
-                                {mapTypeToIcon(type)}
-                            </ListItemIcon>
-                        </ListItem>
-                    </Tooltip>
+                    <ListItem button className={classes.group} onClick={() => onSelect(type)} key={type}>
+                        <ListItemIcon className={type === currentType ? classes.icon : classes.icon_inactive}>
+                            {mapTypeToIcon(type)}
+                        </ListItemIcon>
+                    </ListItem>
                 ))
             }
         </List>
