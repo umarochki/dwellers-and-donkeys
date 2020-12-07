@@ -15,6 +15,7 @@ import FullscreenLoader from '../../components/Containers/FullscreenLoader/Fulls
 import { push } from 'connected-react-router'
 import { disconnectGame } from '../../store/game/actions'
 import { GameDataMessage } from '../../models/game'
+import {ConnectedUser} from "../../models/user";
 
 
 const drawerWidth = 240
@@ -115,7 +116,7 @@ const Tabletop = () => {
 
     const [myGameBoard, setMyGameBoard] = useState(null)
     const [messages, setMessages] = useState<GameDataMessage[]>([])
-    const [users, setUsers] = useState<GameDataMessage[]>([])
+    const [users, setUsers] = useState<ConnectedUser[]>([])
 
     // Preload images
     useEffect(() => {
@@ -160,7 +161,16 @@ const Tabletop = () => {
             // Картинки беру у клиента из точки входа
             const assets = [{ name: 'grid', path: 'locations/Bayport.png' }]
 
-            setMyGameBoard(gameBoard)
+            // Предзагрузка всех используемых спрайтов
+            heroes.forEach((hero: string) =>
+                assets.push({ name: hero, path: `heroes/${hero}.png` }))
+
+            markersList.forEach((marker: string) =>
+                assets.push({ name: marker, path: `markers/${marker}.png` }))
+
+            mapsList.forEach((location: string) =>
+                assets.push({ name: location, path: `locations/${location}.png` }))
+
             // Грузим холст и статики (пока так)
             gameBoard.preload(assets, () => {
                 // Устанавливаем мапу
@@ -170,6 +180,8 @@ const Tabletop = () => {
                     ws.sendMessage('refresh')
                 })
             })
+
+            setMyGameBoard(gameBoard)
         }
     }, [game, divRef, ws, connectGameState, myGameBoard])
 
@@ -192,6 +204,12 @@ const Tabletop = () => {
                     setUsers(currentGameData.meta.active_users)
                     setMessages(currentGameData.meta.chat)
                     myGameBoard.refresh(currentGameData.meta)
+                    break
+                case 'connect':
+                    setUsers(prev => [...prev, currentGameData.meta])
+                    break
+                case 'disconnect':
+                    setUsers(prev => prev.filter(user => user.id !== currentGameData.meta))
                     break
                 case 'clear':
                 default:
@@ -220,7 +238,7 @@ const Tabletop = () => {
                         <Grid container>
                             <Grid item xs={5} className={classes.controlPanel}>
                                 <div className={classes.people}>
-                                    {users.map(user => <PersonCard user={user}/>)}
+                                    {users.map(user => <PersonCard user={user.username}/>)}
                                 </div>
                             </Grid>
                             <Grid item xs={2} className={classes.controlPanel}>

@@ -53,6 +53,7 @@ const StartPage = () => {
     const handleProfileClick = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget)
     }, [])
+
     const handleClose = useCallback(() => {
         setAnchorEl(null)
     }, [])
@@ -71,9 +72,7 @@ const StartPage = () => {
             <CssBaseline/>
             <AppBar position="relative">
                 <Toolbar className={classes.toolbarAvatar}>
-                    <Avatar onClick={handleProfileClick} className={classes.avatar}>
-                        { '?'}
-                    </Avatar>
+                    <Avatar onClick={handleProfileClick} className={classes.avatar}>?</Avatar>
                     <Menu
                         id="profile-menu"
                         anchorEl={anchorEl}
