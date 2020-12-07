@@ -141,8 +141,6 @@ const Tabletop = () => {
 
     useEffect(() => {
         if (!myGameBoard && connectGameState === AsyncState.success && game && game.invitation_code && divRef && divRef.current && ws.socket) {
-            ws.sendMessage('refresh')
-
             const gameBoard = new Gameboard({
                 parent: divRef.current,
                 // Нужно указать ширину/длину, иначе отчего-то хендлеры не робят
@@ -162,16 +160,16 @@ const Tabletop = () => {
             // Картинки беру у клиента из точки входа
             const assets = [{ name: 'grid', path: 'locations/Bayport.png' }]
 
+            setMyGameBoard(gameBoard)
             // Грузим холст и статики (пока так)
             gameBoard.preload(assets, () => {
                 // Устанавливаем мапу
                 gameBoard.setMap({ sprite: 'locations/Bayport.png' }, () => {
                     // Сохраняем ссылку
                     boardRef.current = gameBoard
+                    ws.sendMessage('refresh')
                 })
             })
-
-            setMyGameBoard(gameBoard)
         }
     }, [game, divRef, ws, connectGameState, myGameBoard])
 
@@ -193,7 +191,7 @@ const Tabletop = () => {
                 case 'refresh':
                     setUsers(currentGameData.meta.active_users)
                     setMessages(currentGameData.meta.chat)
-                    myGameBoard.refresh(currentGameData.meta);
+                    myGameBoard.refresh(currentGameData.meta)
                     break
                 case 'clear':
                 default:

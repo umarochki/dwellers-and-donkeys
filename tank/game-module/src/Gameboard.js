@@ -218,7 +218,6 @@ export default class Gameboard {
       this.objs[options.id] = this.viewport.children.length - 1;
 
       this.draggedDOM = undefined;
-
       typeof callback == "function" && callback();
       return Promise.resolve();
     });
@@ -246,22 +245,27 @@ export default class Gameboard {
   refresh(options, callback) {
 
     this.clear();
-
+    let resources = [];
     let promises = [];
 
     for (let key in options.game_objects) {
-      promises.push(
-        this.addObject({
-          id: parseInt(key),
-          sprite: options.game_objects[key].sprite,
-          width: 0, // TODO:
-          height: 0, // TODO:
-          xy: options.game_objects[key].xy
-        })
-      )
+        resources.push(options.game_objects[key].sprite)
     }
 
-    Promise.all(promises).then(() => typeof callback == "function" && callback());
+    this._safeLoadMany(resources, () => {
+      for (let key in options.game_objects) {
+        promises.push(
+          new Promise(() => this.addObject({
+            id: parseInt(options.game_objects[key].id),
+            sprite: options.game_objects[key].sprite,
+            width: 0, // TODO:
+            height: 0, // TODO:
+            xy: options.game_objects[key].xy
+          }))
+        )
+      }
+      Promise.all(promises).then(() => typeof callback == "function" && callback());
+    })
   }
 
   clear(options, callback) {
@@ -305,5 +309,14 @@ export default class Gameboard {
     else {
       this.app.loader.add(res).load(callback.bind(this));
     }
+  }
+
+   _safeLoadMany(resList, callback) {
+    for (let res of resList) {
+      if(!this.app.loader.resources[res]) {
+         this.app.loader.add(res)
+      }
+    }
+    this.app.loader.load(callback.bind(this))
   }
 }
