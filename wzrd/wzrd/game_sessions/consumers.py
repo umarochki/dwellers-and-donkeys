@@ -3,7 +3,7 @@ import logging
 import pydash as _
 from datetime import datetime
 
-from functools import lru_cache
+from async_lru import alru_cache
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 
@@ -13,10 +13,12 @@ from . game_mechanics import roll
 from .models import Session
 
 
-@database_sync_to_async
-@lru_cache(maxsize=128)
-def get_game_session(session_name):
-    return Session.objects.filter(invitation_code=session_name).first()
+@alru_cache(maxsize=128)
+async def get_game_session(session_name):
+    @database_sync_to_async
+    def request():
+        return Session.objects.filter(invitation_code=session_name).first()
+    return await request()
 
 
 class GameSessionConsumer(AsyncJsonWebsocketConsumer):
