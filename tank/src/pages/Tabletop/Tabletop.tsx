@@ -242,7 +242,7 @@ const Tabletop = () => {
                                 </div>
                             </Grid>
                             <Grid item xs={2} className={classes.controlPanel}>
-                                <UserCard/>
+                                <UserCard code={game ? game.invitation_code || '' : ''}/>
                             </Grid>
                             <Grid item xs className={classes.controlPanel}>
                                 <ChatPanel data={messages}/>

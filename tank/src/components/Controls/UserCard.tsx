@@ -13,7 +13,7 @@ const useStyles = makeStyles((theme: Theme) =>
             alignItems: 'center',
             flexDirection: 'column',
             height: '100%',
-            paddingTop: theme.spacing(3),
+            paddingTop: theme.spacing(4),
             borderRadius: 0
         },
         avatarLarge: {
@@ -28,21 +28,30 @@ const useStyles = makeStyles((theme: Theme) =>
             marginBottom: theme.spacing(1)
         },
         race: {
+            color: primary200,
+            marginBottom: theme.spacing(1)
+        },
+        code: {
+            fontSize: '1.5rem',
             color: primary200
         }
     })
 )
 
-interface Props {}
+interface Props {
+    code: string
+}
 
-const UserCard: React.FC<Props> = () => {
+const UserCard: React.FC<Props> = props => {
     const classes = useStyles()
+    const { code } = props
 
     return (
         <Card className={classes.me} raised>
             <Avatar className={classes.avatarLarge}><PersonIcon fontSize="large"/></Avatar>
-            <span className={classes.name}>Я кто-то там</span>
-            <span className={classes.race}>Темный эльф</span>
+            {/*<span className={classes.name}>Я кто-то там</span>*/}
+            <span className={classes.race}>Код приглашения:</span>
+            <span className={classes.code}>{code}</span>
         </Card>
     )
 }
