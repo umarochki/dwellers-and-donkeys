@@ -110,10 +110,10 @@ POST /api/v1/games [Создать игру]
             ...  
         ],
         "active_users": [
-            "sevenzik",
-            "dakenezy",
-            "kolasteu",
-            "alyatt"
+            {"id": "1", "username": "sevenzik"},
+            {"id": "2", "username": "darkenezy"},
+            {"id": "3", "username": "kolasteu"},
+            {"id": "4", "username": "aliyatt"},
         ]
     }
 } 
@@ -168,4 +168,21 @@ POST /api/v1/games [Создать игру]
     }
 }
 
+```
+список нотифаев от сервера:
+```
+Новый игрок подключился:
+{
+    "type": "connect",
+    "meta": {
+        "id": "1",
+        "username": "zlodeyka"
+    }
+}
+
+Игрок отключился:
+{
+    "type": "disconnect",
+    "meta": "1"
+}
 ```

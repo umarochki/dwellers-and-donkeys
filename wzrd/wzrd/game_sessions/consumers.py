@@ -61,11 +61,17 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
 
         if not game_session:
             return self.close(code=4400)
-
         await self.add_session_to_user(user, game_session)
 
-        game_session.active_users[user.username] = self.channel_name
+        user_id = str(user.id)
+        user_obj = {"id": user_id, "username": user.username}
+        game_session.active_users[user_id] = user_obj
+
         await self.save_game_session(game_session)
+        await self.start_sending("send_all_but_me", {
+            "type": "connect",
+            "meta": user_obj
+        })
 
         # Join session group
         await self.channel_layer.group_add(self.session_name, self.channel_name)
@@ -73,10 +79,14 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
 
     async def disconnect(self, close_code):
         game_session = await get_game_session(self.session_name)
-        user_id = self.user_info.get("id")
+        user_id = str(self.user_info.get("id"))
         if user_id and user_id in game_session.active_users:
             del game_session.active_users[user_id]
             await self.save_game_session(game_session)
+            await self.start_sending("send_all_but_me", {
+                "type": "disconnect",
+                "meta": user_id
+            })
 
         await self.channel_layer.group_discard(self.session_name, self.channel_name)
 
@@ -142,8 +152,8 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
         elif action_type == "refresh":
             message_type = "send_me"
             json_data["meta"] = {
-                "game_objects": list(game_session.game_objects.values()),
-                "active_users": list(game_session.active_users.keys()),
+                "active_users": list(game_session.active_users.values()),
+                "game_objects": game_session.game_objects,
                 "chat": game_session.chat,
             }
 
@@ -180,7 +190,7 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
 
         elif action_type == "active_users":
             message_type = "send_me"
-            json_data["meta"] = list(game_session.active_users.keys())
+            json_data["meta"] = game_session.active_users
 
         if save:
             await self.save_game_session(game_session)
