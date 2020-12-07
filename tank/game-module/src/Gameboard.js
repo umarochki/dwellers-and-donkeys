@@ -33,7 +33,6 @@ export default class Gameboard {
         forceCanvas: false,
     }, options);
 
-    
     this.eventManager = new EventManager();
 
     // A DOM-element that is currently dragged.
@@ -50,6 +49,7 @@ export default class Gameboard {
     if (!options.view)
       options.parent.appendChild(this.app.view);
 
+    // A map where object.id -> object order number in viewport.children list
     this.objs = { };
 
     return this;
@@ -190,6 +190,21 @@ export default class Gameboard {
            (e.layerY - this.viewport.y) / this.viewport.scale.y]
     })
 
+    this.draggedDOM = undefined;
+  }
+
+  createObject(options) {
+    
+    return new GameObject({
+      id: options.id,
+      eventManager: this.eventManager, 
+      texture: this.app.loader.resources[options.sprite].texture,
+      src: options.sprite,
+      width: 0, // TODO:
+      height: 0, // TODO:
+      xy: options.xy
+    });
+
   }
 
   /* Add object to the viewpoint
@@ -202,31 +217,34 @@ export default class Gameboard {
    */
   addObject(options, callback) {
 
-    this._safeLoad(options.sprite, () => {
+    this._safeLoad([options.sprite], () => {
 
-      const obj = new GameObject({
-        id: options.id,
-        eventManager: this.eventManager, 
-        texture: this.app.loader.resources[options.sprite].texture,
-        src: options.sprite,
-        width: options.width,
-        height: options.height,
-        xy: options.xy
-      });
-
+      const obj = this.createObject(options);
       this.viewport.addChild(obj);
       this.objs[options.id] = this.viewport.children.length - 1;
-
-      this.draggedDOM = undefined;
+      
       typeof callback == "function" && callback();
-      return Promise.resolve();
     });
+  }
+
+  addObject(options, callback) {
+
+    return new Promise((resolve, reject) => {
+      this._safeLoad([options.sprite], () => {
+
+        const obj = this.createObject(options);
+        this.viewport.addChild(obj);
+        this.objs[options.id] = this.viewport.children.length - 1;
+        
+        typeof callback == "function" && callback();
+      });
+    })
   }
 
   updateObjectPosition(options, callback) {
 
     if (!this.objs[options.id] || !this.viewport.children[this.objs[options.id]]) {
-      console.log('Cannot find an element with id: ', options.id);
+      console.warn('Cannot find an element with id: ', options.id);
       return;
     }
 
@@ -235,6 +253,11 @@ export default class Gameboard {
   }
 
   deleteObject(options, callback) {
+
+    if (!this.objs[options.id] || !this.viewport.children[this.objs[options.id]]) {
+      console.warn('Cannot find an element with id: ', options.id);
+      return;
+    }
 
     var object = this.viewport.children[this.objs[options.id]];
     object.parent.removeChild(object);
@@ -245,27 +268,21 @@ export default class Gameboard {
   refresh(options, callback) {
 
     this.clear();
+
     let resources = [];
-    let promises = [];
 
-    for (let key in options.game_objects) {
+    for (let key in options.game_objects)
         resources.push(options.game_objects[key].sprite)
-    }
 
-    this._safeLoadMany(resources, () => {
+    this._safeLoad(resources, () => {
       for (let key in options.game_objects) {
-        promises.push(
-          new Promise(() => this.addObject({
-            id: parseInt(options.game_objects[key].id),
-            sprite: options.game_objects[key].sprite,
-            width: 0, // TODO:
-            height: 0, // TODO:
-            xy: options.game_objects[key].xy
-          }))
-        )
+        var obj = this.createObject({ ...options.game_objects[key], id: parseInt(key)})
+        this.viewport.addChild(obj);
+        this.objs[options.id] = this.viewport.children.length - 1;
       }
-      Promise.all(promises).then(() => typeof callback == "function" && callback());
-    })
+
+      typeof callback == "function" && callback()
+    });
   }
 
   clear(options, callback) {
@@ -277,7 +294,8 @@ export default class Gameboard {
   }
 
   setMap(options, callback) {
-    this._safeLoad(options.sprite, () => {
+
+    this._safeLoad([options.sprite], () => {
       // Draw map image as a background
       const image = PIXI.Sprite.from(this.app.loader.resources[options.sprite].texture);
 
@@ -297,26 +315,26 @@ export default class Gameboard {
 
   switchGrid() {
     this.mapContainer.switchGrid();
-
     this.eventManager.notify('grid', { enabled: true });
   }
 
-  _safeLoad(res, callback) {
-    // If resource has already been loaded, not doing it again
-    if (this.app.loader.resources[res])  {
-      callback.bind(this)();
-    }
-    else {
-      this.app.loader.add(res).load(callback.bind(this));
-    }
-  }
+  // If resource has already been loaded, not doing it again
+  _safeLoad(resources, callback) {
+    
+    var flag = false;
 
-   _safeLoadMany(resList, callback) {
-    for (let res of resList) {
-      if(!this.app.loader.resources[res]) {
-         this.app.loader.add(res)
+    for (let res of resources) {
+      if (!this.isLoaded(res)) {
+        flag = true;
+        this.app.loader.add(res); 
       }
     }
-    this.app.loader.load(callback.bind(this))
+    
+    if (flag) this.app.loader.load(callback.bind(this))
+    else callback.bind(this)();
+  }
+
+  isLoaded(resource) {
+    return typeof this.app.loader.resources[resource] !== 'undefined';
   }
 }
