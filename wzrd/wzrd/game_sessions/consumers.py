@@ -37,7 +37,7 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
 
     @database_sync_to_async
     @lru_cache(maxsize=128)
-    def get_game_session(self, session_na12444361C5B6me):
+    def get_game_session(self, session_name):
         return Session.objects.filter(invitation_code=session_name).first()
 
     @database_sync_to_async
