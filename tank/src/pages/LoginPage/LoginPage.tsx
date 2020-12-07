@@ -37,8 +37,8 @@ const LoginPage = () => {
             <div className={clsx(classes.logotypeContainer, classes.image)}>
                 <Typography className={classes.logotypeText}>Dwellers & Donkeys</Typography>
             </div>
-            <div className={classes.formContainer}>
-                <div className={classes.form}>
+            <div className={classes.formContainer} onSubmit={e => e.preventDefault()}>
+                <form className={classes.form}>
                     <Tabs
                         value={activeTabId}
                         onChange={(e, id) => setActiveTabId(id)}
@@ -87,6 +87,7 @@ const LoginPage = () => {
                                     <CircularProgress size={26} className={classes.loginLoader} />
                                 ) : (
                                     <Button
+                                        type="submit"
                                         disabled={loginValue.length === 0 || passwordValue.length === 0}
                                         onClick={() => {
                                             dispatch(login(loginValue, passwordValue))
@@ -163,6 +164,7 @@ const LoginPage = () => {
                                     <CircularProgress size={26} />
                                 ) : (
                                     <Button
+                                        type="submit"
                                         onClick={() => {
                                             dispatch(signup(loginValue, emailValue, passwordValue))
                                         }}
@@ -198,7 +200,7 @@ const LoginPage = () => {
                             {/*</Button>*/}
                         </>
                     )}
-                </div>
+                </form>
             </div>
         </Grid>
     )
