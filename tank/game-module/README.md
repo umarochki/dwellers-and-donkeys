@@ -75,6 +75,16 @@ function App() {
     // Картинки беру у клиента из точки входа
     var assets = [{ name: 'grid', path: './locations/{grid.png}' }]
 
+    // Предзагрузка всех используемых спрайтов
+    heroes.forEach((hero: string) => 
+        assets.push({ name: hero, path: `heroes/${hero}.png` }))
+
+    markersList.forEach((marker: string) => 
+        assets.push({ name: marker, path: `markers/${marker}.png` }))
+
+    mapsList.forEach((location: string) => 
+        assets.push({ name: location, path: `locations/${location}.png` }))
+
     // Грузим холст и статики (пока так)
     gameboard.preload(assets, () => {
         // Устанавливаем мапу
