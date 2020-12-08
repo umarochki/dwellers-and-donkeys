@@ -8,7 +8,12 @@ class AuthRedisManager:
     def __init__(self):
         self._redis = Redis(host='redis', port=6379)
 
-    def add_token(self, **fields):
+    def add_token(self, user):
+        fields = {
+            field: getattr(user, field)
+            for field in ("id", "username", "first_name", "is_temporary")
+            if getattr(user, field) is not None
+        }
         token = generate_key(length=20)
         self._redis.set(token, json.dumps(fields))
         return token

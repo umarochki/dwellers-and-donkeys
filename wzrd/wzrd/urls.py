@@ -19,6 +19,7 @@ urlpatterns = [
         url("auth/me", users_views.UserViewSet.as_view({"get": "me"}), name="me"),
         url("auth/login", users_views.LoginWithCredentials.as_view(), name="login"),
         url("auth/signup", users_views.UserViewSet.as_view({"post": "signup"}), name="signup"),
-        url("auth/logout", users_views.UserViewSet.as_view({"get": "logout", "post": "logout"}), name="logout")
+        url("auth/logout", users_views.UserViewSet.as_view({"get": "logout", "post": "logout"}), name="logout"),
+        url("auth/quickstart", users_views.UserViewSet.as_view({"get": "quickstart", "post": "quickstart"}), name="quickstart"),
     ])),
 ]

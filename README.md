@@ -20,7 +20,9 @@ POST /api/v1/auth/login [Войти] Ждет поля: username, password
 
 GET/POST /api/v1/auth/logout [Выйти]
 
+GET/POST /api/v1/auth/quickstart [Быстрая регистрация]
 POST /api/v1/auth/signup [Регистрация]
+
 Ждет как минимум username, password.
 Можно еще передать: first_name, last_name, email.
 
