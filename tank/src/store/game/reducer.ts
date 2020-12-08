@@ -1,7 +1,7 @@
 import * as gameConstants from './constants'
 import { Reducer } from 'redux'
 import { AsyncState } from '../user/reducer'
-import { Game } from '../../models/game'
+import { Game, SocketMessage } from '../../models/game'
 
 export interface GameState {
     createGameState: AsyncState
@@ -9,7 +9,7 @@ export interface GameState {
     error: Error | null
     currentGame: Game | null
     games: Game[]
-    currentGameData: object | null
+    currentGameData: SocketMessage | null
     connectGameState: AsyncState
 }
 
@@ -20,23 +20,24 @@ const INITIAL_STATE: GameState = {
     currentGame: null,
     games: [],
     currentGameData: null,
-    connectGameState: AsyncState.unknown
+    connectGameState: AsyncState.unknown,
 }
 
 const gameReducer: Reducer<GameState> = (state = INITIAL_STATE, action) => {
     switch (action.type) {
         case gameConstants.CREATE_GAME_REQUEST_STARTED:
-            return { ...state, loginState: AsyncState.inProcess }
+            return { ...state, createGameState: AsyncState.inProcess, connectGameState: AsyncState.inProcess }
         case gameConstants.CREATE_GAME_REQUEST_FINISHED:
             return {
                 ...state,
+                connectGameState: AsyncState.inProcess,
                 createGameState: AsyncState.success,
                 currentGame: action.payload,
             }
         case gameConstants.CREATE_GAME_REQUEST_ERROR:
-            return { ...state, loginState: AsyncState.error }
+            return { ...state, createGameState: AsyncState.error }
         case gameConstants.GET_GAMES_REQUEST_STARTED:
-            return { ...state, loginState: AsyncState.inProcess }
+            return { ...state, getGamesState: AsyncState.inProcess }
         case gameConstants.GET_GAMES_REQUEST_FINISHED:
             return {
                 ...state,
@@ -48,9 +49,13 @@ const gameReducer: Reducer<GameState> = (state = INITIAL_STATE, action) => {
         case gameConstants.UPDATE_GAME_DATA:
             return { ...state, currentGameData: action.payload }
         case gameConstants.CONNECT_GAME_STARTED:
-            return { ...state, currentGame: { invitation_code: action.payload }, connectGameState: AsyncState.inProcess }
+            return {
+                ...state,
+                currentGame: { invitation_code: action.payload },
+                connectGameState: AsyncState.inProcess
+            }
         case gameConstants.CONNECT_GAME_FINISHED:
-            return { ...state, currentGame: { connectGameState: AsyncState.success } }
+            return { ...state, connectGameState: AsyncState.success }
         case gameConstants.DISCONNECT_GAME:
             return {
                 ...state,
@@ -59,7 +64,7 @@ const gameReducer: Reducer<GameState> = (state = INITIAL_STATE, action) => {
                 connected: false,
                 connectGameState: AsyncState.unknown
             }
-        case gameConstants.DISCONNECT_GAME_ERROR:
+        case gameConstants.CONNECT_GAME_ERROR:
             return {
                 ...state,
                 currentGame: null,

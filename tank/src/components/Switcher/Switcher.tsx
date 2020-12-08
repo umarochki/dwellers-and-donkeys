@@ -3,7 +3,6 @@ import { makeStyles } from '@material-ui/core/styles'
 import { ListItem } from '@material-ui/core'
 import ListItemIcon from '@material-ui/core/ListItemIcon/ListItemIcon'
 import HomeIcon from '@material-ui/icons/Home'
-import LayersIcon from '@material-ui/icons/Layers'
 import FaceIcon from '@material-ui/icons/Face'
 import List from '@material-ui/core/List'
 import FlagIcon from '@material-ui/icons/Flag'
@@ -13,7 +12,7 @@ const switcherWidth = 60
 
 const useStyles = makeStyles(() => ({
     switcher: {
-        zIndex: '2000',
+        zIndex: 2000,
         width: `${switcherWidth}px`,
         height: '100%',
         display: 'flex',
@@ -38,12 +37,15 @@ const useStyles = makeStyles(() => ({
         },
         paddingRight: '12px',
         paddingLeft: '11px',
+    },
+    tooltip: {
+        zIndex: 4000
     }
 }))
 
 export enum MenuType {
     heroes = 'heroes',
-    locations = 'locations',
+    // locations = 'locations',
     markers = 'markers',
     unselect = 'unselect'
 }
@@ -52,8 +54,8 @@ const mapTypeToIcon = (type: MenuType) => {
     switch (type) {
         case MenuType.heroes:
             return <FaceIcon fontSize="large"/>
-        case MenuType.locations:
-            return <LayersIcon fontSize="large"/>
+        // case MenuType.locations:
+        //     return <LayersIcon fontSize="large"/>
         case MenuType.markers:
             return <FlagIcon fontSize="large"/>
         case MenuType.unselect:
@@ -66,8 +68,8 @@ const mapTypeToTooltip = (type: MenuType): string => {
     switch (type) {
         case MenuType.heroes:
             return 'Персонажи'
-        case MenuType.locations:
-            return 'Карты'
+        // case MenuType.locations:
+        //     return 'Карты'
         case MenuType.markers:
             return 'Маркеры'
         case MenuType.unselect:
@@ -76,12 +78,13 @@ const mapTypeToTooltip = (type: MenuType): string => {
 }
 
 interface Props {
-    onClick: (event: React.KeyboardEvent | React.MouseEvent) => void
+    currentType: MenuType
+    close: (event: React.KeyboardEvent | React.MouseEvent) => void
     onSelect: (type: MenuType) => void
 }
 
 const Switcher: React.FC<Props> = props => {
-    const { onSelect } = props
+    const { currentType, onSelect } = props
     const classes = useStyles()
     const history = useHistory()
 
@@ -90,15 +93,15 @@ const Switcher: React.FC<Props> = props => {
     return (
         <List className={classes.switcher}>
             <ListItem button className={classes.group} onClick={goHome}>
-                <ListItemIcon className={classes.icon}><HomeIcon fontSize="large"/></ListItemIcon>
+                <ListItemIcon className={classes.icon_inactive}><HomeIcon fontSize="large"/></ListItemIcon>
             </ListItem>
             {
-                [MenuType.locations, MenuType.heroes, MenuType.markers].map(type => (
-                    // <CustomTooltip title={mapTypeToTooltip(type)}>
-                    <ListItem button className={classes.group} onClick={() => onSelect(type)}>
-                        <ListItemIcon className={classes.icon_inactive}>{mapTypeToIcon(type)}</ListItemIcon>
+                [MenuType.heroes, MenuType.markers].map(type => (
+                    <ListItem button className={classes.group} onClick={() => onSelect(type)} key={type}>
+                        <ListItemIcon className={type === currentType ? classes.icon : classes.icon_inactive}>
+                            {mapTypeToIcon(type)}
+                        </ListItemIcon>
                     </ListItem>
-                    // </CustomTooltip>
                 ))
             }
         </List>

@@ -1,3 +1,4 @@
+async_lru
 channels
 channels_redis
 django==3.0.5

@@ -135,9 +135,6 @@ export default makeStyles((theme: Theme) => ({
         textTransform: 'none',
         fontWeight: 400,
     },
-    loginLoader: {
-        marginLeft: theme.spacing(4),
-    },
     marginBottom: {
         marginBottom: theme.spacing(4),
     },

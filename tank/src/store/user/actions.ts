@@ -4,6 +4,7 @@ import * as userConstants from './constants'
 import { push } from 'connected-react-router'
 import { User } from '../../models/user'
 import { Dispatch } from '..'
+import { NonAuthRoutes } from '../../routes'
 
 export const login = (username: string, password: string) => {
     return (dispatch: Dispatch) => {
@@ -13,6 +14,7 @@ export const login = (username: string, password: string) => {
             .then(() => {
                 dispatch(success())
                 dispatch(push('/'))
+                dispatch(getMyself())
             }, error => {
                 dispatch(failure(error))
                 dispatch(alertActions.error(error))
@@ -42,15 +44,16 @@ export const signup = (username: string, email: string, password: string) => {
             .then(() => {
                 dispatch(success())
                 dispatch(push('/'))
+                dispatch(getMyself())
             }, error => {
                 dispatch(failure(error))
                 dispatch(alertActions.error(error))
             })
     }
 
-    function request() { return { type: userConstants.LOGIN_REQUEST_STARTED } }
-    function success() { return { type: userConstants.LOGIN_REQUEST_FINISHED } }
-    function failure(error: Error) { return { type: userConstants.LOGIN_REQUEST_ERROR, error } }
+    function request() { return { type: userConstants.SIGNUP_REQUEST_STARTED } }
+    function success() { return { type: userConstants.SIGNUP_REQUEST_FINISHED } }
+    function failure(error: Error) { return { type: userConstants.SIGNUP_REQUEST_ERROR, error } }
 }
 
 export const getMyself = () => {
@@ -62,7 +65,8 @@ export const getMyself = () => {
                 dispatch(success(user))
             }, error => {
                 dispatch(failure(error))
-                dispatch(alertActions.error(error))
+                // dispatch(alertActions.error(error))
+                dispatch(push(NonAuthRoutes.login))
             })
     }
 

@@ -33,22 +33,25 @@ export const updateGameData = (data: object) => {
 }
 
 export const connectGame = (code: string) => {
-    return {
-        type: gameConstants.CONNECT_GAME_STARTED,
-        payload: code
+    return (dispatch: Dispatch) => {
+        dispatch(request(code))
+        dispatch(push(AuthRoutes.tabletop))
     }
+
+    function request(code: string) { return { type: gameConstants.CONNECT_GAME_STARTED, payload: code } }
 }
 
 export const connectGameSuccess = () => {
-    return {
-        type: gameConstants.CONNECT_GAME_FINISHED
-    }
+    return { type: gameConstants.CONNECT_GAME_FINISHED }
 }
 
-export const disconnectGameError = () => {
-    return {
-        type: gameConstants.DISCONNECT_GAME_ERROR
+export const connectGameError = () => {
+    return (dispatch: Dispatch) => {
+        dispatch(failure())
+        dispatch(push('/'))
     }
+
+    function failure() { return { type: gameConstants.CONNECT_GAME_ERROR } }
 }
 export const disconnectGame = () => {
     return {

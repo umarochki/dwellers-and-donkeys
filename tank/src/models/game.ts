@@ -11,3 +11,15 @@ export interface Game {
 export interface GameObject {
 
 }
+
+export interface SocketMessage {
+    type: string
+    meta: any
+}
+
+export interface GameDataMessage {
+    type: string
+    time: string
+    message?: string
+    total?: object
+}

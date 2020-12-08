@@ -7,12 +7,11 @@ import { makeStyles } from '@material-ui/core/styles'
 import StartPageHeader from './StartPageHeader'
 import CreatedGameWorlds from './CreatedGameWorlds'
 import seaDark from '../../assets/Sea_dark.png'
-import CreatedCharacters from './CreatedCharacters'
-import { Avatar, CircularProgress, Menu, MenuItem } from '@material-ui/core'
+import { Avatar, Menu, MenuItem } from '@material-ui/core'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectCurrentUser } from '../../store/user/selectors'
-import Grid from '@material-ui/core/Grid'
 import { logout } from '../../store/user/actions'
+import FullscreenLoader from '../../components/Containers/FullscreenLoader/FullscreenLoader'
 
 function Copyright() {
     return (
@@ -54,6 +53,7 @@ const StartPage = () => {
     const handleProfileClick = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget)
     }, [])
+
     const handleClose = useCallback(() => {
         setAnchorEl(null)
     }, [])
@@ -64,19 +64,7 @@ const StartPage = () => {
     }, [handleClose, dispatch])
 
     if (!user) {
-        return (
-            <Grid
-                container
-                spacing={0}
-                direction="column"
-                alignItems="center"
-                justify="center"
-                style={{ minHeight: '100vh' }}
-            >
-                <Grid item xs={3}>
-                    <CircularProgress size={45} className={classes.loginLoader}/>
-                </Grid>
-            </Grid>)
+        return <FullscreenLoader/>
     }
 
     return (
@@ -84,9 +72,7 @@ const StartPage = () => {
             <CssBaseline/>
             <AppBar position="relative">
                 <Toolbar className={classes.toolbarAvatar}>
-                    <Avatar onClick={handleProfileClick} className={classes.avatar}>
-                        { '?'}
-                    </Avatar>
+                    <Avatar onClick={handleProfileClick} className={classes.avatar}>?</Avatar>
                     <Menu
                         id="profile-menu"
                         anchorEl={anchorEl}
@@ -105,7 +91,7 @@ const StartPage = () => {
                 <StartPageHeader className={classes.content}/>
                 <CreatedGameWorlds />
                 <img  src={seaDark} className={classes.seaDark} alt=""/>
-                <CreatedCharacters />
+                {/*<CreatedCharacters />*/}
             </main>
             <footer className={classes.footer}>
                 <Typography variant="h6" align="center" gutterBottom>

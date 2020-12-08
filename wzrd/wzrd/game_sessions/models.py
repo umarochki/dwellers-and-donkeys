@@ -23,6 +23,7 @@ class Session(models.Model):
     game_master = models.IntegerField(blank=True, default=-1)
     last_object_id = models.IntegerField(blank=True, default=1)
     game_objects = GameObjectsField(blank=True, default=dict)
-
+    active_users = GameObjectsField(blank=True, default=dict)
+    chat = djongo_models.JSONField(blank=True, default=list)
     invitation_code = models.TextField(blank=True, default="XXXXXX")
     is_private = models.BooleanField(blank=True, default=False)

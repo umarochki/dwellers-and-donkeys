@@ -33,7 +33,6 @@ export default class Gameboard {
         forceCanvas: false,
     }, options);
 
-    
     this.eventManager = new EventManager();
 
     // A DOM-element that is currently dragged.
@@ -60,6 +59,7 @@ export default class Gameboard {
   preload(assets, callback) {
 
     const appView = this.app.view;
+
     // Prevent pinch gesture
     appView.addEventListener('wheel', e => { e.preventDefault(); }, { passive: false });
 
@@ -98,6 +98,16 @@ export default class Gameboard {
     });
   }
 
+  // Reset drag event handlers if draggable DOM-elements were recreated
+  resetDraggedDOMListeners() {
+    Array.prototype.map.call(document.querySelectorAll('[draggable="true"]'),
+      (element) => {
+        element.removeEventListener('dragstart', (e) => this.draggedDOM = e.target );
+        element.addEventListener('dragstart', (e) => this.draggedDOM = e.target );
+      }
+    );
+  }
+
   // Resize function window
   onResize(e) {
 
@@ -120,12 +130,15 @@ export default class Gameboard {
     const world = { width: 10000, height: 10000 }
 
     this.viewport = new Viewport({
-        screenWidth: this.width,
-        screenHeight: this.height,
+        screenWidth: 1920,
+        screenHeight: 1080,
         worldWidth: world.width,
         worldHeight: world.height,
 
-        interaction: this.app.renderer.plugins.interaction 
+        interaction: this.app.renderer.plugins.interaction,
+
+        // To prevent interaction with overlay DOM's
+        divWheel: this.app.view
     })
 
     // Add the viewport to the stage
@@ -158,6 +171,7 @@ export default class Gameboard {
     // Check for dropping correct object
     if (!this.draggedDOM) return;
 
+    /*
     this.addObject({
       sprite: this.draggedDOM.src,
       width: this.draggedDOM.clientWidth,
@@ -165,7 +179,29 @@ export default class Gameboard {
       xy: [(e.layerX - this.viewport.x) / this.viewport.scale.x, 
            (e.layerY - this.viewport.y) / this.viewport.scale.y],
     })
+    */
+
+    this.eventManager.notify('add', {
+      sprite: this.draggedDOM.src,
+      xy: [(e.layerX - this.viewport.x) / this.viewport.scale.x, 
+           (e.layerY - this.viewport.y) / this.viewport.scale.y]
+    })
+
+    this.draggedDOM = undefined;
+  }
+
+  createObject(options) {
     
+    return new GameObject({
+      id: options.id,
+      eventManager: this.eventManager, 
+      texture: this.app.loader.resources[options.sprite].texture,
+      src: options.sprite,
+      width: 0, // TODO:
+      height: 0, // TODO:
+      xy: options.xy
+    });
+
   }
 
   /* Add object to the viewpoint
@@ -178,36 +214,59 @@ export default class Gameboard {
    */
   addObject(options, callback) {
 
-    this._safeLoad(options.sprite, () => {
+    this._safeLoad([options.sprite], () => {
 
-      const obj = new GameObject({
-        id: this.viewport.children.length - 1,
-        eventManager: this.eventManager, 
-        texture: this.app.loader.resources[options.sprite].texture,
-        src: options.sprite,
-        width: options.width,
-        height: options.height,
-        xy: options.xy
-      });
-
+      const obj = this.createObject(options);
       this.viewport.addChild(obj);
-      this.draggedDOM = undefined;
-
+      
       typeof callback == "function" && callback();
     });
   }
 
   updateObjectPosition(options, callback) {
-    this.viewport.children[options.id + 1].updatePosition(options.xy[0], options.xy[1]);
+
+    var obj = this.viewport.children.find(x => x.id === options.id)
+
+    if (!obj) {
+      console.warn('Cannot find an element with id: ', options.id);
+      return;
+    }
+
+    obj.updatePosition(options.xy[0], options.xy[1]);
     typeof callback == "function" && callback();
   }
 
   deleteObject(options, callback) {
 
-    var object = this.viewport.children[options.id + 1];
-    object.parent.removeChild(object);
+    var obj = this.viewport.children.find(x => x.id === options.id)
+
+    if (!obj) {
+      console.warn('Cannot find an element with id: ', options.id);
+      return;
+    }
+
+    obj.parent.removeChild(obj);
 
     typeof callback == "function" && callback(); 
+  }
+
+  refresh(options, callback) {
+    console.log("HERE WE GO")
+    this.clear();
+
+    let resources = [];
+
+    for (let key in options.game_objects)
+        resources.push(options.game_objects[key].sprite)
+
+    this._safeLoad(resources, () => {
+      for (let key in options.game_objects) {
+        var obj = this.createObject(options.game_objects[key])
+        this.viewport.addChild(obj);
+      }
+
+      typeof callback == "function" && callback()
+    });
   }
 
   clear(options, callback) {
@@ -219,9 +278,13 @@ export default class Gameboard {
   }
 
   setMap(options, callback) {
-    this._safeLoad(options.sprite, () => {
+
+    this._safeLoad([options.sprite], () => {
+
+      const map = this.app.loader.resources[options.sprite].texture;
+
       // Draw map image as a background
-      const image = PIXI.Sprite.from(this.app.loader.resources[options.sprite].texture);
+      const image = PIXI.Sprite.from(map);
 
       this.mapContainer = new MapContainer(
         this.app.loader.resources.grid.texture, 
@@ -229,7 +292,12 @@ export default class Gameboard {
         image
       );
       
-      this.viewport.addChild(this.mapContainer);
+      if (this.viewport.children[0]) this.viewport.removeChildAt(0);
+
+      this.viewport.addChildAt(this.mapContainer, 0);
+
+      this.viewport.screenWidth = map.orig.width;
+      this.viewport.screenHeight = map.orig.height;
 
       this.eventManager.notify('map', { sprite: options.sprite });
 
@@ -239,17 +307,26 @@ export default class Gameboard {
 
   switchGrid() {
     this.mapContainer.switchGrid();
-
     this.eventManager.notify('grid', { enabled: true });
   }
 
-  _safeLoad(res, callback) {
-    // If resource has already been loaded, not doing it again
-    if (this.app.loader.resources[res])  {
-      callback.bind(this)();
+  // If resource has already been loaded, not doing it again
+  _safeLoad(resources, callback) {
+    
+    var flag = false;
+
+    for (let res of resources) {
+      if (!this.isLoaded(res)) {
+        flag = true;
+        this.app.loader.add(res); 
+      }
     }
-    else {
-      this.app.loader.add(res).load(callback.bind(this));
-    }
+    
+    if (flag) this.app.loader.load(callback.bind(this))
+    else callback.bind(this)();
+  }
+
+  isLoaded(resource) {
+    return typeof this.app.loader.resources[resource] !== 'undefined';
   }
 }

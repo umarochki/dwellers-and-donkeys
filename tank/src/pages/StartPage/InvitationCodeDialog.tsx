@@ -10,8 +10,6 @@ import { CircularProgress } from '@material-ui/core'
 import { connectGame } from '../../store/game/actions'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectConnectGameState } from '../../store/game/selectors'
-import { push } from 'connected-react-router'
-import { AuthRoutes } from '../../routes'
 import { AsyncState } from '../../store/user/reducer'
 
 const useStyles = makeStyles(() => ({
@@ -43,9 +41,7 @@ const InvitationCodeDialog: React.FC<Props> = props => {
     }, [dispatch, invitationCodeValue])
 
     useEffect(() => {
-        if (connected === AsyncState.success) {
-            dispatch(push(AuthRoutes.tabletop))
-        } else if (connected === AsyncState.error) {
+        if (connected === AsyncState.error) {
             setIsLoading(false)
         }
     }, [connected, dispatch])
@@ -72,12 +68,12 @@ const InvitationCodeDialog: React.FC<Props> = props => {
             </DialogContent>
             <DialogActions>
                 {isLoading
-                    ? (<CircularProgress size={26} className={classes.loader}/>)
+                    ? (<Button color="primary"><CircularProgress size={26} className={classes.loader}/></Button>)
                     : <>
                         <Button onClick={close} color="primary">
                             Отменить
                         </Button>
-                        <Button onClick={handleConnect} color="primary">
+                        <Button onClick={handleConnect} color="primary" disabled={!invitationCodeValue}>
                             Присоединиться
                         </Button>
                     </>}

@@ -64,14 +64,14 @@ const useStyles = makeStyles((theme: Theme) => ({
     }
 }))
 
-const markersList = [
-    'markers/Bonfire.png',
-    'markers/Castle.png',
-    'markers/Tavern.png',
-    'markers/Tree.png',
+export const markersList = [
+    'Bonfire',
+    'Castle',
+    'Tavern',
+    'Tree',
 ]
 
-const mapsList = [
+export const mapsList = [
     'Bayport',
     'Blackacre',
     'Campfire',
@@ -89,7 +89,7 @@ const mapsList = [
     'Witchwyn',
 ]
 
-const heroes = [
+export const heroes = [
     'Ant',
     'Cat Smart',
     'Girl Strong',
@@ -98,16 +98,20 @@ const heroes = [
     'Troll',
     'Boy Cunning', 'Cat Strong', 'Goblin', 'Plant02', 'Snake04', 'Troll02',
     'Boy Smart',  'Dragon', 'Knight', 'Skeleton', 'Snake05', 'Wizard',
-    'Boy Strong.png', 'Girl Cunning.png', 'Mummy', 'Snake', 'Spider', 'Wolf',
-    'Cat Cunning.png', 'Girl Smart', 'Musician', 'Snake02', 'Thief'
+    'Boy Strong', 'Girl Cunning', 'Mummy', 'Snake', 'Spider', 'Wolf',
+    'Cat Cunning', 'Girl Smart', 'Musician', 'Snake02', 'Thief'
 ]
 
-const LeftDrawer: React.FC = () => {
+interface Props {
+    onOpen: Function
+}
+const LeftDrawer: React.FC<Props> = props => {
+    const { onOpen } = props
     const classes = useStyles()
     const [open, setOpen] = React.useState(false)
     const [type, setType] = useState<MenuType>(MenuType.unselect)
 
-    const toggleDrawer = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent,) => {
+    const toggleDrawer = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
         if (
             event.type === 'keydown' &&
             ((event as React.KeyboardEvent).key === 'Tab' ||
@@ -115,18 +119,24 @@ const LeftDrawer: React.FC = () => {
         ) {
             return
         }
-        setOpen(false)
+        setOpen(open)
     }
 
     const handleSelect = useCallback((selectedType: MenuType) => {
-        if (type === selectedType) {
-            setType(type)
+        if (type !== selectedType) {
+            setType(selectedType)
             setOpen(true)
         } else {
             setType(MenuType.unselect)
             setOpen(false)
         }
-    }, [])
+    }, [type])
+
+    React.useEffect(()=>{
+        if (open === true) {
+            onOpen()
+        }
+    }, [type, open, onOpen])
 
     const renderSidebar = useCallback((type: string) => {
         switch (type) {
@@ -134,9 +144,9 @@ const LeftDrawer: React.FC = () => {
                 return (
                     <GridList cellHeight={70} cols={3}>
                         {markersList.map((marker: string) => (
-                            <Tooltip title={marker}>
-                                <GridListTile key={marker} cols={1} className={classes.tile}>
-                                    <img src={marker} alt={marker} draggable className="draggable" />
+                            <Tooltip title={marker} key={marker}>
+                                <GridListTile cols={1} className={classes.tile}>
+                                    <img src={`markers/${marker}.png`} alt={marker} draggable/>
                                 </GridListTile>
                             </Tooltip>
                         ))}
@@ -146,35 +156,37 @@ const LeftDrawer: React.FC = () => {
                 return (
                     <GridList cellHeight={70} cols={3}>
                         {heroes.map((hero: string) => (
-                            <Tooltip title={hero}>
-                                <GridListTile key={hero} cols={1} className={classes.tile}>
-                                    <img src={`heroes/${hero}.png`} alt={hero} draggable className="draggable" />
+                            <Tooltip title={hero} key={hero}>
+                                <GridListTile cols={1} className={classes.tile}>
+                                    <img src={`heroes/${hero}.png`} alt={hero} draggable/>
                                 </GridListTile>
                             </Tooltip>
                         ))}
                     </GridList>
                 )
-            case MenuType.locations:
-                return (
-                    <GridList cellHeight={100} cols={1}>
-                        {mapsList.map((map: string) => (
-                            <Tooltip title={map}>
-                                <GridListTile key={map} cols={1} className={classes.tile}>
-                                    <img src={`locations/${map}.png`} alt={map} draggable className="draggable" />
-                                </GridListTile>
-                            </Tooltip>
-                        ))}
-                    </GridList>
-                )
+            // case MenuType.locations:
+            //     return (
+            //         <GridList cellHeight={100} cols={1}>
+            //             {mapsList.map((map: string) => (
+            //                 <Tooltip title={map} key={map}>
+            //                     <GridListTile cols={1} className={classes.tile}>
+            //                         <img src={`locations/${map}.png`} alt={map} draggable/>
+            //                     </GridListTile>
+            //                 </Tooltip>
+            //             ))}
+            //         </GridList>
+            //     )
         }
-    }, [])
+    }, [classes.tile])
 
     return (
         <>
-            <Switcher onClick={toggleDrawer(true)} onSelect={handleSelect}/>
+            <Switcher
+                currentType={type}
+                close={toggleDrawer(false)}
+                onSelect={handleSelect}
+            />
             <Drawer
-                onEscapeKeyDown={() => setOpen(false)}
-                onBackdropClick={() => setOpen(false)}
                 anchor="left"
                 variant="permanent"
                 className={classes.drawer}

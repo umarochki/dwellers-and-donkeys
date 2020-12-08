@@ -19,8 +19,11 @@ Based on Pixi.JS
     * preload(callback) - Предзагрузка игровго поля
     * setMap(path, callback) - Установка мапы
     * addObject(data, callback) - Добавление объекта на поле. Callback опционально
-    * deleteObject(data) - Удаление объектана поле. Callback опционально
+    * deleteObject(data, callback) - Удаление объекта на поле. Callback опционально
     * updateObjectPosition(data, callback) - Изменение координат объекта. Callback опционально
+    * clear(callback) - Очистить игровое поле. Callback опционально
+    * refresh(data, callback) - Обновить содержимое на игровом поле. Callback опционально
+    * resetDraggedDOMListeners() - Пересоздать обработчики событий на перетаскиваемые объекты.
     * switchGrid() - Включение/выключение сетки (потом сделаю удобнее)
 
 ### Класс GameObject:
@@ -72,10 +75,20 @@ function App() {
     // Картинки беру у клиента из точки входа
     var assets = [{ name: 'grid', path: './locations/{grid.png}' }]
 
+    // Предзагрузка всех используемых спрайтов
+    heroes.forEach((hero: string) => 
+        assets.push({ name: hero, path: `heroes/${hero}.png` }))
+
+    markersList.forEach((marker: string) => 
+        assets.push({ name: marker, path: `markers/${marker}.png` }))
+
+    mapsList.forEach((location: string) => 
+        assets.push({ name: location, path: `locations/${location}.png` }))
+
     // Грузим холст и статики (пока так)
     gameboard.preload(assets, () => {
         // Устанавливаем мапу
-        gameboard.setMap('./locations/{map.png}', () => {
+        gameboard.addObject({ sprite: './boy-smart.png', xy: [0, 0] }, () => {
             // Сохраняем ссылку
             boardRef.current = gameboard
 

@@ -46,11 +46,6 @@ export default class GameObject extends Sprite {
       .on('mousemove', onDragMove)
       .on('touchmove', onDragMove);
 
-    this.eventManager.notify('add', {
-      id: options.id,
-      sprite: options.src,
-      xy: options.xy
-    })
     
     function onDragStart(event) {
 
@@ -70,6 +65,11 @@ export default class GameObject extends Sprite {
       this.parent.pause = false;
       this.dragging = false;
       this.data = null;
+
+      this.eventManager.notify('update_and_save', {
+        id: this.id,
+        xy: [this.x, this.y]
+      })
     }
 
     function onDragMove(e) {
@@ -98,8 +98,8 @@ export default class GameObject extends Sprite {
   }
 
   updatePosition(x, y) {
-      this.x += x;
-      this.y += y;
+      this.x = x;
+      this.y = y;
     }
 
 }

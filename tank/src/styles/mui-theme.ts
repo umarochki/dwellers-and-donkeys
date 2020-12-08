@@ -1,4 +1,5 @@
 import { createMuiTheme } from '@material-ui/core/styles'
+import { primary500, primary600 } from './colors'
 
 const palette = {
     primary: {
@@ -71,14 +72,14 @@ const overrides = {
         '@global': {
             '*::-webkit-scrollbar': {
                 width: '0.5em',
-                backgroundColor: '#F5F5F5'
+                backgroundColor: primary600
             },
             '*::-webkit-scrollbar-track': {
                 '-webkit-box-shadow': 'inset 0 0 6px rgba(0, 0, 0, 0.3)',
-                backgroundColor: '#F5F5F5'
+                backgroundColor: primary600
             },
             '*::-webkit-scrollbar-thumb': {
-                backgroundColor: '#43536B',
+                backgroundColor: primary500,
                 outline: '2px solid #555'
             }
         }
