@@ -130,8 +130,8 @@ export default class Gameboard {
     const world = { width: 10000, height: 10000 }
 
     this.viewport = new Viewport({
-        screenWidth: this.width,
-        screenHeight: this.height,
+        screenWidth: 1920,
+        screenHeight: 1080,
         worldWidth: world.width,
         worldHeight: world.height,
 
@@ -280,8 +280,11 @@ export default class Gameboard {
   setMap(options, callback) {
 
     this._safeLoad([options.sprite], () => {
+
+      const map = this.app.loader.resources[options.sprite].texture;
+
       // Draw map image as a background
-      const image = PIXI.Sprite.from(this.app.loader.resources[options.sprite].texture);
+      const image = PIXI.Sprite.from(map);
 
       this.mapContainer = new MapContainer(
         this.app.loader.resources.grid.texture, 
@@ -289,7 +292,12 @@ export default class Gameboard {
         image
       );
       
-      this.viewport.addChild(this.mapContainer);
+      if (this.viewport.children[0]) this.viewport.removeChildAt(0);
+
+      this.viewport.addChildAt(this.mapContainer, 0);
+
+      this.viewport.screenWidth = map.orig.width;
+      this.viewport.screenHeight = map.orig.height;
 
       this.eventManager.notify('map', { sprite: options.sprite });
 
