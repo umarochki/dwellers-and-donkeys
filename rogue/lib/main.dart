@@ -96,14 +96,49 @@ class SecondScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-        appBar: new AppBar(
-          title: new Text("Авторизован"),
-        ),
-        body: new Center(
-          child: new Text(
-            "Email: $_email, password: $_password",
-            style: _sizeTextBlack,
+      appBar: new AppBar(
+        title: new Text("Dwellers & Donkeys"),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(
+              Icons.account_box,
+              color: Colors.white,
+            ),
+            tooltip: 'Аккаунт',
+            onPressed: null,
           ),
-        ));
+        ],
+      ),
+      body: new Center(
+        child: new Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            new Padding(
+                padding: new EdgeInsets.only(top: 25.0),
+                child: new Text("Dwellers & Donkeys")),
+            new Padding(
+              padding: new EdgeInsets.only(top: 25.0),
+              child: new MaterialButton(
+                onPressed: () {},
+                color: Theme.of(context).accentColor,
+                height: 50.0,
+                minWidth: 150.0,
+                child: new Text("Создать партию"),
+              ),
+            ),
+            new Padding(
+              padding: new EdgeInsets.only(top: 25.0),
+              child: new MaterialButton(
+                onPressed: () {},
+                color: Theme.of(context).accentColor,
+                height: 50.0,
+                minWidth: 150.0,
+                child: new Text("Присоединиться"),
+              ),
+            )
+          ],
+        ),
+      ),
+    );
   }
 }
