@@ -20,6 +20,7 @@ class GameObjectsField(djongo_models.JSONField):
 class Session(models.Model):
     name = models.TextField(blank=True, default="Sample Game")
     description = models.TextField(blank=True, default="")
+    map = models.TextField(blank=True, default="Bayport")
     game_master = models.IntegerField(blank=True, default=-1)
     last_object_id = models.IntegerField(blank=True, default=1)
     game_objects = GameObjectsField(blank=True, default=dict)
