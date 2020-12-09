@@ -24,7 +24,9 @@ const userService = {
             .then(response => response.data),
     me: (): Promise<User> =>
         API.get('/auth/me')
-            .then(response => response.data)
+            .then(response => response.data),
+    quickStart: (): Promise<void> =>
+        API.get('/auth/quickstart')
 }
 
 export default userService
