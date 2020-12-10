@@ -23,7 +23,8 @@ async def get_game_session(session_name):
 
 class GameSessionConsumer(AsyncJsonWebsocketConsumer):
     UPDATE_FIELDS = ("xy", "sprite")
-    ACTION_TYPES = ("add", "delete", "update", "update_and_save", "refresh", "clear", "active_users", "roll", "chat")
+    ACTION_TYPES = ("add", "delete", "update", "update_and_save", "map",
+                    "refresh", "clear", "active_users", "roll", "chat")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -155,7 +156,13 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
                 "active_users": list(game_session.active_users.values()),
                 "game_objects": game_session.game_objects,
                 "chat": game_session.chat,
+                "map": game_session.map,
             }
+
+        elif action_type == "map":
+            message_type = "send_all"
+            game_session.map = meta
+            save = True
 
         elif action_type == "clear":
             game_session.game_objects = {}
