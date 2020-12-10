@@ -84,7 +84,7 @@ export const mapsList = [
     'OsttonCursed',
     'OsttonMud',
     'Summerwitch',
-    'Tavern',
+    'TavernHouse',
     'Whiteshadow',
     'Witchwyn',
 ]

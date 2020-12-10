@@ -97,7 +97,7 @@ const Switcher: React.FC<Props> = props => {
                 <ListItemIcon className={classes.icon_inactive}><HomeIcon fontSize="large"/></ListItemIcon>
             </ListItem>
             {
-                [MenuType.heroes, MenuType.markers].map(type => (
+                [MenuType.locations, MenuType.heroes, MenuType.markers].map(type => (
                     <ListItem button className={classes.group} onClick={() => onSelect(type)} key={type}>
                         <ListItemIcon className={type === currentType ? classes.icon : classes.icon_inactive}>
                             {mapTypeToIcon(type)}

@@ -9,9 +9,10 @@ import CreatedGameWorlds from './CreatedGameWorlds'
 import seaDark from '../../assets/Sea_dark.png'
 import { Avatar, Menu, MenuItem } from '@material-ui/core'
 import { useDispatch, useSelector } from 'react-redux'
-import { selectCurrentUser } from '../../store/user/selectors'
+import { selectCurrentUser, selectQuickStartState } from '../../store/user/selectors'
 import { logout } from '../../store/user/actions'
 import FullscreenLoader from '../../components/Containers/FullscreenLoader/FullscreenLoader'
+import { AsyncState } from '../../store/user/reducer'
 
 function Copyright() {
     return (
@@ -47,6 +48,7 @@ const useStyles = makeStyles(theme => ({
 const StartPage = () => {
     const classes = useStyles()
     const user = useSelector(selectCurrentUser)
+    const quickStartState = useSelector(selectQuickStartState)
     const [anchorEl, setAnchorEl] = useState(null)
     const dispatch = useDispatch()
 
@@ -63,7 +65,7 @@ const StartPage = () => {
         dispatch(logout())
     }, [handleClose, dispatch])
 
-    if (!user) {
+    if (!user && quickStartState !== AsyncState.success) {
         return <FullscreenLoader/>
     }
 
@@ -72,7 +74,7 @@ const StartPage = () => {
             <CssBaseline/>
             <AppBar position="relative">
                 <Toolbar className={classes.toolbarAvatar}>
-                    <Avatar onClick={handleProfileClick} className={classes.avatar}>?</Avatar>
+                    {user && <Avatar onClick={handleProfileClick} className={classes.avatar}>?</Avatar>}
                     <Menu
                         id="profile-menu"
                         anchorEl={anchorEl}
