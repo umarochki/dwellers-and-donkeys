@@ -84,7 +84,7 @@ export const mapsList = [
     'OsttonCursed',
     'OsttonMud',
     'Summerwitch',
-    'Tavern',
+    'TavernHouse',
     'Whiteshadow',
     'Witchwyn',
 ]
@@ -104,9 +104,10 @@ export const heroes = [
 
 interface Props {
     onOpen: Function
+    onMapChange: (map: string) => void
 }
 const LeftDrawer: React.FC<Props> = props => {
-    const { onOpen } = props
+    const { onOpen, onMapChange } = props
     const classes = useStyles()
     const [open, setOpen] = React.useState(false)
     const [type, setType] = useState<MenuType>(MenuType.unselect)
@@ -164,20 +165,20 @@ const LeftDrawer: React.FC<Props> = props => {
                         ))}
                     </GridList>
                 )
-            // case MenuType.locations:
-            //     return (
-            //         <GridList cellHeight={100} cols={1}>
-            //             {mapsList.map((map: string) => (
-            //                 <Tooltip title={map} key={map}>
-            //                     <GridListTile cols={1} className={classes.tile}>
-            //                         <img src={`locations/${map}.png`} alt={map} draggable/>
-            //                     </GridListTile>
-            //                 </Tooltip>
-            //             ))}
-            //         </GridList>
-            //     )
+            case MenuType.locations:
+                return (
+                    <GridList cellHeight={100} cols={1}>
+                        {mapsList.map((map: string) => (
+                            <Tooltip title={map} key={map}>
+                                <GridListTile cols={1} className={classes.tile} onClick={() => onMapChange(map)}>
+                                    <img src={`locations/${map}.png`} alt={map} />
+                                </GridListTile>
+                            </Tooltip>
+                        ))}
+                    </GridList>
+                )
         }
-    }, [classes.tile])
+    }, [classes.tile, onMapChange])
 
     return (
         <>

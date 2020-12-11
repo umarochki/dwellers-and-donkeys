@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
-import LeftDrawer, { heroes, markersList } from '../../components/Switcher/LeftDrawer'
+import LeftDrawer, { heroes, mapsList, markersList } from '../../components/Switcher/LeftDrawer'
 import { Grid } from '@material-ui/core'
 import UserCard from '../../components/Controls/UserCard'
 import PersonCard from '../../components/Controls/PersonCard'
@@ -16,92 +15,9 @@ import { push } from 'connected-react-router'
 import { disconnectGame } from '../../store/game/actions'
 import { GameDataMessage } from '../../models/game'
 import { ConnectedUser } from '../../models/user'
+import useStyles from './styles'
 
-
-const drawerWidth = 240
 // https://codesandbox.io/s/ykk2x8k7xj?file=/src/App/index.js
-const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-        root: {
-            width: '100%',
-            height: '100vh',
-            zIndex: 1,
-            overflow: 'hidden'
-        },
-        appFrame: {
-            position: 'relative',
-            display: 'flex',
-            width: '100%',
-            height: '100%'
-        },
-        hide: {
-            display: 'none',
-        },
-        drawer: {
-            width: drawerWidth,
-            flexShrink: 0,
-            whiteSpace: 'nowrap',
-        },
-        drawerOpen: {
-            width: drawerWidth,
-            transition: theme.transitions.create('width', {
-                easing: theme.transitions.easing.sharp,
-                duration: theme.transitions.duration.enteringScreen,
-            }),
-        },
-        drawerClose: {
-            transition: theme.transitions.create('width', {
-                easing: theme.transitions.easing.sharp,
-                duration: theme.transitions.duration.leavingScreen,
-            }),
-            overflowX: 'hidden',
-            width: theme.spacing(7) + 1,
-            [theme.breakpoints.up('sm')]: {
-                width: theme.spacing(9) + 1,
-            },
-        },
-        content: {
-            flexGrow: 1,
-            padding: theme.spacing(2),
-            display: 'flex',
-            flexDirection: 'column',
-            paddingLeft: '10px'
-        },
-        map: {
-            flexGrow: 1,
-            marginBottom: '12px'
-        },
-        controls: {
-            height: 250,
-            backgroundColor: '#334055',
-            display: 'flex'
-        },
-        people: {
-            display: 'flex',
-            height: '100%',
-            padding: theme.spacing(1),
-            marginRight: theme.spacing(1),
-            '& > *': {
-                cursor: 'pointer',
-                backgroundColor: '#43536B',
-                minWidth: theme.spacing(20),
-                height: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                flexDirection: 'column',
-                paddingTop: theme.spacing(2),
-                marginRight: theme.spacing(2)
-            },
-            overflowX: 'auto',
-            '&::-webkit-scrollbar': {
-                display: 'none'
-            }
-        },
-        controlPanel: {
-            maxHeight: '100%'
-        }
-    }),
-)
 
 const Tabletop = () => {
     const classes = useStyles()
@@ -114,7 +30,7 @@ const Tabletop = () => {
     const currentGameData = useSelector(selectCurrentGameData)
     const connectGameState = useSelector(selectConnectGameState)
 
-    const [myGameBoard, setMyGameBoard] = useState(null)
+    const [myGameBoard, setMyGameBoard] = useState<any>(null)
     const [messages, setMessages] = useState<GameDataMessage[]>([])
     const [users, setUsers] = useState<ConnectedUser[]>([])
 
@@ -152,7 +68,7 @@ const Tabletop = () => {
                 // TODO: isGameMaster: {boolean}
             })
 
-            gameBoard.eventManager.subscribe('map', (data: any) => ws.sendMessage('map', data))
+            // gameBoard.eventManager.subscribe('map', (data: any) => ws.sendMessage('map', data))
             gameBoard.eventManager.subscribe('add', (data: any) => ws.sendMessage('add', data))
             gameBoard.eventManager.subscribe('update', (data: any) => ws.sendMessage('update', data))
             gameBoard.eventManager.subscribe('update_and_save', (data: any) => ws.sendMessage('update_and_save', data))
@@ -168,17 +84,13 @@ const Tabletop = () => {
             markersList.forEach((marker: string) =>
                 assets.push({ name: marker, path: `markers/${marker}.png` }))
 
-            // mapsList.forEach((location: string) =>
-            //     assets.push({ name: location, path: `locations/${location}.png` }))
+            mapsList.forEach((location: string) =>
+                assets.push({ name: location, path: `locations/${location}.png` }))
 
             // Грузим холст и статики (пока так)
             gameBoard.preload(assets, () => {
-                // Устанавливаем мапу
-                gameBoard.setMap({ sprite: 'locations/Bayport.png' }, () => {
-                    // Сохраняем ссылку
-                    boardRef.current = gameBoard
-                    ws.sendMessage('refresh')
-                })
+                boardRef.current = gameBoard
+                ws.sendMessage('refresh')
             })
 
             setMyGameBoard(gameBoard)
@@ -186,7 +98,18 @@ const Tabletop = () => {
     }, [game, divRef, ws, connectGameState, myGameBoard])
 
     useEffect(() => {
-        if (currentGameData && myGameBoard !== null && connectGameState === AsyncState.success) {
+        if (currentGameData && myGameBoard !== null && boardRef.current && connectGameState === AsyncState.success) {
+
+            // if (currentGameData.type === 'map') {
+            //     setIsLoaded(false)
+            //     myGameBoard.setMap({ sprite: `locations/${currentGameData.meta}.png` }, () => {
+            //         setIsLoaded(true)
+            //         ws.sendMessage('refresh')
+            //     })
+            // }
+            //
+            // if (!isLoaded) return
+
             switch (currentGameData.type) {
                 case 'update':
                     myGameBoard.updateObjectPosition(currentGameData.meta)
@@ -203,13 +126,19 @@ const Tabletop = () => {
                 case 'refresh':
                     setUsers(currentGameData.meta.active_users)
                     setMessages(currentGameData.meta.chat)
-                    myGameBoard.refresh(currentGameData.meta)
+                    myGameBoard.refresh({
+                        ...currentGameData.meta
+                    })
+                    myGameBoard.setMap({ sprite: `locations/${currentGameData.meta.map}.png` })
                     break
                 case 'connect':
                     setUsers(prev => [...prev, currentGameData.meta])
                     break
                 case 'disconnect':
                     setUsers(prev => prev.filter(user => user.id !== currentGameData.meta))
+                    break
+                case 'map':
+                    myGameBoard.setMap({ sprite: `locations/${currentGameData.meta}.png` })
                     break
                 case 'clear':
                 default:
@@ -229,9 +158,10 @@ const Tabletop = () => {
     return (
         <div className={classes.root}>
             <div className={classes.appFrame}>
-                <LeftDrawer onOpen={() => {
-                    myGameBoard && myGameBoard.resetDraggedDOMListeners()
-                }}/>
+                <LeftDrawer
+                    onOpen={() => myGameBoard && myGameBoard.resetDraggedDOMListeners()}
+                    onMapChange={(map: string) => ws.sendMessage('map', map)}
+                />
                 <main className={classes.content}>
                     <div className={classes.map} ref={divRef}/>
                     <div className={classes.controls}>

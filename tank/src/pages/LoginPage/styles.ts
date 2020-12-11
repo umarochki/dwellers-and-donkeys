@@ -83,17 +83,23 @@ export default makeStyles((theme: Theme) => ({
     },
     creatingButtonContainer: {
         marginTop: theme.spacing(2.5),
-        height: 46,
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
+        flexDirection: 'column'
     },
     createAccountButton: {
+        marginBottom: theme.spacing(2),
         height: 46,
         textTransform: 'none',
         '&:disabled': {
             color: primary400
         }
+    },
+    outLinedButton: {
+        borderColor: theme.palette.primary.light,
+        height: 46,
+        color: theme.palette.primary.light
     },
     formDividerContainer: {
         marginTop: theme.spacing(4),

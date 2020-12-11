@@ -12,6 +12,7 @@ export enum AsyncState {
 export interface AuthState {
     loginState: AsyncState
     signupState: AsyncState
+    quickStartState: AsyncState
     error: Error | null
     user: User | null
 }
@@ -19,6 +20,7 @@ export interface AuthState {
 const INITIAL_STATE: AuthState = {
     loginState: AsyncState.unknown,
     signupState: AsyncState.unknown,
+    quickStartState: AsyncState.unknown,
     error: null,
     user: null
 }
@@ -53,6 +55,10 @@ const authReducer: Reducer<AuthState> = (state = INITIAL_STATE, action) => {
             }
         case userConstants.MYSELF_REQUEST_ERROR:
             return { ...state, user: null }
+        case userConstants.QUICK_START_REQUEST_STARTED:
+            return { ...state, quickStartState: AsyncState.inProcess }
+        case userConstants.QUICK_START_REQUEST_FINISHED:
+            return { ...state, quickStartState: AsyncState.success }
         default:
             return state
     }

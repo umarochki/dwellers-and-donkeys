@@ -6,11 +6,9 @@ import { useDispatch, useSelector } from 'react-redux'
 import { selectLoginState, selectSignupState } from '../../store/user/selectors'
 import { AsyncState } from '../../store/user/reducer'
 import { login, signup } from '../../store/user/actions'
-import { useRedirect } from '../../helpers/redirect'
+import { push } from 'connected-react-router'
 
 const LoginPage = () => {
-    useRedirect()
-
     const classes = useStyles()
     const dispatch = useDispatch()
 
@@ -101,6 +99,14 @@ const LoginPage = () => {
                                         Войти
                                     </Button>
                                 )}
+                                <Button
+                                    variant="outlined"
+                                    className={classes.outLinedButton}
+                                    onClick={dispatch(push('/'))}
+                                    fullWidth
+                                >
+                                    Продолжить без авторизации
+                                </Button>
                                 {/*<Button*/}
                                 {/*    color="primary"*/}
                                 {/*    size="large"*/}
@@ -182,6 +188,14 @@ const LoginPage = () => {
                                         Создать
                                     </Button>
                                 )}
+                                <Button
+                                    variant="outlined"
+                                    className={classes.outLinedButton}
+                                    onClick={dispatch(push('/'))}
+                                    fullWidth
+                                >
+                                    Продолжить без регистрации
+                                </Button>
                             </div>
                             {/*<div className={clsx(classes.formDividerContainer, classes.marginBottom)}>*/}
                             {/*    <div className={classes.formDivider} />*/}

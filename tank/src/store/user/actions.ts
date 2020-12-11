@@ -65,12 +65,28 @@ export const getMyself = () => {
                 dispatch(success(user))
             }, error => {
                 dispatch(failure(error))
+                dispatch(quickstart())
                 // dispatch(alertActions.error(error))
-                dispatch(push(NonAuthRoutes.login))
             })
     }
 
     function request() { return { type: userConstants.MYSELF_REQUEST_STARTED } }
     function success(user: User) { return { type: userConstants.MYSELF_REQUEST_FINISHED, payload: user } }
     function failure(error: Error) { return { type: userConstants.MYSELF_REQUEST_ERROR, payload: error } }
+}
+
+export const quickstart = () => {
+    return (dispatch: Dispatch) => {
+        dispatch(request())
+
+        userService.quickStart()
+            .then(() => {
+                dispatch(success())
+            }, () => {
+                dispatch(push(NonAuthRoutes.login))
+            })
+    }
+
+    function request() { return { type: userConstants.QUICK_START_REQUEST_STARTED } }
+    function success() { return { type: userConstants.QUICK_START_REQUEST_FINISHED } }
 }
