@@ -41,11 +41,12 @@ const CreateWorldDialog: React.FC<Props> = props => {
     const [descValue, setDescValue] = useState('')
 
     return (
-        <Dialog disableBackdropClick open={open} onClose={onClose} aria-labelledby="form-dialog-title">
+        <Dialog open={open} onClose={onClose} aria-labelledby="form-dialog-title">
             <form>
                 <DialogTitle id="form-dialog-title">Создать игровой мир</DialogTitle>
                 <DialogContent>
                     <TextField
+                        required
                         ref={register}
                         autoFocus
                         margin="dense"
@@ -74,7 +75,9 @@ const CreateWorldDialog: React.FC<Props> = props => {
                             <Button onClick={onClose} color="primary">
                                 Отменить
                             </Button>
-                            <Button color="primary"
+                            <Button
+                                color="primary"
+                                disabled={nameValue.length === 0}
                                 onClick={() => {
                                     setIsLoading(true)
                                     dispatch(createGame(nameValue, descValue))

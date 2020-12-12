@@ -126,10 +126,11 @@ const Tabletop = () => {
                 case 'refresh':
                     setUsers(currentGameData.meta.active_users)
                     setMessages(currentGameData.meta.chat)
-                    myGameBoard.refresh({
-                        ...currentGameData.meta
+                    myGameBoard.setMap({ sprite: `locations/${currentGameData.meta.map}.png` }, () => {
+                        myGameBoard.refresh({
+                            ...currentGameData.meta
+                        })
                     })
-                    myGameBoard.setMap({ sprite: `locations/${currentGameData.meta.map}.png` })
                     break
                 case 'connect':
                     setUsers(prev => [...prev, currentGameData.meta])

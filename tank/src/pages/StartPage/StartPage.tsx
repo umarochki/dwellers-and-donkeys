@@ -7,7 +7,7 @@ import { makeStyles } from '@material-ui/core/styles'
 import StartPageHeader from './StartPageHeader'
 import CreatedGameWorlds from './CreatedGameWorlds'
 import seaDark from '../../assets/Sea_dark.png'
-import { Avatar, Menu, MenuItem } from '@material-ui/core'
+import { Menu, MenuItem } from '@material-ui/core'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectCurrentUser, selectQuickStartState } from '../../store/user/selectors'
 import { logout } from '../../store/user/actions'
@@ -52,9 +52,9 @@ const StartPage = () => {
     const [anchorEl, setAnchorEl] = useState(null)
     const dispatch = useDispatch()
 
-    const handleProfileClick = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
-        setAnchorEl(event.currentTarget)
-    }, [])
+    // const handleProfileClick = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
+    //     setAnchorEl(event.currentTarget)
+    // }, [])
 
     const handleClose = useCallback(() => {
         setAnchorEl(null)
@@ -74,7 +74,7 @@ const StartPage = () => {
             <CssBaseline/>
             <AppBar position="relative">
                 <Toolbar className={classes.toolbarAvatar}>
-                    {user && <Avatar onClick={handleProfileClick} className={classes.avatar}>?</Avatar>}
+                    {/*{user && <Avatar onClick={handleProfileClick} className={classes.avatar}>?</Avatar>}*/}
                     <Menu
                         id="profile-menu"
                         anchorEl={anchorEl}

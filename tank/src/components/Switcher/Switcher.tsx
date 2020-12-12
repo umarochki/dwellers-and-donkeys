@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useState } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import { ListItem } from '@material-ui/core'
 import ListItemIcon from '@material-ui/core/ListItemIcon/ListItemIcon'
@@ -8,6 +8,7 @@ import LayersIcon from '@material-ui/icons/Layers'
 import List from '@material-ui/core/List'
 import FlagIcon from '@material-ui/icons/Flag'
 import { useHistory } from 'react-router-dom'
+import ConfirmDialog from '../Dialogs/ConfirmDialog'
 
 const switcherWidth = 60
 
@@ -89,11 +90,14 @@ const Switcher: React.FC<Props> = props => {
     const classes = useStyles()
     const history = useHistory()
 
+    const [confirmOpen, setConfirmOpen] = useState(false)
+    const confirm = useCallback(() => setConfirmOpen(true), [])
+
     const goHome = useCallback(() => history.push(''), [history])
 
     return (
         <List className={classes.switcher}>
-            <ListItem button className={classes.group} onClick={goHome}>
+            <ListItem button className={classes.group} onClick={confirm}>
                 <ListItemIcon className={classes.icon_inactive}><HomeIcon fontSize="large"/></ListItemIcon>
             </ListItem>
             {
@@ -105,6 +109,12 @@ const Switcher: React.FC<Props> = props => {
                     </ListItem>
                 ))
             }
+            <ConfirmDialog
+                title="Вы уверены, что хотите покинуть игру?"
+                open={confirmOpen}
+                setOpen={setConfirmOpen}
+                onConfirm={goHome}
+            />
         </List>
     )
 }

@@ -82,7 +82,7 @@ const LoginPage = () => {
                             />
                             <div className={classes.creatingButtonContainer}>
                                 {isLoading ? (
-                                    <CircularProgress size={26} className={classes.loginLoader} />
+                                    <CircularProgress size={26} />
                                 ) : (
                                     <Button
                                         type="submit"
@@ -102,7 +102,7 @@ const LoginPage = () => {
                                 <Button
                                     variant="outlined"
                                     className={classes.outLinedButton}
-                                    onClick={dispatch(push('/'))}
+                                    onClick={() => dispatch(push('/'))}
                                     fullWidth
                                 >
                                     Продолжить без авторизации
@@ -191,7 +191,7 @@ const LoginPage = () => {
                                 <Button
                                     variant="outlined"
                                     className={classes.outLinedButton}
-                                    onClick={dispatch(push('/'))}
+                                    onClick={() => dispatch(push('/'))}
                                     fullWidth
                                 >
                                     Продолжить без регистрации
