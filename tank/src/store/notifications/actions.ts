@@ -1,19 +1,20 @@
 import * as alertConstants from './constants'
+import { Dispatch } from '../index'
 
-export const alertActions = {
-    success,
-    error,
-    clear
+export const showSuccessNotification = (message?: string) => {
+    return (dispatch: Dispatch) => {
+        dispatch({ type: alertConstants.ALERT_SUCCESS, message })
+    }
 }
 
-function success(message: string) {
-    return { type: alertConstants.ALERT_SUCCESS, message }
+export const showErrorNotification = (error: string) => {
+    return (dispatch: Dispatch) => {
+        dispatch({ type: alertConstants.ALERT_ERROR, message: error })
+    }
 }
 
-function error(message: string) {
-    return { type: alertConstants.ALERT_ERROR, message }
-}
-
-function clear() {
-    return { type: alertConstants.ALERT_CLEAR }
+export const clearNotifications = () => {
+    return (dispatch: Dispatch) => {
+        dispatch({ type: alertConstants.ALERT_CLEAR })
+    }
 }

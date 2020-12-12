@@ -1,4 +1,4 @@
-import { alertActions } from '../notifications/actions'
+import { showErrorNotification } from '../notifications/actions'
 import * as gameConstants from './constants'
 import { Dispatch } from '..'
 import gameService from '../../services/game'
@@ -16,7 +16,7 @@ export const createGame = (name: string, description: string) => {
                 dispatch(push(AuthRoutes.tabletop))
             }, error => {
                 dispatch(failure(error))
-                dispatch(alertActions.error(error))
+                dispatch(showErrorNotification(error.message))
             })
     }
 

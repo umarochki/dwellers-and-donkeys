@@ -100,16 +100,6 @@ const Tabletop = () => {
     useEffect(() => {
         if (currentGameData && myGameBoard !== null && boardRef.current && connectGameState === AsyncState.success) {
 
-            // if (currentGameData.type === 'map') {
-            //     setIsLoaded(false)
-            //     myGameBoard.setMap({ sprite: `locations/${currentGameData.meta}.png` }, () => {
-            //         setIsLoaded(true)
-            //         ws.sendMessage('refresh')
-            //     })
-            // }
-            //
-            // if (!isLoaded) return
-
             switch (currentGameData.type) {
                 case 'update':
                     myGameBoard.updateObjectPosition(currentGameData.meta)

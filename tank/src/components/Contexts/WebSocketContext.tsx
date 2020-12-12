@@ -5,6 +5,7 @@ import { getUrlWithoutProtocol } from '../../helpers/authHeader'
 import { connectGameError, connectGameSuccess, updateGameData } from '../../store/game/actions'
 import { AuthRoutes } from '../../routes'
 import { useLocation } from 'react-router-dom'
+import { showErrorNotification } from '../../store/notifications/actions'
 
 const WebSocketContext = createContext<WebSocketContextType>({
     init: false,
@@ -46,12 +47,24 @@ const WebSocketProvider: React.FC = ({ children }) => {
 
             newSocket.onmessage = (event: MessageEvent) => {
                 console.info(`[socket] Message: ${event.data}`)
-                dispatch(updateGameData(JSON.parse(event.data)))
+                try {
+                    const data = JSON.parse(event.data)
+                    data.type === 'error'
+                        ? dispatch(showErrorNotification(data.meta))
+                        : dispatch(updateGameData(data))
+                } catch (error) {
+                    console.log('[socket] Parse error:', event.data)
+                }
             }
 
             newSocket.onclose = (event: CloseEvent) => {
                 dispatch(connectGameError())
-                // 4404 - не найдено, 4404 -ошибка
+
+                console.log('event.code', event.code)
+                if (event.code === 1006) {
+                    dispatch(showErrorNotification('Игра не найдена'))
+                }
+
                 if (event.wasClean) {
                     console.info(`[socket] Соединение закрыто, код: ${event.code}, причина: ${event.reason}`)
                 } else {
