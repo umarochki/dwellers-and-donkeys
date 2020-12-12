@@ -1,12 +1,15 @@
 import * as notificationConstants from './constants'
 import { Reducer } from 'redux'
+import { Color } from '@material-ui/lab'
 
 export type NotificationState = Readonly<{
-    type: string | null
+    show: boolean
+    type: Color | null
     message: string
 }>
 
 const INITIAL_STATE: NotificationState = {
+    show: false,
     type: null,
     message: ''
 }
@@ -15,18 +18,21 @@ export const notificationReducer: Reducer<NotificationState> = (state = INITIAL_
     switch (action.type) {
         case notificationConstants.ALERT_SUCCESS: {
             return {
-                type: 'alert-success',
+                show: true,
+                type: 'success',
                 message: action.message
             }
         }
         case notificationConstants.ALERT_ERROR: {
             return {
-                type: 'alert-danger',
+                show: true,
+                type: 'error',
                 message: action.message
             }
         }
         case notificationConstants.ALERT_CLEAR: {
             return {
+                show: false,
                 type: null,
                 message: ''
             }

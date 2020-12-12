@@ -12,6 +12,7 @@ import { getMyself } from '../../store/user/actions'
 import { ConnectedRouter } from 'connected-react-router'
 import { history } from '../../helpers/history'
 import WebSocketProvider from '../Contexts/WebSocketContext'
+import Toaster from './Toaster'
 
 const App = () => {
     const dispatch = useDispatch()
@@ -25,6 +26,7 @@ const App = () => {
             <CssBaseline/>
             <ConnectedRouter history={history}>
                 <WebSocketProvider>
+                    <Toaster/>
                     <Switch>
                         <Route path="/" exact component={StartPage}/>
                         <Route path={NonAuthRoutes.login} exact component={LoginPage}/>

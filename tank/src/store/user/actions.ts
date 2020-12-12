@@ -1,10 +1,10 @@
 import userService from '../../services/user'
-import { alertActions } from '../notifications/actions'
 import * as userConstants from './constants'
 import { push } from 'connected-react-router'
 import { User } from '../../models/user'
 import { Dispatch } from '..'
 import { NonAuthRoutes } from '../../routes'
+import { showErrorNotification } from '../notifications/actions'
 
 export const login = (username: string, password: string) => {
     return (dispatch: Dispatch) => {
@@ -17,7 +17,7 @@ export const login = (username: string, password: string) => {
                 dispatch(getMyself())
             }, error => {
                 dispatch(failure(error))
-                dispatch(alertActions.error(error))
+                dispatch(showErrorNotification(error.message))
             })
     }
 
@@ -47,7 +47,7 @@ export const signup = (username: string, email: string, password: string) => {
                 dispatch(getMyself())
             }, error => {
                 dispatch(failure(error))
-                dispatch(alertActions.error(error))
+                dispatch(showErrorNotification(error.main))
             })
     }
 
@@ -66,7 +66,7 @@ export const getMyself = () => {
             }, error => {
                 dispatch(failure(error))
                 dispatch(quickstart())
-                // dispatch(alertActions.error(error))
+                dispatch(showErrorNotification(error.message))
             })
     }
 
