@@ -2,7 +2,7 @@
 
 from django.db import migrations, models
 import djongo.models.fields
-import wzrd.game_sessions.models
+import wzrd.games.models
 
 
 class Migration(migrations.Migration):
@@ -21,8 +21,8 @@ class Migration(migrations.Migration):
                 ('description', models.TextField(blank=True, default='')),
                 ('game_master', models.IntegerField(blank=True, default=-1)),
                 ('last_object_id', models.IntegerField(blank=True, default=1)),
-                ('game_objects', wzrd.game_sessions.models.GameObjectsField(blank=True, default=dict)),
-                ('active_users', wzrd.game_sessions.models.GameObjectsField(blank=True, default=dict)),
+                ('game_objects', wzrd.games.models.GameObjectsField(blank=True, default=dict)),
+                ('active_users', wzrd.games.models.GameObjectsField(blank=True, default=dict)),
                 ('chat', djongo.models.fields.JSONField(blank=True, default=list)),
                 ('invitation_code', models.TextField(blank=True, default='XXXXXX')),
                 ('is_private', models.BooleanField(blank=True, default=False)),

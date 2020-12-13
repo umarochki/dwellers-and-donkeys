@@ -2,6 +2,7 @@ import json
 from redis import Redis
 
 from wzrd.utils import generate_key
+from .models import User
 
 
 class AuthRedisManager:
@@ -34,11 +35,21 @@ class AuthRedisManager:
             return {}
         return json.loads(json_data)
 
+    def get_user_field(self, token, field):
+        user_info = self.get_user_info(token)
+        if user_info:
+            return user_info.get(field)
+
     def check_token_from_request(self, request):
         auth_token = request.COOKIES.get("auth_token")
         if auth_token and self.check_token(auth_token):
             return True
         return False
+
+    def get_user_from_request(self, request):
+        auth_token = request.COOKIES.get("auth_token")
+        user_id = self.get_user_field(auth_token)
+        return User.objects.filter(id=user_id).first()
 
     def get_user_info_from_request(self, request):
         auth_token = request.COOKIES.get("auth_token")

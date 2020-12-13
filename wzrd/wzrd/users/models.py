@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-from wzrd.game_sessions.models import Session
+from wzrd.games.models import Session, Hero
 from .managers import UserManager
 
 
@@ -13,7 +13,8 @@ class User(AbstractUser):
     created = models.DateTimeField(auto_now_add=True)
 
     objects = UserManager()
-    sessions = models.ManyToManyField(Session)
+    sessions = models.ManyToManyField(Session, related_name="users", related_query_name="user")
+    heroes = models.ManyToManyField(Hero, related_name="users", related_query_name="user")
 
     def update(self, *args, **kwargs):
         for k, v in kwargs.items():

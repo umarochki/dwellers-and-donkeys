@@ -9,8 +9,10 @@ from channels.generic.websocket import AsyncJsonWebsocketConsumer
 
 from wzrd.users.redis import auth_manager
 from wzrd.users.models import User
+
 from . game_mechanics import roll
-from .models import Session
+from .models import Session, HeroSession
+from .serializers import HeroSessionSerializer
 
 
 @alru_cache(maxsize=128)
@@ -24,7 +26,8 @@ async def get_game_session(session_name):
 class GameSessionConsumer(AsyncJsonWebsocketConsumer):
     UPDATE_FIELDS = ("xy", "sprite")
     ACTION_TYPES = ("add", "delete", "update", "update_and_save", "map",
-                    "refresh", "clear", "active_users", "roll", "chat")
+                    "refresh", "clear", "active_users", "roll", "chat",
+                    "add_hero")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -33,10 +36,14 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
 
     @database_sync_to_async
     def get_user(self):
-        if not self.user_info:
-            return None
-
         return User.objects.get(id=self.user_info["id"])
+
+    @database_sync_to_async
+    def create_herosession(self, user, session, hero_id):
+        hero = user.heroes.filter(id=hero_id).first()
+        if not hero:
+            return None
+        return HeroSession.objects.create(base=hero, session=session)
 
     @database_sync_to_async
     def add_session_to_user(self, user, game_session):
@@ -198,6 +205,19 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
         elif action_type == "active_users":
             message_type = "send_me"
             json_data["meta"] = game_session.active_users
+
+        elif action_type == "add_hero":
+            user = await self.get_user()
+            hero = await self.create_herosession(user, game_session, meta)
+
+            if not hero:
+                json_data["type"] = "error"
+                json_data["meta"] = f"Hero [{meta}] not found!"
+                logging.warning(f"[WS {self.session_name} ADD HERO] Hero [{meta}] not found!")
+                return await self.start_sending("send_me", json_data)
+
+            message_type = "send_all"
+            json_data["meta"] = HeroSessionSerializer().to_representation(instance=hero)
 
         if save:
             await self.save_game_session(game_session)

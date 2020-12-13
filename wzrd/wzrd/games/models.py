@@ -17,6 +17,12 @@ class GameObjectsField(djongo_models.JSONField):
         return orjson.loads(value)
 
 
+class Hero(models.Model):
+    name = models.TextField(blank=True)
+    race = models.TextField(blank=True, default="Human")
+    sex = models.TextField(blank=True, default="TREBUSHET")
+
+
 class Session(models.Model):
     name = models.TextField(blank=True, default="Sample Game")
     description = models.TextField(blank=True, default="")
@@ -28,3 +34,9 @@ class Session(models.Model):
     chat = djongo_models.JSONField(blank=True, default=list)
     invitation_code = models.TextField(blank=True, default="XXXXXX")
     is_private = models.BooleanField(blank=True, default=False)
+
+
+class HeroSession(models.Model):
+    base = models.ForeignKey(Hero, related_name="hero_sessions", related_query_name="hero_session", on_delete=models.CASCADE)
+    session = models.ForeignKey(Session, related_name="heroes", related_query_name="hero", on_delete=models.CASCADE)
+    game_data = GameObjectsField(blank=True, default=dict)

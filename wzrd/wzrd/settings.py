@@ -46,7 +46,7 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'wzrd.users',
-    'wzrd.game_sessions',
+    'wzrd.games',
 ]
 
 MIDDLEWARE = [

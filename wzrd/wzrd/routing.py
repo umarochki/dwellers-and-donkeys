@@ -1,5 +1,5 @@
 from django.conf.urls import url
-import wzrd.game_sessions.consumers as consumers
+import wzrd.games.consumers as consumers
 
 
 websocket_urlpatterns = [
