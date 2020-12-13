@@ -9,9 +9,12 @@ def is_authorized(func):
     @wraps(func)
     def wrapper(self, request, *args, **kwargs):
         self.auth_token = request.COOKIES.get("auth_token")
-        if not self.auth_token or not auth_manager.check_token(self.auth_token):
-            return JsonResponse({"error": "No auth token"}, status=401)
         self.user = User.objects.filter(id=auth_manager.get_user_field(self.auth_token, "id")).first()
+        if not self.user:
+            if self.auth_token:
+                auth_manager.delete_token(self.auth_token)
+            return JsonResponse({"error": "Unauthorized"}, status=401)
+
         return func(self, request, *args, **kwargs)
     return wrapper
 
