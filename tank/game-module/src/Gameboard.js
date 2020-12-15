@@ -161,6 +161,9 @@ export default class Gameboard {
       top: -world.height, 
       bottom: world.width 
     })
+
+    this.drawer = new Drawer('#000', 1, this.app, this.viewport, this.app.renderer, this.app.loader.resources.grid.texture)
+
   }
 
   /*
@@ -311,10 +314,13 @@ export default class Gameboard {
     this.eventManager.notify('grid', { enabled: true });
   }
 
-  draw(isEnabled) {
+  draw(isEnabled = true) {
     if (isEnabled) 
     {
-      var drawer = new Drawer('#000', 1, this.app, this.viewport, this.app.renderer, this.app.loader.resources.grid.texture)
+      this.viewport.addChild(this.drawer);
+    }
+    else {
+      //TODO: deactivate?
     }
   }
 
