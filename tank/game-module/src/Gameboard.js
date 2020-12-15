@@ -6,6 +6,8 @@ import { Viewport } from 'pixi-viewport'
 import MapContainer from './Container';
 import GameObject from './GameObject';
 import EventManager from './EventManager';
+import Drawer from './Drawer';
+
 
 // PIXI.settings.FAIL_IF_MAJOR_PERFORMANCE_CAVEAT = false;
 
@@ -251,7 +253,6 @@ export default class Gameboard {
   }
 
   refresh(options, callback) {
-    console.log("HERE WE GO")
     this.clear();
 
     let resources = [];
@@ -308,6 +309,13 @@ export default class Gameboard {
   switchGrid() {
     this.mapContainer.switchGrid();
     this.eventManager.notify('grid', { enabled: true });
+  }
+
+  draw(isEnabled) {
+    if (isEnabled) 
+    {
+      var drawer = new Drawer('#000', 1, this.app, this.viewport, this.app.renderer, this.app.loader.resources.grid.texture)
+    }
   }
 
   // If resource has already been loaded, not doing it again
