@@ -120,7 +120,7 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
         message_type = "send_all_but_me"
         if action_type == "add":
             object_id = str(game_session.last_object_id)
-            game_session.game_objects[object_id] = meta
+            game_session.current_game_objects[object_id] = meta
 
             message_type = "send_all"
             json_data["meta"]["id"] = object_id
@@ -128,7 +128,7 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
             save = True
 
         elif action_type in ("update", "update_and_save"):
-            obj = game_session.game_objects.get(str(meta["id"]))
+            obj = game_session.current_game_objects.get(str(meta["id"]))
             if not obj:
                 json_data["type"] = "error"
                 json_data["meta"] = f"Object [{meta['id']}] not found!"
@@ -148,20 +148,20 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
 
         elif action_type == "delete":
             object_id = str(meta["id"])
-            if object_id not in game_session.game_objects:
+            if object_id not in game_session.current_game_objects:
                 json_data["type"] = "error"
                 json_data["meta"] = f"Object [{meta['id']}] not found!"
                 logging.warning(f"[WS {self.session_name} DELETE] Object [{meta['id']}] not found!")
                 return await self.start_sending("send_me", json_data)
 
-            del game_session.game_objects[object_id]
+            del game_session.current_game_objects[object_id]
             save = True
 
         elif action_type == "refresh":
             message_type = "send_me"
             json_data["meta"] = {
                 "active_users": list(game_session.active_users.values()),
-                "game_objects": game_session.game_objects,
+                "game_objects": game_session.current_game_objects,
                 "chat": game_session.chat,
                 "map": game_session.map,
             }
@@ -169,10 +169,15 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
         elif action_type == "map":
             message_type = "send_all"
             game_session.map = meta
+
+            json_data["meta"] = {
+                "map": meta,
+                "game_objects": game_session.current_game_objects,
+            }
             save = True
 
         elif action_type == "clear":
-            game_session.game_objects = {}
+            game_session.current_game_objects.clear()
             game_session.last_object_id = 1
             save = True
 

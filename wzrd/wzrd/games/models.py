@@ -35,6 +35,12 @@ class Session(models.Model):
     invitation_code = models.TextField(blank=True, default="XXXXXX")
     is_private = models.BooleanField(blank=True, default=False)
 
+    @property
+    def current_game_objects(self):
+        if self.map not in self.game_objects:
+            self.game_objects[self.map] = {}
+        return self.game_objects[self.map]
+
 
 class HeroSession(models.Model):
     base = models.ForeignKey(Hero, related_name="hero_sessions", related_query_name="hero_session", on_delete=models.CASCADE)
