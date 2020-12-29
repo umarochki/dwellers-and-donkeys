@@ -129,7 +129,10 @@ class SecondScreen extends StatelessWidget {
             new Padding(
               padding: new EdgeInsets.only(top: 25.0),
               child: new MaterialButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => GameBoard()));
+                },
                 color: Theme.of(context).accentColor,
                 height: 50.0,
                 minWidth: 150.0,
@@ -140,5 +143,57 @@ class SecondScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class GameBoard extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+        home: DefaultTabController(
+            length: 3,
+            child: Scaffold(
+                body: SafeArea(
+                    child: Column(children: <Widget>[
+              Container(
+                color: Colors.greenAccent,
+                height: MediaQuery.of(context).size.height / 1.5,
+              ),
+              PreferredSize(
+                preferredSize: Size.fromHeight(50.0),
+                child: TabBar(
+                  labelColor: Colors.black,
+                  tabs: [
+                    Tab(
+                      text: 'Players',
+                    ),
+                    Tab(
+                      text: 'Chat',
+                    ),
+                    Tab(
+                      text: 'Info',
+                    )
+                  ],
+                ),
+              ),
+              Expanded(
+                child: TabBarView(
+                  children: [
+                    Container(
+                      color: Colors.deepOrange,
+                      child: Center(child: Text('Players')),
+                    ),
+                    Container(
+                      color: Colors.red,
+                      child: Center(child: Text('Chat')),
+                    ),
+                    Container(
+                      color: Colors.yellowAccent,
+                      child: Center(child: Text('Info')),
+                    )
+                  ],
+                ),
+              ),
+            ])))));
   }
 }
