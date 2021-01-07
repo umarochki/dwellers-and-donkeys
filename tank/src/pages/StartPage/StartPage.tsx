@@ -13,6 +13,7 @@ import { selectCurrentUser, selectQuickStartState } from '../../store/user/selec
 import { logout } from '../../store/user/actions'
 import FullscreenLoader from '../../components/Containers/FullscreenLoader/FullscreenLoader'
 import { AsyncState } from '../../store/user/reducer'
+import ImageLoader from '../../components/Containers/ImageLoader'
 
 function Copyright() {
     return (
@@ -91,8 +92,8 @@ const StartPage = () => {
             </AppBar>
             <main>
                 <StartPageHeader className={classes.content}/>
-                <CreatedGameWorlds />
-                <img  src={seaDark} className={classes.seaDark} alt=""/>
+                <CreatedGameWorlds/>
+                <ImageLoader src={seaDark} className={classes.seaDark}/>
                 {/*<CreatedCharacters />*/}
             </main>
             <footer className={classes.footer}>

@@ -4,6 +4,9 @@ import Drawer from '@material-ui/core/Drawer'
 import { GridList, GridListTile, Theme, Tooltip } from '@material-ui/core'
 import clsx from 'clsx'
 import Switcher, { MenuType } from './Switcher'
+// @ts-ignore
+import LazyLoad from 'react-lazy-load'
+import ImageLoader from '../Containers/ImageLoader'
 
 const drawerWidth = 300
 
@@ -21,7 +24,6 @@ const useStyles = makeStyles((theme: Theme) => ({
         transition: theme.transitions.create('width', {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.enteringScreen
-            // duration: 2000
         }),
         backgroundColor: '#43536B',
         color: '#FFF',
@@ -97,7 +99,7 @@ export const heroes = [
     'Snake03',
     'Troll',
     'Boy Cunning', 'Cat Strong', 'Goblin', 'Plant02', 'Snake04', 'Troll02',
-    'Boy Smart',  'Dragon', 'Knight', 'Skeleton', 'Snake05', 'Wizard',
+    'Boy Smart', 'Dragon', 'Knight', 'Skeleton', 'Snake05', 'Wizard',
     'Boy Strong', 'Girl Cunning', 'Mummy', 'Snake', 'Spider', 'Wolf',
     'Cat Cunning', 'Girl Smart', 'Musician', 'Snake02', 'Thief'
 ]
@@ -106,6 +108,7 @@ interface Props {
     onOpen: Function
     onMapChange: (map: string) => void
 }
+
 const LeftDrawer: React.FC<Props> = props => {
     const { onOpen, onMapChange } = props
     const classes = useStyles()
@@ -133,7 +136,7 @@ const LeftDrawer: React.FC<Props> = props => {
         }
     }, [type])
 
-    React.useEffect(()=>{
+    React.useEffect(() => {
         if (open === true) {
             onOpen()
         }
@@ -147,7 +150,13 @@ const LeftDrawer: React.FC<Props> = props => {
                         {markersList.map((marker: string) => (
                             <Tooltip title={marker} key={marker}>
                                 <GridListTile cols={1} className={classes.tile}>
-                                    <img src={`markers/${marker}.png`} alt={marker} draggable/>
+                                    <LazyLoad
+                                        width={70}
+                                        height={70}
+                                        debounce={false}
+                                    >
+                                        <ImageLoader src={`markers/${marker}.png`} draggable/>
+                                    </LazyLoad>
                                 </GridListTile>
                             </Tooltip>
                         ))}
@@ -159,7 +168,13 @@ const LeftDrawer: React.FC<Props> = props => {
                         {heroes.map((hero: string) => (
                             <Tooltip title={hero} key={hero}>
                                 <GridListTile cols={1} className={classes.tile}>
-                                    <img src={`heroes/${hero}.png`} alt={hero} draggable/>
+                                    <LazyLoad
+                                        width={70}
+                                        height={70}
+                                        debounce={false}
+                                    >
+                                        <ImageLoader src={`heroes/${hero}.png`} draggable/>
+                                    </LazyLoad>
                                 </GridListTile>
                             </Tooltip>
                         ))}
@@ -171,7 +186,13 @@ const LeftDrawer: React.FC<Props> = props => {
                         {mapsList.map((map: string) => (
                             <Tooltip title={map} key={map}>
                                 <GridListTile cols={1} className={classes.tile} onClick={() => onMapChange(map)}>
-                                    <img src={`locations/${map}.png`} alt={map} />
+                                    <LazyLoad
+                                        width={233}
+                                        height={100}
+                                        debounce={false}
+                                    >
+                                        <ImageLoader src={`locations/${map}.png`}/>
+                                    </LazyLoad>
                                 </GridListTile>
                             </Tooltip>
                         ))}
