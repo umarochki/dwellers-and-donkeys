@@ -54,7 +54,7 @@ export default makeStyles((theme: Theme) =>
             marginBottom: '12px'
         },
         controls: {
-            height: 250,
+            height: '30%',
             backgroundColor: '#334055',
             display: 'flex'
         },
