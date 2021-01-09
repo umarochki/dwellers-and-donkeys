@@ -7,7 +7,7 @@ import DialogContent from '@material-ui/core/DialogContent'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import { makeStyles } from '@material-ui/core/styles'
 import { CircularProgress } from '@material-ui/core'
-import { connectGame } from '../../store/game/actions'
+import { connectGameWithRedirect } from '../../store/game/actions'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectConnectGameState } from '../../store/game/selectors'
 import { AsyncState } from '../../store/user/reducer'
@@ -37,7 +37,7 @@ const InvitationCodeDialog: React.FC<Props> = props => {
     
     const handleConnect = useCallback(() => {
         setIsLoading(true)
-        dispatch(connectGame(invitationCodeValue))
+        dispatch(connectGameWithRedirect(invitationCodeValue))
     }, [dispatch, invitationCodeValue])
 
     useEffect(() => {

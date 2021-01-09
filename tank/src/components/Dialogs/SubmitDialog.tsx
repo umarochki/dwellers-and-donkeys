@@ -11,11 +11,7 @@ interface Props extends DialogProps {
 const SubmitDialog: React.FC<Props> = props => {
     const { title, subtitle, onSubmit, onCancel, ...dialogProps } = props
     return (
-        <Dialog
-            {...dialogProps}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
-        >
+        <Dialog {...dialogProps}>
             <DialogTitle id="alert-dialog-title">{title}</DialogTitle>
             {
                 subtitle &&

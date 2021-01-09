@@ -31,7 +31,7 @@ const App = () => {
                         <Route path="/" exact component={StartPage}/>
                         <Route path={NonAuthRoutes.login} exact component={LoginPage}/>
                         <Route path={AuthRoutes.newGame} exact component={GameCreationPage}/>
-                        <Route path={AuthRoutes.tabletop} exact component={Tabletop}/>
+                        <Route path={`${AuthRoutes.tabletop}/:id`} exact component={Tabletop}/>
                     </Switch>
                 </WebSocketProvider>
             </ConnectedRouter>

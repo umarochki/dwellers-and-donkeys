@@ -155,7 +155,7 @@ const LeftDrawer: React.FC<Props> = props => {
                                         height={70}
                                         debounce={false}
                                     >
-                                        <ImageLoader src={`markers/${marker}.png`} draggable/>
+                                        <ImageLoader src={`/markers/${marker}.png`} draggable/>
                                     </LazyLoad>
                                 </GridListTile>
                             </Tooltip>
@@ -173,7 +173,7 @@ const LeftDrawer: React.FC<Props> = props => {
                                         height={70}
                                         debounce={false}
                                     >
-                                        <ImageLoader src={`heroes/${hero}.png`} draggable/>
+                                        <ImageLoader src={`/heroes/${hero}.png`} draggable/>
                                     </LazyLoad>
                                 </GridListTile>
                             </Tooltip>
@@ -191,7 +191,7 @@ const LeftDrawer: React.FC<Props> = props => {
                                         height={100}
                                         debounce={false}
                                     >
-                                        <ImageLoader src={`locations/${map}.png`}/>
+                                        <ImageLoader src={`/locations/${map}.png`}/>
                                     </LazyLoad>
                                 </GridListTile>
                             </Tooltip>

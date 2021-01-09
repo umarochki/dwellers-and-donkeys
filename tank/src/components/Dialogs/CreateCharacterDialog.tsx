@@ -74,10 +74,10 @@ const CreateCharacterDialog: React.FC<Props> = props => {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={onClose} color="primary">
-                    Отменить
+                        Отменить
                     </Button>
                     <Button onClick={onClose} color="primary">
-                    Создать
+                        Создать
                     </Button>
                 </DialogActions>
             </form>

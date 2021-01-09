@@ -6,6 +6,8 @@ import { connectGameError, connectGameSuccess, updateGameData } from '../../stor
 import { AuthRoutes } from '../../routes'
 import { useLocation } from 'react-router-dom'
 import { showErrorNotification } from '../../store/notifications/actions'
+import { selectLoginState, selectQuickStartState } from '../../store/user/selectors'
+import { AsyncState } from '../../store/user/reducer'
 
 const WebSocketContext = createContext<WebSocketContextType>({
     init: false,
@@ -24,6 +26,8 @@ export interface WebSocketContextType {
 const WebSocketProvider: React.FC = ({ children }) => {
     const dispatch = useDispatch()
     const game = useSelector(selectCurrentGame)
+    const loginState = useSelector(selectLoginState)
+    const quickStartState = useSelector(selectQuickStartState)
     const location = useLocation()
 
     const [socket, setSocket] = useState<WebSocket | null>(null)
@@ -36,11 +40,13 @@ const WebSocketProvider: React.FC = ({ children }) => {
     }, [socket])
 
     useEffect(() => {
-        if (game && location && location.pathname === AuthRoutes.tabletop) {
+        const isAuthorized = loginState === AsyncState.success || quickStartState === AsyncState.success
+
+        if (isAuthorized && game && location && location.pathname.startsWith(AuthRoutes.tabletop)) {
             const newSocket = new WebSocket(`ws://${getUrlWithoutProtocol()}/ws/games/${game.invitation_code}`)
 
             newSocket.onopen = () => {
-                console.info('[socket]: WebSocket open')
+                console.info('[socket] WebSocket open')
                 dispatch(connectGameSuccess())
                 setSocket(newSocket)
             }
@@ -76,7 +82,7 @@ const WebSocketProvider: React.FC = ({ children }) => {
                 console.error(`[socket-error] ${error}`)
             }
         }
-    }, [game, dispatch, location])
+    }, [game, dispatch, location, loginState, quickStartState])
 
     useEffect(() => {
         if (!game && socket) {

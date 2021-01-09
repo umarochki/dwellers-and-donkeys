@@ -66,7 +66,6 @@ export const getMyself = () => {
             }, error => {
                 dispatch(failure(error))
                 dispatch(quickstart())
-                dispatch(showErrorNotification(error.message))
             })
     }
 
@@ -82,7 +81,8 @@ export const quickstart = () => {
         userService.quickStart()
             .then(() => {
                 dispatch(success())
-            }, () => {
+            }, error => {
+                dispatch(showErrorNotification(error.message))
                 dispatch(push(NonAuthRoutes.login))
             })
     }

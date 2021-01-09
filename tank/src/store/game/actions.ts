@@ -13,7 +13,7 @@ export const createGame = (name: string, description: string) => {
         gameService.create({ name, description })
             .then((game: Game) => {
                 dispatch(success(game))
-                dispatch(push(AuthRoutes.tabletop))
+                dispatch(push(`${AuthRoutes.tabletop}/${game.invitation_code}`))
             }, error => {
                 dispatch(failure(error))
                 dispatch(showErrorNotification(error.message))
@@ -32,10 +32,18 @@ export const updateGameData = (data: object) => {
     }
 }
 
+export const connectGameWithRedirect = (code: string) => {
+    return (dispatch: Dispatch) => {
+        dispatch(request(code))
+        dispatch(push(`${AuthRoutes.tabletop}/${code}`))
+    }
+
+    function request(code: string) { return { type: gameConstants.CONNECT_GAME_STARTED, payload: code } }
+}
+
 export const connectGame = (code: string) => {
     return (dispatch: Dispatch) => {
         dispatch(request(code))
-        dispatch(push(AuthRoutes.tabletop))
     }
 
     function request(code: string) { return { type: gameConstants.CONNECT_GAME_STARTED, payload: code } }

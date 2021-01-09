@@ -184,7 +184,7 @@ const ChatPanel: React.FC<Props> = props => {
             <Card className={classes.content}>
                 <div className={classes.chat}>
                     <div className={classes.chatContent}>
-                        {data.map(item => <ChatMessage message={item}/>)}
+                        {data.map(item => <ChatMessage key={item.message} message={item}/>)}
                     </div>
                     <div className={classes.chatInput}>
                         <div className={classes.miniDices}>
