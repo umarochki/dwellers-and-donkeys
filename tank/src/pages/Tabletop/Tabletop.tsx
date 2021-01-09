@@ -12,14 +12,20 @@ import { selectConnectGameState, selectCurrentGame, selectCurrentGameData } from
 import { AsyncState } from '../../store/user/reducer'
 import FullscreenLoader from '../../components/Containers/FullscreenLoader/FullscreenLoader'
 import { push } from 'connected-react-router'
-import { disconnectGame } from '../../store/game/actions'
+import { connectGame, disconnectGame } from '../../store/game/actions'
 import { GameDataMessage } from '../../models/game'
 import { ConnectedUser } from '../../models/user'
 import useStyles from './styles'
+import { useParams } from 'react-router-dom'
 
 // https://codesandbox.io/s/ykk2x8k7xj?file=/src/App/index.js
+interface ParamTypes {
+    id: string
+}
 
 const Tabletop = () => {
+    const { id } = useParams<ParamTypes>()
+
     const classes = useStyles()
     const dispatch = useDispatch()
     const divRef = React.useRef<HTMLDivElement>(null)
@@ -36,14 +42,14 @@ const Tabletop = () => {
 
     // Preload images
     useEffect(() => {
-        heroes.forEach((hero: string) => {
-            const img = new Image()
-            img.src = `heroes/${hero}.png`
-        })
-        markersList.forEach((marker: string) => {
-            const img = new Image()
-            img.src = `markers/${marker}.png`
-        })
+        // heroes.forEach((hero: string) => {
+        //     const img = new Image()
+        //     img.src = `heroes/${hero}.png`
+        // })
+        // markersList.forEach((marker: string) => {
+        //     const img = new Image()
+        //     img.src = `markers/${marker}.png`
+        // })
         // mapsList.forEach((location: string) => {
         //     const img = new Image()
         //     img.src = `locations/${location}.png`
@@ -75,17 +81,17 @@ const Tabletop = () => {
             gameBoard.eventManager.subscribe('delete', (data: any) => ws.sendMessage('delete', data))
 
             // Картинки беру у клиента из точки входа
-            const assets = [{ name: 'grid', path: 'locations/Bayport.png' }]
+            const assets = [{ name: 'grid', path: '../locations/Bayport.png' }]
 
             // Предзагрузка всех используемых спрайтов
             heroes.forEach((hero: string) =>
-                assets.push({ name: hero, path: `heroes/${hero}.png` }))
+                assets.push({ name: hero, path: `../heroes/${hero}.png` }))
 
             markersList.forEach((marker: string) =>
-                assets.push({ name: marker, path: `markers/${marker}.png` }))
+                assets.push({ name: marker, path: `../markers/${marker}.png` }))
 
             mapsList.forEach((location: string) =>
-                assets.push({ name: location, path: `locations/${location}.png` }))
+                assets.push({ name: location, path: `../locations/${location}.png` }))
 
             // Грузим холст и статики (пока так)
             gameBoard.preload(assets, () => {
@@ -116,7 +122,7 @@ const Tabletop = () => {
                 case 'refresh':
                     setUsers(currentGameData.meta.active_users)
                     setMessages(currentGameData.meta.chat)
-                    myGameBoard.setMap({ sprite: `locations/${currentGameData.meta.map}.png` }, () => {
+                    myGameBoard.setMap({ sprite: `/locations/${currentGameData.meta.map}.png` }, () => {
                         myGameBoard.refresh({
                             ...currentGameData.meta
                         })
@@ -129,7 +135,7 @@ const Tabletop = () => {
                     setUsers(prev => prev.filter(user => user.id !== currentGameData.meta))
                     break
                 case 'map':
-                    myGameBoard.setMap({ sprite: `locations/${currentGameData.meta}.png` })
+                    myGameBoard.setMap({ sprite: `/locations/${currentGameData.meta}.png` })
                     break
                 case 'clear':
                 default:
@@ -143,6 +149,10 @@ const Tabletop = () => {
     }
 
     if (connectGameState === AsyncState.error || connectGameState === AsyncState.unknown) {
+        if (!game || game.invitation_code !== id) {
+            dispatch(connectGame(id))
+            return <FullscreenLoader/>
+        }
         dispatch(push('/'))
     }
 
@@ -159,7 +169,7 @@ const Tabletop = () => {
                         <Grid container>
                             <Grid item xs={5} className={classes.controlPanel}>
                                 <div className={classes.people}>
-                                    {users.map(user => <PersonCard user={user.username}/>)}
+                                    {users.map(user => <PersonCard user={user.username} key={user.username}/>)}
                                 </div>
                             </Grid>
                             <Grid item xs={2} className={classes.controlPanel}>
