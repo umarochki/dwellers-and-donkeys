@@ -52,7 +52,6 @@ const ImageLoader: React.FC<Props> = props => {
         setLoaded(true)
     }, [src])
 
-
     const classNameState = loaded
         ? classes.imgLoaded
         : classes.imgLoading
@@ -62,7 +61,8 @@ const ImageLoader: React.FC<Props> = props => {
             src={src}
             onClick={onClick}
             className={clsx(classes.image, className, classNameState)}
-            onLoad={onLoad} alt=""
+            onLoad={onLoad}
+            alt=""
             draggable={draggable}
         />
     )

@@ -150,13 +150,7 @@ const LeftDrawer: React.FC<Props> = props => {
                         {markersList.map((marker: string) => (
                             <Tooltip title={marker} key={marker}>
                                 <GridListTile cols={1} className={classes.tile}>
-                                    <LazyLoad
-                                        width={70}
-                                        height={70}
-                                        debounce={false}
-                                    >
-                                        <ImageLoader src={`/markers/${marker}.png`} draggable/>
-                                    </LazyLoad>
+                                    <ImageLoader src={`/markers/${marker}.png`} draggable/>
                                 </GridListTile>
                             </Tooltip>
                         ))}
@@ -168,13 +162,7 @@ const LeftDrawer: React.FC<Props> = props => {
                         {heroes.map((hero: string) => (
                             <Tooltip title={hero} key={hero}>
                                 <GridListTile cols={1} className={classes.tile}>
-                                    <LazyLoad
-                                        width={70}
-                                        height={70}
-                                        debounce={false}
-                                    >
-                                        <ImageLoader src={`/heroes/${hero}.png`} draggable/>
-                                    </LazyLoad>
+                                    <ImageLoader src={`/heroes/${hero}.png`} draggable/>
                                 </GridListTile>
                             </Tooltip>
                         ))}

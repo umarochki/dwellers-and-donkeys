@@ -122,7 +122,7 @@ const Tabletop = () => {
                 case 'refresh':
                     setUsers(currentGameData.meta.active_users)
                     setMessages(currentGameData.meta.chat)
-                    myGameBoard.setMap({ sprite: `/locations/${currentGameData.meta.map}.png` }, () => {
+                    myGameBoard.setMap({ sprite: `../locations/${currentGameData.meta.map}.png` }, () => {
                         myGameBoard.refresh({
                             ...currentGameData.meta
                         })
@@ -135,7 +135,11 @@ const Tabletop = () => {
                     setUsers(prev => prev.filter(user => user.id !== currentGameData.meta))
                     break
                 case 'map':
-                    myGameBoard.setMap({ sprite: `/locations/${currentGameData.meta}.png` })
+                    myGameBoard.setMap({ sprite: `../locations/${currentGameData.meta.map}.png` }, () => {
+                        myGameBoard.refresh({
+                            ...currentGameData.meta
+                        })
+                    })
                     break
                 case 'clear':
                 default:
