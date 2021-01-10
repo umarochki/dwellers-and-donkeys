@@ -12,8 +12,8 @@ const useStyles = makeStyles((theme: Theme) =>
             }
         },
         avatarLarge: {
-            width: theme.spacing(11),
-            height: theme.spacing(11),
+            width: theme.spacing(8),
+            height: theme.spacing(8),
         },
         avatarDark: {
             backgroundColor: primary900,
@@ -21,8 +21,8 @@ const useStyles = makeStyles((theme: Theme) =>
         name: {
             color: primary50,
             fontWeight: 'bold',
-            fontSize: '1.2rem',
-            marginTop: theme.spacing(1)
+            fontSize: '1rem',
+            marginTop: theme.spacing(2)
         }
     })
 )

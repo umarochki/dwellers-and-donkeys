@@ -48,7 +48,13 @@ const InviteDialog: React.FC<Props> = props => {
                 <DialogContentText style={{ textAlign: 'center' }}><a href={url}>{url}</a></DialogContentText>
             </DialogContent>
             <DialogActions>
-                <Button onClick={copy} color="primary" autoFocus endIcon={<FileCopyOutlinedIcon/>}>
+                <Button
+                    variant="outlined"
+                    onClick={copy}
+                    color="primary"
+                    autoFocus
+                    endIcon={<FileCopyOutlinedIcon/>}
+                >
                     Скопировать
                 </Button>
             </DialogActions>

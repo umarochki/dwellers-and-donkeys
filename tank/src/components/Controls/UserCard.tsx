@@ -18,8 +18,8 @@ const useStyles = makeStyles((theme: Theme) =>
             borderRadius: 0
         },
         avatarLarge: {
-            width: theme.spacing(11),
-            height: theme.spacing(11),
+            width: theme.spacing(8),
+            height: theme.spacing(8),
             marginBottom: theme.spacing(3)
         },
         name: {

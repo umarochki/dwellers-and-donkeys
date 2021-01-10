@@ -66,7 +66,7 @@ export default makeStyles((theme: Theme) =>
             '& > *': {
                 cursor: 'pointer',
                 backgroundColor: '#43536B',
-                minWidth: theme.spacing(20),
+                width: theme.spacing(20),
                 height: '100%',
                 display: 'flex',
                 alignItems: 'center',
