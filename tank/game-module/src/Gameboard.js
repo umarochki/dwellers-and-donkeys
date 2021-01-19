@@ -5,14 +5,9 @@ import { Viewport } from 'pixi-viewport'
 //import { gsap } from "gsap";
 
 import MapContainer from './Container';
-<<<<<<< Updated upstream
 import GameObjectFactory from './GameObjectFactory';
 import EventManager from './EventManager';
 import Drawer from './Drawer';
-=======
-import GameObject from './GameObject';
-import EventManager from './EventManager';
->>>>>>> Stashed changes
 
 // PIXI.settings.FAIL_IF_MAJOR_PERFORMANCE_CAVEAT = false;
 
@@ -40,10 +35,6 @@ export default class Gameboard {
         forceCanvas: false,
     }, options);
 
-<<<<<<< Updated upstream
-=======
-    
->>>>>>> Stashed changes
     this.eventManager = new EventManager();
 
     // A DOM-element that is currently dragged.
@@ -109,7 +100,6 @@ export default class Gameboard {
     });
   }
 
-<<<<<<< Updated upstream
   // Reset drag event handlers if draggable DOM-elements were recreated
   resetDraggedDOMListeners() {
     Array.prototype.map.call(document.querySelectorAll('[draggable="true"]'),
@@ -120,8 +110,6 @@ export default class Gameboard {
     );
   }
 
-=======
->>>>>>> Stashed changes
   // Resize function window
   onResize(e) {
 
@@ -144,13 +132,8 @@ export default class Gameboard {
     const world = { width: 10000, height: 10000 }
 
     this.viewport = new Viewport({
-<<<<<<< Updated upstream
         screenWidth: 1920,
         screenHeight: 1080,
-=======
-        screenWidth: this.width,
-        screenHeight: this.height,
->>>>>>> Stashed changes
         worldWidth: world.width,
         worldHeight: world.height,
 
@@ -178,12 +161,9 @@ export default class Gameboard {
       top: -world.height, 
       bottom: world.width 
     })
-<<<<<<< Updated upstream
 
     this.drawer = new Drawer('#000', 1, this.app, this.viewport, this.app.renderer, this.app.loader.resources.grid.texture)
 
-=======
->>>>>>> Stashed changes
   }
 
   /*
@@ -196,10 +176,7 @@ export default class Gameboard {
     // Check for dropping correct object
     if (!this.draggedDOM) return;
 
-<<<<<<< Updated upstream
     /*
-=======
->>>>>>> Stashed changes
     this.addObject({
       sprite: this.draggedDOM.src,
       width: this.draggedDOM.clientWidth,
@@ -207,7 +184,6 @@ export default class Gameboard {
       xy: [(e.layerX - this.viewport.x) / this.viewport.scale.x, 
            (e.layerY - this.viewport.y) / this.viewport.scale.y],
     })
-<<<<<<< Updated upstream
     */
 
     this.eventManager.notify('add', {
@@ -295,53 +271,6 @@ export default class Gameboard {
     });
   }
 
-=======
-    
-  }
-
-  /* Add object to the viewpoint
-   *
-   * @param {string} [sprite] - Object image source
-   * @param {number} [width] - Object width
-   * @param {number} [height] - Object height
-   * @param {number[]} [xy] - Object init coordinates
-   * @param {function} [callback] - Callback function.
-   */
-  addObject(options, callback) {
-
-    this._safeLoad(options.sprite, () => {
-
-      const obj = new GameObject({
-        id: this.viewport.children.length - 1,
-        eventManager: this.eventManager, 
-        texture: this.app.loader.resources[options.sprite].texture,
-        src: options.sprite,
-        width: options.width,
-        height: options.height,
-        xy: options.xy
-      });
-
-      this.viewport.addChild(obj);
-      this.draggedDOM = undefined;
-
-      typeof callback == "function" && callback();
-    });
-  }
-
-  updateObjectPosition(options, callback) {
-    this.viewport.children[options.id + 1].updatePosition(options.xy[0], options.xy[1]);
-    typeof callback == "function" && callback();
-  }
-
-  deleteObject(options, callback) {
-
-    var object = this.viewport.children[options.id + 1];
-    object.parent.removeChild(object);
-
-    typeof callback == "function" && callback(); 
-  }
-
->>>>>>> Stashed changes
   clear(options, callback) {
     for (var i = this.viewport.children.length - 1; i >= 1; i--) {  
       this.viewport.removeChild(this.viewport.children[i])
@@ -349,24 +278,15 @@ export default class Gameboard {
 
     typeof callback == "function" && callback(); 
   }
-<<<<<<< Updated upstream
 
   setMap(options, callback) {
 
     this._safeLoad([options.sprite], () => {
 
       const map = this.app.loader.resources[options.sprite].texture;
-=======
->>>>>>> Stashed changes
 
-  setMap(options, callback) {
-    this._safeLoad(options.sprite, () => {
       // Draw map image as a background
-<<<<<<< Updated upstream
       const image = PIXI.Sprite.from(map);
-=======
-      const image = PIXI.Sprite.from(this.app.loader.resources[options.sprite].texture);
->>>>>>> Stashed changes
 
       this.mapContainer = new MapContainer(
         this.app.loader.resources.grid.texture, 
@@ -378,12 +298,8 @@ export default class Gameboard {
 
       this.viewport.addChildAt(this.mapContainer, 0);
 
-<<<<<<< Updated upstream
       this.viewport.screenWidth = map.orig.width;
       this.viewport.screenHeight = map.orig.height;
-=======
-      this.eventManager.notify('map', { sprite: options.sprite });
->>>>>>> Stashed changes
 
       typeof callback == "function" && callback();
     });
@@ -391,10 +307,6 @@ export default class Gameboard {
 
   switchGrid() {
     this.mapContainer.switchGrid();
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
     this.eventManager.notify('grid', { enabled: true });
   }
 
@@ -407,7 +319,6 @@ export default class Gameboard {
       //TODO: deactivate?
     }
   }
-<<<<<<< Updated upstream
 
   // If resource has already been loaded, not doing it again
   _safeLoad(resources, callback) {
@@ -428,6 +339,4 @@ export default class Gameboard {
   isLoaded(resource) {
     return typeof this.app.loader.resources[resource] !== 'undefined';
   }
-=======
->>>>>>> Stashed changes
 }
