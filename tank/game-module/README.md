@@ -19,11 +19,16 @@ Based on Pixi.JS
     * preload(callback) - Предзагрузка игровго поля
     * setMap(path, callback) - Установка мапы
     * addObject(data, callback) - Добавление объекта на поле. Callback опционально
+<<<<<<< Updated upstream
     * deleteObject(data, callback) - Удаление объекта на поле. Callback опционально
     * updateObjectPosition(data, callback) - Изменение координат объекта. Callback опционально
     * clear(callback) - Очистить игровое поле. Callback опционально
     * refresh(data, callback) - Обновить содержимое на игровом поле. Callback опционально
     * resetDraggedDOMListeners() - Пересоздать обработчики событий на перетаскиваемые объекты.
+=======
+    * deleteObject(data) - Удаление объектана поле. Callback опционально
+    * updateObjectPosition(data, callback) - Изменение координат объекта. Callback опционально
+>>>>>>> Stashed changes
     * switchGrid() - Включение/выключение сетки (потом сделаю удобнее)
 
 ### Класс GameObject:
