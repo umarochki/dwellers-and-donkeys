@@ -251,7 +251,6 @@ export default class Gameboard {
   }
 
   refresh(options, callback) {
-    console.log("HERE WE GO")
     this.clear();
 
     let resources = [];

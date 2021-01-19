@@ -166,9 +166,9 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
                 "map": game_session.map,
             }
 
-        elif action_type == "map":
+        elif action_type in ("map", "global_map"):
             message_type = "send_all"
-            game_session.map = meta
+            game_session.map = meta if action_type == "map" else "Global"
 
             json_data["meta"] = {
                 "map": meta,
