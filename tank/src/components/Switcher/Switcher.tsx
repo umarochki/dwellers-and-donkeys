@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import { ListItem } from '@material-ui/core'
 import ListItemIcon from '@material-ui/core/ListItemIcon/ListItemIcon'
@@ -9,6 +9,8 @@ import List from '@material-ui/core/List'
 import FlagIcon from '@material-ui/icons/Flag'
 import { useHistory } from 'react-router-dom'
 import ConfirmDialog from '../Dialogs/ConfirmDialog'
+import ExploreIcon from '@material-ui/icons/Explore'
+import FilterHdrIcon from '@material-ui/icons/FilterHdr'
 
 const switcherWidth = 60
 
@@ -46,6 +48,8 @@ const useStyles = makeStyles(() => ({
 }))
 
 export enum MenuType {
+    global = 'global',
+    globalSymbols = 'global_symbols',
     heroes = 'heroes',
     locations = 'locations',
     markers = 'markers',
@@ -54,6 +58,10 @@ export enum MenuType {
 
 const mapTypeToIcon = (type: MenuType) => {
     switch (type) {
+        case MenuType.global:
+            return <ExploreIcon fontSize="large"/>
+        case MenuType.globalSymbols:
+            return <FilterHdrIcon fontSize="large"/>
         case MenuType.heroes:
             return <FaceIcon fontSize="large"/>
         case MenuType.locations:
@@ -68,6 +76,10 @@ const mapTypeToIcon = (type: MenuType) => {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const mapTypeToTooltip = (type: MenuType): string => {
     switch (type) {
+        case MenuType.global:
+            return 'Глобальная карта'
+        case MenuType.globalSymbols:
+            return 'Обозначения на карте'
         case MenuType.heroes:
             return 'Персонажи'
         case MenuType.locations:
@@ -83,10 +95,11 @@ interface Props {
     currentType: MenuType
     close: (event: React.KeyboardEvent | React.MouseEvent) => void
     onSelect: (type: MenuType) => void
+    global: boolean
 }
 
 const Switcher: React.FC<Props> = props => {
-    const { currentType, onSelect } = props
+    const { currentType, global, onSelect } = props
     const classes = useStyles()
     const history = useHistory()
 
@@ -95,13 +108,19 @@ const Switcher: React.FC<Props> = props => {
 
     const goHome = useCallback(() => history.push(''), [history])
 
+    const menuList = useMemo(() => {
+        return global
+            ? [MenuType.global, MenuType.locations, MenuType.globalSymbols, MenuType.markers]
+            : [MenuType.global, MenuType.locations, MenuType.heroes]
+    }, [global])
+
     return (
         <List className={classes.switcher}>
             <ListItem button className={classes.group} onClick={confirm}>
                 <ListItemIcon className={classes.icon_inactive}><HomeIcon fontSize="large"/></ListItemIcon>
             </ListItem>
             {
-                [MenuType.locations, MenuType.heroes, MenuType.markers].map(type => (
+                menuList.map(type => (
                     <ListItem button className={classes.group} onClick={() => onSelect(type)} key={type}>
                         <ListItemIcon className={type === currentType ? classes.icon : classes.icon_inactive}>
                             {mapTypeToIcon(type)}

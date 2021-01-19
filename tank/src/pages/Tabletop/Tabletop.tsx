@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useState } from 'react'
-import LeftDrawer, { heroes, mapsList, markersList } from '../../components/Switcher/LeftDrawer'
+import React, { useCallback, useContext, useEffect, useState } from 'react'
+import LeftDrawer, { globalSymbols, heroes, mapsList, markersList } from '../../components/Switcher/LeftDrawer'
 import { Grid } from '@material-ui/core'
 import UserCard from '../../components/Controls/UserCard'
 import PersonCard from '../../components/Controls/PersonCard'
@@ -39,6 +39,19 @@ const Tabletop = () => {
     const [myGameBoard, setMyGameBoard] = useState<any>(null)
     const [messages, setMessages] = useState<GameDataMessage[]>([])
     const [users, setUsers] = useState<ConnectedUser[]>([])
+    const [isGlobal, setIsGlobal] = useState(true)
+
+    const handleOpenDrawer = useCallback(() => {
+        myGameBoard && myGameBoard.resetDraggedDOMListeners()
+    }, [myGameBoard])
+
+    const handleOpenGlobalCard = useCallback(() => {
+        ws.sendMessage('global_map')
+    }, [ws])
+
+    const handleMapChange = useCallback((map: string) => {
+        ws.sendMessage('map', map)
+    }, [ws])
 
     // Preload images
     useEffect(() => {
@@ -81,7 +94,7 @@ const Tabletop = () => {
             gameBoard.eventManager.subscribe('delete', (data: any) => ws.sendMessage('delete', data))
 
             // Картинки беру у клиента из точки входа
-            const assets = [{ name: 'grid', path: '../locations/Bayport.png' }]
+            const assets = [{ name: 'grid', path: '../globalSymbols/WorldMap.png' }]
 
             // Предзагрузка всех используемых спрайтов
             heroes.forEach((hero: string) =>
@@ -92,6 +105,11 @@ const Tabletop = () => {
 
             mapsList.forEach((location: string) =>
                 assets.push({ name: location, path: `../locations/${location}.png` }))
+
+            globalSymbols.forEach((globalSymbol: string) =>
+                assets.push({ name: globalSymbol, path: `../globalSymbols/${globalSymbol}.png` }))
+
+            assets.push({ name: 'WorldMap', path: `../globalSymbols/WorldMap.png` })
 
             // Грузим холст и статики (пока так)
             gameBoard.preload(assets, () => {
@@ -122,7 +140,12 @@ const Tabletop = () => {
                 case 'refresh':
                     setUsers(currentGameData.meta.active_users)
                     setMessages(currentGameData.meta.chat)
-                    myGameBoard.setMap({ sprite: `../locations/${currentGameData.meta.map}.png` }, () => {
+
+                    myGameBoard.setMap({
+                        sprite: currentGameData.meta.map === 'Global'
+                            ? '../globalSymbols/WorldMap.png'
+                            : `../locations/${currentGameData.meta.map}.png`
+                    }, () => {
                         myGameBoard.refresh({
                             ...currentGameData.meta
                         })
@@ -135,7 +158,16 @@ const Tabletop = () => {
                     setUsers(prev => prev.filter(user => user.id !== currentGameData.meta))
                     break
                 case 'map':
+                    setIsGlobal(false)
                     myGameBoard.setMap({ sprite: `../locations/${currentGameData.meta.map}.png` }, () => {
+                        myGameBoard.refresh({
+                            ...currentGameData.meta
+                        })
+                    })
+                    break
+                case 'global_map':
+                    setIsGlobal(true)
+                    myGameBoard.setMap({ sprite: '../globalSymbols/WorldMap.png' }, () => {
                         myGameBoard.refresh({
                             ...currentGameData.meta
                         })
@@ -164,8 +196,10 @@ const Tabletop = () => {
         <div className={classes.root}>
             <div className={classes.appFrame}>
                 <LeftDrawer
-                    onOpen={() => myGameBoard && myGameBoard.resetDraggedDOMListeners()}
-                    onMapChange={(map: string) => ws.sendMessage('map', map)}
+                    global={isGlobal}
+                    onOpen={handleOpenDrawer}
+                    onMapChange={handleMapChange}
+                    onOpenGlobalCard={handleOpenGlobalCard}
                 />
                 <main className={classes.content}>
                     <div className={classes.map} ref={divRef}/>

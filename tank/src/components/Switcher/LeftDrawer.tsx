@@ -104,13 +104,56 @@ export const heroes = [
     'Cat Cunning', 'Girl Smart', 'Musician', 'Snake02', 'Thief'
 ]
 
+export const globalSymbols = [
+    'Bones1',
+    'Bones2',
+    'Bones3',
+    'Chest',
+    'City',
+    'Dot',
+    'Dungeon1',
+    'Dungeon2',
+    'Dungeon3',
+    'Finsh',
+    'Fire',
+    'Flag',
+    'Grass1',
+    'Grass2',
+    'Grass3',
+    'Grass4',
+    'Grass5',
+    'Grass6',
+    'Hill1',
+    'Hill2',
+    'Hill3',
+    'Lake1',
+    'Lake2',
+    'Lake3',
+    'Mountain1',
+    'Mountain2',
+    'Mountain3',
+    'Mountain4',
+    'Mountain5',
+    'Start',
+    'Swamp1',
+    'Swamp2',
+    'Tower1',
+    'Tower2',
+    'Tree1',
+    'Tree2',
+    'Tree3',
+    'Tree4'
+]
+
 interface Props {
     onOpen: Function
     onMapChange: (map: string) => void
+    onOpenGlobalCard: () => void
+    global: boolean
 }
 
 const LeftDrawer: React.FC<Props> = props => {
-    const { onOpen, onMapChange } = props
+    const { onOpen, onMapChange, onOpenGlobalCard, global } = props
     const classes = useStyles()
     const [open, setOpen] = React.useState(false)
     const [type, setType] = useState<MenuType>(MenuType.unselect)
@@ -129,12 +172,24 @@ const LeftDrawer: React.FC<Props> = props => {
     const handleSelect = useCallback((selectedType: MenuType) => {
         if (type !== selectedType) {
             setType(selectedType)
-            setOpen(true)
+
+            if (selectedType === MenuType.global) {
+                onOpenGlobalCard()
+                setOpen(false)
+            } else {
+                setOpen(true)
+            }
         } else {
-            setType(MenuType.unselect)
-            setOpen(false)
+            if (selectedType !== MenuType.global) {
+                setType(MenuType.unselect)
+                setOpen(false)
+            }
         }
-    }, [type])
+    }, [type, onOpenGlobalCard])
+
+    const handleMapClick = useCallback((map: string) => () => {
+        onMapChange(map)
+    }, [onMapChange])
 
     React.useEffect(() => {
         if (open === true) {
@@ -173,7 +228,7 @@ const LeftDrawer: React.FC<Props> = props => {
                     <GridList cellHeight={100} cols={1}>
                         {mapsList.map((map: string) => (
                             <Tooltip title={map} key={map}>
-                                <GridListTile cols={1} className={classes.tile} onClick={() => onMapChange(map)}>
+                                <GridListTile cols={1} className={classes.tile} onClick={handleMapClick(map)}>
                                     <LazyLoad
                                         width={233}
                                         height={100}
@@ -186,12 +241,25 @@ const LeftDrawer: React.FC<Props> = props => {
                         ))}
                     </GridList>
                 )
+            case MenuType.globalSymbols:
+                return (
+                    <GridList cellHeight={70} cols={3}>
+                        {globalSymbols.map((globalSymbol: string) => (
+                            <Tooltip title={globalSymbol} key={globalSymbol}>
+                                <GridListTile cols={1} className={classes.tile}>
+                                    <ImageLoader src={`/globalSymbols/${globalSymbol}.png`} draggable/>
+                                </GridListTile>
+                            </Tooltip>
+                        ))}
+                    </GridList>
+                )
         }
-    }, [classes.tile, onMapChange])
+    }, [classes.tile, handleMapClick])
 
     return (
         <>
             <Switcher
+                global={global}
                 currentType={type}
                 close={toggleDrawer(false)}
                 onSelect={handleSelect}
