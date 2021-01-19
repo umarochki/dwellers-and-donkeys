@@ -10,6 +10,10 @@ export default class LocationMarker extends GameObject {
         this.scale.set(0.3);
    }
 
+   containsPoint(point) { }
+
+   genHitmap(baseTex, threshold) { }
+
    /*
    onClick(e) {
 
