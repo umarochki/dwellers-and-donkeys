@@ -25,9 +25,8 @@ async def get_game_session(session_name):
 
 class GameSessionConsumer(AsyncJsonWebsocketConsumer):
     UPDATE_FIELDS = ("xy", "sprite")
-    ACTION_TYPES = ("add", "delete", "update", "update_and_save", "map",
-                    "refresh", "clear", "active_users", "roll", "chat",
-                    "add_hero")
+    ACTION_TYPES = ("add", "delete", "update", "update_and_save", "map", "global_map",
+                    "refresh", "clear", "active_users", "roll", "chat", "add_hero",)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
