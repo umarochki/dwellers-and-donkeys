@@ -39,10 +39,11 @@ interface Props {
     onClick?: () => void
     draggable?: boolean
     className?: string
+    marker?: boolean
 }
 
 const ImageLoader: React.FC<Props> = props => {
-    const { src, onClick, draggable, className } = props
+    const { src, onClick, draggable, className, marker } = props
     const classes = useStyles()
 
     const [loaded, setLoaded] = useState(_loaded[src])
@@ -63,6 +64,7 @@ const ImageLoader: React.FC<Props> = props => {
             className={clsx(classes.image, className, classNameState)}
             onLoad={onLoad}
             alt=""
+            data-type={marker ? 'marker' : undefined}
             draggable={draggable}
         />
     )
