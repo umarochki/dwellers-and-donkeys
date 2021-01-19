@@ -147,6 +147,8 @@ class SecondScreen extends StatelessWidget {
 }
 
 class GameBoard extends StatelessWidget {
+  final _sizeTextWhite = const TextStyle(fontSize: 20.0, color: Colors.white);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -181,7 +183,44 @@ class GameBoard extends StatelessWidget {
                   children: [
                     Container(
                       color: Colors.deepOrange,
-                      child: Center(child: Text('Players')),
+                      child: Center(
+                          child: new Column(children: <Widget>[
+                        new Container(
+                          margin: const EdgeInsets.all(15.0),
+                          padding: const EdgeInsets.all(3.0),
+                          decoration: BoxDecoration(
+                              color: Color.fromRGBO(67, 83, 107, 1)),
+                          child: ListTile(
+                            leading: CircleAvatar(
+                              backgroundColor: Colors.blueGrey,
+                            ),
+                            title: Text('Player 1', style: _sizeTextWhite),
+                            subtitle: Text('Cool Name', style: _sizeTextWhite),
+                            trailing: Icon(Icons.poll),
+                            onTap: () {
+                              print('Debug');
+                            },
+                          ),
+                        ),
+                        new Container(
+                          margin: const EdgeInsets.all(15.0),
+                          padding: const EdgeInsets.all(3.0),
+                          decoration: BoxDecoration(
+                              color: Color.fromRGBO(67, 83, 107, 1)),
+                          child: ListTile(
+                            leading: CircleAvatar(
+                              backgroundColor: Colors.blueGrey,
+                            ),
+                            title: Text('Player 2', style: _sizeTextWhite),
+                            subtitle:
+                                Text('Cooler Name', style: _sizeTextWhite),
+                            trailing: Icon(Icons.poll),
+                            onTap: () {
+                              print('Debug');
+                            },
+                          ),
+                        )
+                      ])),
                     ),
                     Container(
                       color: Colors.red,
@@ -189,7 +228,26 @@ class GameBoard extends StatelessWidget {
                     ),
                     Container(
                       color: Colors.yellowAccent,
-                      child: Center(child: Text('Info')),
+                      child: Center(
+                          child: new Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                            Text('Invite Code'),
+                            Text(''),
+                            Text('FILLER CODE'),
+                            new MaterialButton(
+                              onPressed: () {
+                                Clipboard.setData(
+                                    new ClipboardData(text: "FILLER CODE"));
+                              },
+                              color: Theme.of(context).accentColor,
+                              height: 30.0,
+                              minWidth: 150.0,
+                              child: new Text(
+                                "COPY",
+                              ),
+                            )
+                          ])),
                     )
                   ],
                 ),
