@@ -1,11 +1,13 @@
 import * as PIXI from 'pixi.js-legacy';
 import { Viewport } from 'pixi-viewport'
+
 //import { PixiPlugin } from "gsap/PixiPlugin";
 //import { gsap } from "gsap";
 
 import MapContainer from './Container';
-import GameObject from './GameObject';
+import GameObjectFactory from './GameObjectFactory';
 import EventManager from './EventManager';
+import Drawer from './Drawer';
 
 // PIXI.settings.FAIL_IF_MAJOR_PERFORMANCE_CAVEAT = false;
 
@@ -159,6 +161,9 @@ export default class Gameboard {
       top: -world.height, 
       bottom: world.width 
     })
+
+    this.drawer = new Drawer('#000', 1, this.app, this.viewport, this.app.renderer, this.app.loader.resources.grid.texture)
+
   }
 
   /*
@@ -182,7 +187,7 @@ export default class Gameboard {
     */
 
     this.eventManager.notify('add', {
-      sprite: this.draggedDOM.src,
+      type: this.draggedDOM.getAttribute('data-type'),
       xy: [(e.layerX - this.viewport.x) / this.viewport.scale.x, 
            (e.layerY - this.viewport.y) / this.viewport.scale.y]
     })
@@ -191,17 +196,14 @@ export default class Gameboard {
   }
 
   createObject(options) {
-    
-    return new GameObject({
-      id: options.id,
+
+    return new GameObjectFactory({
+      ...options,
       eventManager: this.eventManager, 
       texture: this.app.loader.resources[options.sprite].texture,
-      src: options.sprite,
       width: 0, // TODO:
       height: 0, // TODO:
-      xy: options.xy
-    });
-
+    }); 
   }
 
   /* Add object to the viewpoint
@@ -298,8 +300,6 @@ export default class Gameboard {
       this.viewport.screenWidth = map.orig.width;
       this.viewport.screenHeight = map.orig.height;
 
-      this.eventManager.notify('map', { sprite: options.sprite });
-
       typeof callback == "function" && callback();
     });
   }
@@ -307,6 +307,16 @@ export default class Gameboard {
   switchGrid() {
     this.mapContainer.switchGrid();
     this.eventManager.notify('grid', { enabled: true });
+  }
+
+  draw(isEnabled = true) {
+    if (isEnabled) 
+    {
+      this.viewport.addChild(this.drawer);
+    }
+    else {
+      //TODO: deactivate?
+    }
   }
 
   // If resource has already been loaded, not doing it again
