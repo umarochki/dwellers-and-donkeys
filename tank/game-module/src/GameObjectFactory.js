@@ -1,6 +1,6 @@
 import GameObject from './GameObject';
 import Character from './Character';
-import LocationMarker from './LocationMarker';
+import Marker from './Marker';
 
 export default class GameObjectFactory {
   constructor(options) {
@@ -9,8 +9,8 @@ export default class GameObjectFactory {
         return new Character(options)
         break;
 
-      case 'location-marker':
-        return new LocationMarker(options)
+      case 'marker':
+        return new Marker(options)
         break;
 
       default:

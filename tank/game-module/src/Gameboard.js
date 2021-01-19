@@ -187,7 +187,7 @@ export default class Gameboard {
     */
 
     this.eventManager.notify('add', {
-      type: this.draggedDOM.getAttribute('data-type'),
+      type: this.draggedDOM.getAttribute('data-type') || 'none',
       xy: [(e.layerX - this.viewport.x) / this.viewport.scale.x, 
            (e.layerY - this.viewport.y) / this.viewport.scale.y]
     })
