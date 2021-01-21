@@ -13,6 +13,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='session',
             name='map',
-            field=models.TextField(blank=True, default='Bayport'),
+            field=models.TextField(blank=True, default='Global'),
         ),
     ]
