@@ -8,7 +8,6 @@ export default class Character extends GameObject {
    }
 
    containsPoint(point) {
-      console.log(this);
       const tempPoint = {x: 0, y: 0 }
 
       // Get mouse poisition relative to the object anchor point

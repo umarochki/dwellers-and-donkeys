@@ -47,6 +47,32 @@ export default class Gameboard {
     // Create PIXI application
     this.app = new PIXI.Application(options);
 
+    // Create loader queue
+    this.app.loader.queue = []
+    this.app.loader.is_locked = false;
+
+    this.app.loader.addMany = (resources) => {
+      var flag = false;
+      for (let res of resources) {
+        if (!this.isLoaded(res)) {
+          flag = true;
+          this.app.loader.add(res); 
+        }
+      }
+    }
+
+    this.app.loader.loadFromQueue = () => {
+      if (this.app.loader.queue.length > 0) {
+        var request = this.app.loader.queue.pop();
+        this.app.loader.addMany(request.resources);
+        this.app.loader.load(request.callback);
+      }
+      else
+        this.app.loader.is_locked = false;
+    }
+
+    this.app.loader.onComplete.add(this.app.loader.loadFromQueue);
+
     // Add created canvas to parent element
     if (!options.view)
       options.parent.appendChild(this.app.view);
@@ -323,17 +349,13 @@ export default class Gameboard {
   // If resource has already been loaded, not doing it again
   _safeLoad(resources, callback) {
     
-    var flag = false;
+    var request = { resources: resources, callback: callback };
+    this.app.loader.queue.push(request);
 
-    for (let res of resources) {
-      if (!this.isLoaded(res)) {
-        flag = true;
-        this.app.loader.add(res); 
-      }
+    if (!this.app.loader.is_locked) {
+      this.app.loader.is_locked = true;
+      this.app.loader.loadFromQueue();
     }
-    
-    if (flag) this.app.loader.load(callback.bind(this))
-    else callback.bind(this)();
   }
 
   isLoaded(resource) {
