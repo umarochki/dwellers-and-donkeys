@@ -97,19 +97,19 @@ const Tabletop = () => {
             const assets = [{ name: 'grid', path: '../globalSymbols/WorldMap.png' }]
 
             // Предзагрузка всех используемых спрайтов
-            heroes.forEach((hero: string) =>
-                assets.push({ name: hero, path: `../heroes/${hero}.png` }))
-
-            markersList.forEach((marker: string) =>
-                assets.push({ name: marker, path: `../markers/${marker}.png` }))
-
-            mapsList.forEach((location: string) =>
-                assets.push({ name: location, path: `../locations/${location}.png` }))
-
-            globalSymbols.forEach((globalSymbol: string) =>
-                assets.push({ name: globalSymbol, path: `../globalSymbols/${globalSymbol}.png` }))
-
-            assets.push({ name: 'WorldMap', path: `../globalSymbols/WorldMap.png` })
+            //             heroes.forEach((hero: string) =>
+            //                 assets.push({ name: hero, path: `../heroes/${hero}.png` }))
+            //
+            //             markersList.forEach((marker: string) =>
+            //                 assets.push({ name: marker, path: `../markers/${marker}.png` }))
+            //
+            //             mapsList.forEach((location: string) =>
+            //                 assets.push({ name: location, path: `../locations/${location}.png` }))
+            //
+            //             globalSymbols.forEach((globalSymbol: string) =>
+            //                 assets.push({ name: globalSymbol, path: `../globalSymbols/${globalSymbol}.png` }))
+            //
+            //             assets.push({ name: 'WorldMap', path: `../globalSymbols/WorldMap.png` })
 
             // Грузим холст и статики (пока так)
             gameBoard.preload(assets, () => {
