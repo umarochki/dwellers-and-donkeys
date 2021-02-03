@@ -3,23 +3,13 @@ services:
   nginx:
     build:
       context: nginx
-      dockerfile: nginx-dev.Dockerfile
+      dockerfile: nginx.Dockerfile
     container_name: umr_nginx
     restart: unless-stopped
     ports:
       - "80:80"
     depends_on:
-      - tank
       - wzrd
-    networks:
-      - inner
-
-  tank:
-    build: nginx/tank
-    container_name: umr_tank
-    volumes:
-      - ./nginx/tank/src:/build/src
-      - ./nginx/tank/game-module/src:/build/node_modules/game-module/src
     networks:
       - inner
 

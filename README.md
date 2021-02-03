@@ -2,7 +2,11 @@
 ### Гайд по подниманию с нуля:
 
 #### 1) Запускаем все:
-```docker-compose up --build -d```
+##### Дев:
+```docker-compose up -d --build```
+##### Продакшн:
+```docker-compose -f docker-compose-prod.yml up -d --build```
+
 
 #### 2) Залетаем в контейнер wzrd
 ```docker exec -it umr_wzrd bash```
