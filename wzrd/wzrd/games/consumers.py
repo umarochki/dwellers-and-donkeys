@@ -182,13 +182,13 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
 
         elif action_type == "chat":
             message_type = "send_all"
-            meta = {
+            json_data["meta"] = {
                 "type": "message",
                 "time": datetime.strftime(datetime.utcnow(), "%Y-%m-%dT%H:%M:%S%zZ"),
                 "message": meta,
                 "sender": self.user_info["username"],
             }
-            game_session.chat.append(meta)
+            game_session.chat.append(json_data["meta"])
             save = True
 
         elif action_type == "roll":
