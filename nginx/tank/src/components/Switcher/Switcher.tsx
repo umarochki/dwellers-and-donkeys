@@ -110,7 +110,7 @@ const Switcher: React.FC<Props> = props => {
 
     const menuList = useMemo(() => {
         return global
-            ? [MenuType.global, MenuType.locations, MenuType.globalSymbols, MenuType.markers]
+            ? [MenuType.locations, MenuType.globalSymbols, MenuType.markers]
             : [MenuType.global, MenuType.locations, MenuType.heroes]
     }, [global])
 

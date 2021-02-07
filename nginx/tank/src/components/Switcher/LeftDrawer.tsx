@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import Drawer from '@material-ui/core/Drawer'
 import { GridList, GridListTile, Theme, Tooltip } from '@material-ui/core'
@@ -7,6 +7,7 @@ import Switcher, { MenuType } from './Switcher'
 // @ts-ignore
 import LazyLoad from 'react-lazy-load'
 import ImageLoader from '../Containers/ImageLoader'
+import { primary200, primary900 } from '../../styles/colors'
 
 const drawerWidth = 300
 
@@ -28,6 +29,10 @@ const useStyles = makeStyles((theme: Theme) => ({
         backgroundColor: '#43536B',
         color: '#FFF',
         overflow: 'hidden'
+    },
+    drawerPaperLight: {
+        borderRight: `4px solid ${primary900}`,
+        backgroundColor: primary200,
     },
     drawerPaperClose: {
         width: 60,
@@ -63,6 +68,9 @@ const useStyles = makeStyles((theme: Theme) => ({
     },
     tile: {
         objectFit: 'contain'
+    },
+    gridList: {
+        padding: '0 5px'
     }
 }))
 
@@ -150,13 +158,15 @@ interface Props {
     onMapChange: (map: string) => void
     onOpenGlobalCard: () => void
     global: boolean
+    open: boolean
+    setOpen: (v: boolean) => void
+    type: MenuType
+    setType: (v: MenuType) => void
 }
 
 const LeftDrawer: React.FC<Props> = props => {
-    const { onOpen, onMapChange, onOpenGlobalCard, global } = props
+    const { onOpen, onMapChange, onOpenGlobalCard, global, open, setOpen, type, setType } = props
     const classes = useStyles()
-    const [open, setOpen] = React.useState(false)
-    const [type, setType] = useState<MenuType>(MenuType.unselect)
 
     const toggleDrawer = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
         if (
@@ -175,6 +185,7 @@ const LeftDrawer: React.FC<Props> = props => {
 
             if (selectedType === MenuType.global) {
                 onOpenGlobalCard()
+                setType(MenuType.unselect)
                 setOpen(false)
             } else {
                 setOpen(true)
@@ -185,7 +196,7 @@ const LeftDrawer: React.FC<Props> = props => {
                 setOpen(false)
             }
         }
-    }, [type, onOpenGlobalCard])
+    }, [type, onOpenGlobalCard, setOpen, setType])
 
     const handleMapClick = useCallback((map: string) => () => {
         onMapChange(map)
@@ -201,7 +212,7 @@ const LeftDrawer: React.FC<Props> = props => {
         switch (type) {
             case MenuType.markers:
                 return (
-                    <GridList cellHeight={70} cols={3}>
+                    <GridList cellHeight={70} cols={3} className={classes.gridList}>
                         {markersList.map((marker: string) => (
                             <Tooltip title={marker} key={marker}>
                                 <GridListTile cols={1} className={classes.tile}>
@@ -213,7 +224,7 @@ const LeftDrawer: React.FC<Props> = props => {
                 )
             case MenuType.heroes:
                 return (
-                    <GridList cellHeight={70} cols={3}>
+                    <GridList cellHeight={70} cols={3} className={classes.gridList}>
                         {heroes.map((hero: string) => (
                             <Tooltip title={hero} key={hero}>
                                 <GridListTile cols={1} className={classes.tile}>
@@ -254,7 +265,7 @@ const LeftDrawer: React.FC<Props> = props => {
                     </GridList>
                 )
         }
-    }, [classes.tile, handleMapClick])
+    }, [classes.tile, handleMapClick, classes.gridList])
 
     return (
         <>
@@ -271,6 +282,7 @@ const LeftDrawer: React.FC<Props> = props => {
                 classes={{
                     paper: clsx(
                         classes.drawerPaper,
+                        type !== MenuType.locations && classes.drawerPaperLight,
                         !open && classes.drawerPaperClose
                     )
                 }}

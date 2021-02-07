@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react'
-import LeftDrawer, { globalSymbols, heroes, mapsList, markersList } from '../../components/Switcher/LeftDrawer'
+import LeftDrawer from '../../components/Switcher/LeftDrawer'
 import { Grid } from '@material-ui/core'
 import UserCard from '../../components/Controls/UserCard'
 import PersonCard from '../../components/Controls/PersonCard'
@@ -17,6 +17,7 @@ import { GameDataMessage } from '../../models/game'
 import { ConnectedUser } from '../../models/user'
 import useStyles from './styles'
 import { useParams } from 'react-router-dom'
+import { MenuType } from '../../components/Switcher/Switcher'
 
 // https://codesandbox.io/s/ykk2x8k7xj?file=/src/App/index.js
 interface ParamTypes {
@@ -40,6 +41,9 @@ const Tabletop = () => {
     const [messages, setMessages] = useState<GameDataMessage[]>([])
     const [users, setUsers] = useState<ConnectedUser[]>([])
     const [isGlobal, setIsGlobal] = useState(true)
+    const [isSwiping, setSwiping] = useState(false)
+    const [open, setOpen] = React.useState(false)
+    const [type, setType] = useState<MenuType>(MenuType.unselect)
 
     const handleOpenDrawer = useCallback(() => {
         myGameBoard && myGameBoard.resetDraggedDOMListeners()
@@ -52,22 +56,6 @@ const Tabletop = () => {
     const handleMapChange = useCallback((map: string) => {
         ws.sendMessage('map', map)
     }, [ws])
-
-    // Preload images
-    useEffect(() => {
-        // heroes.forEach((hero: string) => {
-        //     const img = new Image()
-        //     img.src = `heroes/${hero}.png`
-        // })
-        // markersList.forEach((marker: string) => {
-        //     const img = new Image()
-        //     img.src = `markers/${marker}.png`
-        // })
-        // mapsList.forEach((location: string) => {
-        //     const img = new Image()
-        //     img.src = `locations/${location}.png`
-        // })
-    }, [])
 
     useEffect(() => {
         return () => {
@@ -95,21 +83,6 @@ const Tabletop = () => {
 
             // Картинки беру у клиента из точки входа
             const assets = [{ name: 'grid', path: '../globalSymbols/WorldMap.png' }]
-
-            // Предзагрузка всех используемых спрайтов
-            //             heroes.forEach((hero: string) =>
-            //                 assets.push({ name: hero, path: `../heroes/${hero}.png` }))
-            //
-            //             markersList.forEach((marker: string) =>
-            //                 assets.push({ name: marker, path: `../markers/${marker}.png` }))
-            //
-            //             mapsList.forEach((location: string) =>
-            //                 assets.push({ name: location, path: `../locations/${location}.png` }))
-            //
-            //             globalSymbols.forEach((globalSymbol: string) =>
-            //                 assets.push({ name: globalSymbol, path: `../globalSymbols/${globalSymbol}.png` }))
-            //
-            //             assets.push({ name: 'WorldMap', path: `../globalSymbols/WorldMap.png` })
 
             // Грузим холст и статики (пока так)
             gameBoard.preload(assets, () => {
@@ -200,9 +173,30 @@ const Tabletop = () => {
                     onOpen={handleOpenDrawer}
                     onMapChange={handleMapChange}
                     onOpenGlobalCard={handleOpenGlobalCard}
+                    open={open}
+                    setOpen={setOpen}
+                    type={type}
+                    setType={setType}
                 />
                 <main className={classes.content}>
-                    <div className={classes.map} ref={divRef}/>
+                    <div
+                        className={classes.map}
+                        ref={divRef}
+                        onMouseDown={() => {
+                            setSwiping(false)
+                        }}
+                        onMouseMove={() => {
+                            setSwiping(true)
+                        }}
+                        onMouseUp={e => {
+                            if (!isSwiping && e.button === 0 && open) {
+                                // close sidebar
+                                setOpen(false)
+                                setType(MenuType.unselect)
+                            }
+                            setSwiping(false)
+                        }}
+                    />
                     <div className={classes.controls}>
                         <Grid container>
                             <Grid item xs={5} className={classes.controlPanel}>
