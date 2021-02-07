@@ -1,7 +1,7 @@
-import React, { useCallback, useContext, useMemo, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { Button, Card, Grid, IconButton, Theme } from '@material-ui/core'
 import { createStyles, makeStyles } from '@material-ui/core/styles'
-import { primary200, primary800, primary900 } from '../../styles/colors'
+import { primary200, primary50, primary800, primary900 } from '../../styles/colors'
 import { ReactComponent as D4 } from '../../assets/dices/d4.svg'
 import { ReactComponent as D6 } from '../../assets/dices/d6.svg'
 import { ReactComponent as D8 } from '../../assets/dices/d8.svg'
@@ -24,7 +24,7 @@ const useStyles = makeStyles((theme: Theme) =>
         content: {
             backgroundColor: primary900,
             display: 'flex',
-            height: '100%',
+            height: '100%'
         },
         chat: {
             padding: theme.spacing(1),
@@ -41,6 +41,17 @@ const useStyles = makeStyles((theme: Theme) =>
             marginTop: 'auto',
             display: 'flex',
             alignItems: 'center'
+        },
+        chatInputText: {
+            flex: 1,
+            border: 'none',
+            fontSize: '1rem',
+            color: primary50,
+            backgroundColor: 'transparent',
+            letterSpacing: '0.07em',
+            '&:focus': {
+                outline: 'none'
+            }
         },
         rolls: {
             padding: theme.spacing(1),
@@ -63,13 +74,16 @@ const useStyles = makeStyles((theme: Theme) =>
         },
         chatContent: {
             flexGrow: 1,
-            overflow: 'auto'
+            overflow: 'auto',
+            marginBottom: '8px',
+            overflowY: 'scroll'
         },
         chatMessage: {
             height: 30,
             marginBottom: theme.spacing(1),
             display: 'flex',
-            alignItems: 'flex-end'
+            alignItems: 'flex-end',
+            flexWrap: 'wrap'
         },
         chatInputBtn: {
             marginLeft: 'auto',
@@ -97,6 +111,14 @@ const useStyles = makeStyles((theme: Theme) =>
             justifyContent: 'center',
             fontWeight: 'bold',
             fontSize: '1rem'
+        },
+        messageText: {
+            marginRight: theme.spacing(1),
+            marginLeft: theme.spacing(1)
+        },
+        messageSender: {
+            fontWeight: 'bold',
+            marginLeft: theme.spacing(1)
         }
     })
 )
@@ -133,19 +155,26 @@ const ChatMessage: React.FC<MessageProps> = props => {
     const h = date.getHours()
     const min = date.getMinutes()
 
+    const time = `(${h > 9 ? h : '0' + h}:${min > 9 ? min : '0' + min})`
+
     if (message.type === 'roll') {
         return (
             <div className={classes.chatMessage}>
-                <span className={classes.diceSquare}>{message.total}</span>({h > 9 ? h : '0' + h}:{min > 9 ? min : '0' + min})
+                <span className={classes.messageSender}>{message.sender}:</span><span className={classes.diceSquare}>{message.total}</span>{time}
             </div>
         )
     }
 
     return (
         <div className={classes.chatMessage}>
-            {message.message}
+            <span className={classes.messageSender}>{message.sender}:</span><span className={classes.messageText}>{message.message}</span>{time}
         </div>
     )
+}
+
+enum InputType {
+    text,
+    dices
 }
 
 interface Props {
@@ -158,16 +187,24 @@ const ChatPanel: React.FC<Props> = props => {
     const ws = useContext(WebSocketContext)
     const connectGameState = useSelector(selectConnectGameState)
 
+    const [chatInput, setChatInput] = useState('')
+    const [inputType, setInputType] = useState(InputType.text)
+    const messagesEnd = useRef(null)
+
     const emptyDices = useMemo(() => ['4', '6', '8', '10', '12', '20'].map(type => ({ type: type, count: 0 })), [])
     const [dices, setDices] = useState<Dice[]>(emptyDices)
     const isEmpty = useMemo(() => !dices.some(dice => dice.count > 0), [dices])
 
     const addDice = useCallback((type: string) => () => {
+        if (inputType !== InputType.dices) {
+            setInputType(InputType.dices)
+            setChatInput('')
+        }
         setDices(prev => prev.map(dice => dice.type === type
             ? { count: dice.count + 1, type }
             : dice
         ))
-    }, [])
+    }, [inputType])
 
     const roll = useCallback(() => {
         if (ws && connectGameState === AsyncState.success) {
@@ -176,8 +213,46 @@ const ChatPanel: React.FC<Props> = props => {
                 return obj
             }, {}))
             setDices(emptyDices)
+            setInputType(InputType.text)
         }
     }, [ws, connectGameState, dices, emptyDices])
+
+    const handleChatInputChange = useCallback((e: React.FormEvent<HTMLInputElement>) => {
+        if (inputType === InputType.text && e.currentTarget.value.length <= 60) setChatInput(e.currentTarget.value)
+    }, [inputType])
+
+    const sendMessage = useCallback(() => {
+        if (ws.init && connectGameState === AsyncState.success && chatInput) {
+            ws.sendMessage('chat', chatInput)
+            setChatInput('')
+        }
+    }, [ws, connectGameState, chatInput])
+
+    const handleClear = useCallback(() => {
+        if (inputType === InputType.text) {
+            setChatInput('')
+        } else {
+            setInputType(InputType.text)
+            setDices(emptyDices)
+        }
+    }, [inputType, emptyDices])
+
+    const handleKeyPress = useCallback(event => {
+        if (event.key === 'Enter') {
+            sendMessage()
+        }
+    }, [sendMessage])
+
+    // scroll chat
+    const scrollToBottom = useCallback(() => {
+        if (messagesEnd && messagesEnd.current) {
+            messagesEnd.current.scrollIntoView({ block: 'end', behavior: 'smooth' })
+        }
+    }, [messagesEnd])
+
+    useEffect(() => {
+        scrollToBottom()
+    }, [scrollToBottom, messagesEnd, data])
 
     return (
         <div className={classes.root}>
@@ -185,12 +260,13 @@ const ChatPanel: React.FC<Props> = props => {
                 <div className={classes.chat}>
                     <div className={classes.chatContent}>
                         {data.map(item => <ChatMessage key={item.time} message={item}/>)}
+                        <div ref={messagesEnd} style={{ height: 1 }}/>
                     </div>
                     <div className={classes.chatInput}>
-                        <div className={classes.miniDices}>
-                            {dices.map(dice => <MiniDice key={dice.type} {...dice} />)}
-                        </div>
-                        <IconButton className={classes.chatInputBtn} disabled={isEmpty} onClick={() => setDices(emptyDices)}>
+                        {inputType === InputType.dices
+                            ? <div className={classes.miniDices}>{dices.map(dice => <MiniDice key={dice.type} {...dice} />)}</div>
+                            : <input className={classes.chatInputText} value={chatInput} onChange={handleChatInputChange} onKeyPress={handleKeyPress}/>}
+                        <IconButton className={classes.chatInputBtn} disabled={isEmpty} onClick={handleClear}>
                             <ClearIcon fontSize="inherit" />
                         </IconButton>
                     </div>
@@ -206,8 +282,10 @@ const ChatPanel: React.FC<Props> = props => {
                         <D12 className={classes.roll} onClick={addDice('12')}/>
                         <D20 className={classes.roll} onClick={addDice('20')}/>
                     </Grid>
-                    <Grid container item xs={12}>
-                        <Button color="secondary" disabled={isEmpty} onClick={roll}>Кинуть</Button>
+                    <Grid container item xs={12} style={{ marginTop: 'auto', height: 50 }}>
+                        {inputType === InputType.dices
+                            ? <Button color="secondary" disabled={isEmpty} onClick={roll}>Кинуть</Button>
+                            : <Button color="secondary" disabled={!chatInput} onClick={sendMessage}>Отправить</Button>}
                     </Grid>
                 </Grid>
             </Card>

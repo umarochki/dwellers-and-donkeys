@@ -22,4 +22,5 @@ export interface GameDataMessage {
     time: string
     message?: string
     total?: object
+    sender: string
 }
