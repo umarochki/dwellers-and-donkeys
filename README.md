@@ -110,7 +110,10 @@ POST /api/v1/games [Создать игру]
                     "d6": 2,
                     "d20": 1
                 },
-                "total": 24,
+                "rolls": {
+                    "d6": [3, 6],
+                    "d20": [14]
+                },
                 "sender": "testuser"
             },
             ...  
@@ -196,9 +199,9 @@ POST /api/v1/games [Создать игру]
     "meta": {
         "type": "roll",
         "time": "2020-12-06T13:11:08Z",
-        "dice": {
-            "d6": 2,
-            "d20": 1
+        "rolls": {
+            "d6": [3, 6],
+            "d20": [14]
         },
         "total": 24,
         "sender": "testuser"
