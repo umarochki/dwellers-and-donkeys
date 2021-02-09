@@ -14,7 +14,6 @@ def is_authorized(func):
             if self.auth_token:
                 auth_manager.delete_token(self.auth_token)
             return JsonResponse({"error": "Unauthorized"}, status=401)
-
         return func(self, request, *args, **kwargs)
     return wrapper
 
