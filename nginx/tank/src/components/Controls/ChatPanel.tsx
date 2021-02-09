@@ -79,6 +79,9 @@ const useStyles = makeStyles((theme: Theme) =>
             marginBottom: '8px',
             overflowY: 'scroll'
         },
+        messageHeader: {
+            width: '100%'
+        },
         chatMessage: {
             minHeight: 30,
             marginBottom: theme.spacing(2),
@@ -114,7 +117,12 @@ const useStyles = makeStyles((theme: Theme) =>
             fontSize: '1rem'
         },
         messageText: {
+            'overflow-wrap': 'anywhere',
             marginRight: theme.spacing(1),
+            marginLeft: theme.spacing(1),
+        },
+        messageTime: {
+            fontStyle: 'italic',
             marginLeft: theme.spacing(1)
         },
         messageSender: {
@@ -156,19 +164,27 @@ const ChatMessage: React.FC<MessageProps> = props => {
     const h = date.getHours()
     const min = date.getMinutes()
 
-    const time = `(${h > 9 ? h : '0' + h}:${min > 9 ? min : '0' + min})`
+    const time = `${h > 9 ? h : '0' + h}:${min > 9 ? min : '0' + min}`
 
     if (message.type === 'roll') {
         return (
             <div className={classes.chatMessage}>
-                <span className={classes.messageSender}>{message.sender}:</span><span className={classes.diceSquare}>{message.total}</span>{time}
+               <div className={classes.messageHeader}>
+                   <span className={classes.messageSender}>{message.sender}</span>
+                   <span className={classes.messageTime}>{time}</span>
+               </div>
+               <span className={classes.diceSquare}>{message.total}</span>
             </div>
         )
     }
 
     return (
         <div className={classes.chatMessage}>
-            <span className={classes.messageSender}>{message.sender}:</span><span className={classes.messageText}>{message.message} {time}</span>
+           <div className={classes.messageHeader}>
+               <span className={classes.messageSender}>{message.sender}</span>
+               <span className={classes.messageTime}>{time}</span>
+           </div>
+           <span className={classes.messageText}>{message.message}</span>
         </div>
     )
 }
@@ -219,7 +235,7 @@ const ChatPanel: React.FC<Props> = props => {
     }, [ws, connectGameState, dices, emptyDices])
 
     const handleChatInputChange = useCallback((e: React.FormEvent<HTMLInputElement>) => {
-        if (inputType === InputType.text && e.currentTarget.value.length <= 60) setChatInput(e.currentTarget.value)
+        if (inputType === InputType.text && e.currentTarget.value.length <= 250) setChatInput(e.currentTarget.value)
     }, [inputType])
 
     const sendMessage = useCallback(() => {
