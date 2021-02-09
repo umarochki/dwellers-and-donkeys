@@ -56,6 +56,7 @@ const useStyles = makeStyles((theme: Theme) =>
         rolls: {
             padding: theme.spacing(1),
             width: 250,
+            minWidth: 250,
             height: '100%'
         },
         roll: {
@@ -79,8 +80,8 @@ const useStyles = makeStyles((theme: Theme) =>
             overflowY: 'scroll'
         },
         chatMessage: {
-            height: 30,
-            marginBottom: theme.spacing(1),
+            minHeight: 30,
+            marginBottom: theme.spacing(2),
             display: 'flex',
             alignItems: 'flex-end',
             flexWrap: 'wrap'
@@ -167,7 +168,7 @@ const ChatMessage: React.FC<MessageProps> = props => {
 
     return (
         <div className={classes.chatMessage}>
-            <span className={classes.messageSender}>{message.sender}:</span><span className={classes.messageText}>{message.message}</span>{time}
+            <span className={classes.messageSender}>{message.sender}:</span><span className={classes.messageText}>{message.message} {time}</span>
         </div>
     )
 }
