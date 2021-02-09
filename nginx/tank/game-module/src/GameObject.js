@@ -75,6 +75,8 @@ export default class GameObject extends Sprite {
       this.dragging = false;
       this.data = null;
 
+      console.log(e.data.global.x, e.data.global.y);
+
       this.eventManager.notify('update_and_save', {
         id: this.id,
         xy: [this.x, this.y]

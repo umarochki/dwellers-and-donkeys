@@ -1,5 +1,6 @@
 import * as PIXI from 'pixi.js-legacy';
 import { Viewport } from 'pixi-viewport'
+import { SVG } from 'pixi-svg';
 
 //import { PixiPlugin } from "gsap/PixiPlugin";
 //import { gsap } from "gsap";
@@ -8,6 +9,9 @@ import MapContainer from './Container';
 import GameObjectFactory from './GameObjectFactory';
 import EventManager from './EventManager';
 import Drawer from './Drawer';
+
+import createElementSVG from './utils/createElementSVG';
+import DUMMY_MAP_RAW from './assets/dummy-map'
 
 // PIXI.settings.FAIL_IF_MAJOR_PERFORMANCE_CAVEAT = false;
 
@@ -119,7 +123,8 @@ export default class Gameboard {
       this.app.loader
       .add(assets[i].name, assets[i].path);
     }
-    
+   
+
     this.app.loader.load(() => { 
       this.onLoad();
       typeof callback == "function" && callback();
@@ -158,8 +163,8 @@ export default class Gameboard {
     const world = { width: 10000, height: 10000 }
 
     this.viewport = new Viewport({
-        screenWidth: 1920,
-        screenHeight: 1080,
+        screenWidth: this.width,
+        screenHeight: this.height,
         worldWidth: world.width,
         worldHeight: world.height,
 
@@ -188,8 +193,51 @@ export default class Gameboard {
       bottom: world.width 
     })
 
-    this.drawer = new Drawer('#000', 1, this.app, this.viewport, this.app.renderer, this.app.loader.resources.grid.texture)
+    this.setDummyMap();
 
+    //this.drawer = new Drawer('#000', 1, this.app, this.viewport, this.app.renderer, this.app.loader.resources.grid.texture)
+
+  }
+
+  setDummyMap(callback) {
+      var dummy = new SVG(createElementSVG(DUMMY_MAP_RAW));
+      this.viewport.addChild(dummy);
+
+      console.log(dummy)
+
+      dummy.scale.set(0.5)
+      dummy.x = this.width / 2 - dummy.width / 2;
+      dummy.y = this.height / 2 - dummy.height / 1.3;
+  }
+
+
+  setMap(options, callback) {
+
+    this._safeLoad([options.sprite], () => {
+
+      // Draw map image as a background
+      const image = new PIXI.Sprite(this.app.loader.resources[options.sprite].texture);
+
+      console.log(image);
+
+      this.mapContainer = new MapContainer(
+        this.app.loader.resources.grid.texture, 
+        this.viewport, 
+        image
+      );
+      
+      // Delete previous map if exists
+      if (this.viewport.children[0]) this.viewport.removeChildAt(0);
+
+      // Add new map
+      this.viewport.addChildAt(this.mapContainer, 0);
+
+      this.viewport.screenWidth = this.width;
+      this.viewport.screenHeight = this.height;
+
+      typeof callback == "function" && callback();
+      
+    });
   }
 
   /*
@@ -303,32 +351,6 @@ export default class Gameboard {
     };
 
     typeof callback == "function" && callback(); 
-  }
-
-  setMap(options, callback) {
-
-    this._safeLoad([options.sprite], () => {
-
-      const map = this.app.loader.resources[options.sprite].texture;
-
-      // Draw map image as a background
-      const image = PIXI.Sprite.from(map);
-
-      this.mapContainer = new MapContainer(
-        this.app.loader.resources.grid.texture, 
-        this.viewport, 
-        image
-      );
-      
-      if (this.viewport.children[0]) this.viewport.removeChildAt(0);
-
-      this.viewport.addChildAt(this.mapContainer, 0);
-
-      this.viewport.screenWidth = map.orig.width;
-      this.viewport.screenHeight = map.orig.height;
-
-      typeof callback == "function" && callback();
-    });
   }
 
   switchGrid() {
