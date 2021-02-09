@@ -12,6 +12,7 @@ export default class MapContainer extends Container {
         this.img = img;
         this.name = name;
 
+        console.log(img);
         img.anchor.set(0.5)
 
         img.x = parent.screenWidth / 2;
