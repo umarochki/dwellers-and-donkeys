@@ -169,22 +169,22 @@ const ChatMessage: React.FC<MessageProps> = props => {
     if (message.type === 'roll') {
         return (
             <div className={classes.chatMessage}>
-               <div className={classes.messageHeader}>
-                   <span className={classes.messageSender}>{message.sender}</span>
-                   <span className={classes.messageTime}>{time}</span>
-               </div>
-               <span className={classes.diceSquare}>{message.total}</span>
+                <div className={classes.messageHeader}>
+                    <span className={classes.messageSender}>{message.sender}</span>
+                    <span className={classes.messageTime}>{time}</span>
+                </div>
+                <span className={classes.diceSquare}>{message.total}</span>
             </div>
         )
     }
 
     return (
         <div className={classes.chatMessage}>
-           <div className={classes.messageHeader}>
-               <span className={classes.messageSender}>{message.sender}</span>
-               <span className={classes.messageTime}>{time}</span>
-           </div>
-           <span className={classes.messageText}>{message.message}</span>
+            <div className={classes.messageHeader}>
+                <span className={classes.messageSender}>{message.sender}</span>
+                <span className={classes.messageTime}>{time}</span>
+            </div>
+            <span className={classes.messageText}>{message.message}</span>
         </div>
     )
 }
