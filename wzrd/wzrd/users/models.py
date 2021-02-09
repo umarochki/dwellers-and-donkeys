@@ -22,4 +22,3 @@ class User(AbstractUser):
                 self.set_password(v)
             else:
                 setattr(self, k, v)
-
