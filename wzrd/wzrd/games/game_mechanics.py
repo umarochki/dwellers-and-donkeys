@@ -15,5 +15,5 @@ def roll(meta: dict):
         if num not in POSSIBLE_DICE:
             raise ValueError(f"Wrong number of faces ({num})!")
         for i in range(v):
-            total += random.randint(1, num + 1)
+            total += random.randint(1, num)
     return total
