@@ -4,6 +4,7 @@ channels_redis
 django==3.0.5
 djangorestframework
 djongo
+nickname-generator
 orjson
 pydash
 redis

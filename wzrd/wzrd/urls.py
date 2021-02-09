@@ -23,7 +23,6 @@ urlpatterns = [
         url("auth/signup", users_views.UserViewSet.as_view({"post": "signup"}), name="signup"),
         url("auth/logout", users_views.UserViewSet.as_view({"get": "logout", "post": "logout"}), name="logout"),
         url("auth/quickstart", users_views.UserViewSet.as_view({"get": "quickstart", "post": "quickstart"}), name="quickstart"),
-
         url("heroes/active", games_views.HeroViewSet.as_view({"get": "active"}), name="active"),
     ])),
 ]

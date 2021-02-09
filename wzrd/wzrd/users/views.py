@@ -1,6 +1,7 @@
 import logging
 import json
 import pydash as _
+from nickname_generator import generate
 
 from django.views import View
 from rest_framework import status, viewsets
@@ -78,7 +79,8 @@ class UserViewSet(viewsets.ModelViewSet, IsAuthorisedMixin):
     @action(detail=False, methods=['GET', 'POST'])
     def quickstart(self, request):
         response = HttpResponse("OK!", status=201)
-        user = User.objects.create(username=generate_key(length=10), is_temporary=True)
+        username = generate('ru')  # TODO: query param 'lang'
+        user = User.objects.create(username=username, is_temporary=True)
         auth_token = auth_manager.add_token(user)
         response.set_cookie("auth_token", auth_token)
         return response
