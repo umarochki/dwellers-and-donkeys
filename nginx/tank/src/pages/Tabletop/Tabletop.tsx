@@ -40,7 +40,7 @@ const Tabletop = () => {
     const [myGameBoard, setMyGameBoard] = useState<any>(null)
     const [messages, setMessages] = useState<GameDataMessage[]>([])
     const [users, setUsers] = useState<ConnectedUser[]>([])
-    const [isGlobal, setIsGlobal] = useState(true)
+    const [isGlobal, setIsGlobal] = useState<boolean | null>(null)
     const [isSwiping, setSwiping] = useState(false)
     const [open, setOpen] = React.useState(false)
     const [type, setType] = useState<MenuType>(MenuType.unselect)
@@ -123,6 +123,7 @@ const Tabletop = () => {
                             ...currentGameData.meta
                         })
                     })
+                    setIsGlobal(currentGameData.meta.map === 'Global')
                     break
                 case 'connect':
                     setUsers(prev => [...prev, currentGameData.meta])
@@ -137,6 +138,7 @@ const Tabletop = () => {
                             ...currentGameData.meta
                         })
                     })
+                    setIsGlobal(false)
                     break
                 case 'global_map':
                     setIsGlobal(true)
@@ -145,6 +147,7 @@ const Tabletop = () => {
                             ...currentGameData.meta
                         })
                     })
+                    setIsGlobal(true)
                     break
                 case 'clear':
                 default:

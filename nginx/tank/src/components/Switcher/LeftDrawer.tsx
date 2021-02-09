@@ -157,7 +157,7 @@ interface Props {
     onOpen: Function
     onMapChange: (map: string) => void
     onOpenGlobalCard: () => void
-    global: boolean
+    global: boolean | null
     open: boolean
     setOpen: (v: boolean) => void
     type: MenuType

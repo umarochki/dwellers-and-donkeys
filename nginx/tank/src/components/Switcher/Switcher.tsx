@@ -95,7 +95,7 @@ interface Props {
     currentType: MenuType
     close: (event: React.KeyboardEvent | React.MouseEvent) => void
     onSelect: (type: MenuType) => void
-    global: boolean
+    global: boolean | null
 }
 
 const Switcher: React.FC<Props> = props => {
@@ -109,6 +109,8 @@ const Switcher: React.FC<Props> = props => {
     const goHome = useCallback(() => history.push(''), [history])
 
     const menuList = useMemo(() => {
+        if (global === null) return []
+
         return global
             ? [MenuType.locations, MenuType.globalSymbols, MenuType.markers]
             : [MenuType.global, MenuType.locations, MenuType.heroes]
