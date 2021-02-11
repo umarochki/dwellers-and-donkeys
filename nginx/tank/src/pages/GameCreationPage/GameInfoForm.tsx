@@ -36,18 +36,18 @@ const GameInfoForm: React.FC<Props> = props => {
             <form className={classes.form} autoComplete="off">
                 <Paper className={classes.paper}>
                     <FormControl fullWidth>
-                        <InputLabel htmlFor="title" className={classes.inputLabel}>Название</InputLabel>
+                        <InputLabel htmlFor="title" className={classes.inputLabel}>Name</InputLabel>
                         <Input id="title" type="text" inputRef={register}/>
                     </FormControl>
 
                     <FormControl fullWidth>
-                        <InputLabel htmlFor="shortDesc" className={classes.inputLabel}>Краткое описание</InputLabel>
+                        <InputLabel htmlFor="shortDesc" className={classes.inputLabel}>Short description</InputLabel>
                         <Input id="shortDesc" type="text" inputRef={register}/>
                     </FormControl>
 
                     <Grid container justify="flex-end" className={classes.marginTop}>
                         <Button variant="contained" color="primary" onClick={onSubmit}>
-                            Дальше
+                            Next
                         </Button>
                     </Grid>
                 </Paper>

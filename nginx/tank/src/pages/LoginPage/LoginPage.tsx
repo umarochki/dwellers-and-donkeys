@@ -44,8 +44,8 @@ const LoginPage = () => {
                         textColor="primary"
                         centered
                     >
-                        <Tab label="Вход" classes={{ root: classes.tab }} />
-                        <Tab label="Регистрация" classes={{ root: classes.tab }} />
+                        <Tab label="Login" classes={{ root: classes.tab }} />
+                        <Tab label="Sign up" classes={{ root: classes.tab }} />
                     </Tabs>
                     {activeTabId === 0 && (
                         <>
@@ -61,7 +61,7 @@ const LoginPage = () => {
                                 value={loginValue}
                                 onChange={e => setLoginValue(e.target.value)}
                                 margin="normal"
-                                label="Логин"
+                                label="Login"
                                 type="text"
                                 fullWidth
                             />
@@ -76,7 +76,7 @@ const LoginPage = () => {
                                 value={passwordValue}
                                 onChange={e => setPasswordValue(e.target.value)}
                                 margin="normal"
-                                label="Пароль"
+                                label="Password"
                                 type="password"
                                 fullWidth
                             />
@@ -96,7 +96,7 @@ const LoginPage = () => {
                                         className={classes.createAccountButton}
                                         fullWidth
                                     >
-                                        Войти
+                                        Sign in
                                     </Button>
                                 )}
                                 <Button
@@ -105,14 +105,14 @@ const LoginPage = () => {
                                     onClick={() => dispatch(push('/'))}
                                     fullWidth
                                 >
-                                    Продолжить без авторизации
+                                    Continue as Guest
                                 </Button>
                                 {/*<Button*/}
                                 {/*    color="primary"*/}
                                 {/*    size="large"*/}
                                 {/*    className={classes.forgetButton}*/}
                                 {/*>*/}
-                                {/*    Забыли пароль?*/}
+                                {/*    Forgot password?*/}
                                 {/*</Button>*/}
                             </div>
                         </>
@@ -131,7 +131,7 @@ const LoginPage = () => {
                                 value={loginValue}
                                 onChange={e => setLoginValue(e.target.value)}
                                 margin="normal"
-                                label="Логин"
+                                label="Login"
                                 type="text"
                                 fullWidth
                             />
@@ -161,7 +161,7 @@ const LoginPage = () => {
                                 value={passwordValue}
                                 onChange={e => setPasswordValue(e.target.value)}
                                 margin="normal"
-                                label="Пароль"
+                                label="Password"
                                 type="password"
                                 fullWidth
                             />
@@ -185,7 +185,7 @@ const LoginPage = () => {
                                         fullWidth
                                         className={classes.createAccountButton}
                                     >
-                                        Создать
+                                        Create
                                     </Button>
                                 )}
                                 <Button
@@ -194,12 +194,12 @@ const LoginPage = () => {
                                     onClick={() => dispatch(push('/'))}
                                     fullWidth
                                 >
-                                    Продолжить без регистрации
+                                    Continue as Guest
                                 </Button>
                             </div>
                             {/*<div className={clsx(classes.formDividerContainer, classes.marginBottom)}>*/}
                             {/*    <div className={classes.formDivider} />*/}
-                            {/*    <Typography className={classes.formDividerWord}>или</Typography>*/}
+                            {/*    <Typography className={classes.formDividerWord}>or</Typography>*/}
                             {/*    <div className={classes.formDivider} />*/}
                             {/*</div>*/}
                             {/*<Button*/}
@@ -210,7 +210,7 @@ const LoginPage = () => {
                             {/*    )}*/}
                             {/*>*/}
                             {/*    <img src={google} alt="google" className={classes.googleIcon} />*/}
-                            {/*    &nbsp;Войти через Google*/}
+                            {/*    &nbsp;Sign in with Google*/}
                             {/*</Button>*/}
                         </>
                     )}

@@ -86,7 +86,7 @@ const StartPage = () => {
                         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
                         transformOrigin={{ vertical: 'top', horizontal: 'center' }}
                     >
-                        <MenuItem onClick={handleLogout}>Выйти</MenuItem>
+                        <MenuItem onClick={handleLogout}>Log out</MenuItem>
                     </Menu>
                 </Toolbar>
             </AppBar>
@@ -101,7 +101,7 @@ const StartPage = () => {
                     U M R Team
                 </Typography>
                 <Typography variant="subtitle1" align="center" color="textSecondary" component="p">
-                    Здесь нет ничего важного.
+                    Nothing important here.
                 </Typography>
                 <Copyright/>
             </footer>

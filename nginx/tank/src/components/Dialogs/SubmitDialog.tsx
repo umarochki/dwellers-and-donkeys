@@ -21,10 +21,10 @@ const SubmitDialog: React.FC<Props> = props => {
             }
             <DialogActions>
                 <Button onClick={onCancel} color="primary">
-                    Отменить
+                    Cancel
                 </Button>
                 <Button onClick={onSubmit} color="primary" autoFocus>
-                    Подтвердить
+                    Confirm
                 </Button>
             </DialogActions>
         </Dialog>

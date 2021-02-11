@@ -32,7 +32,7 @@ const InviteDialog: React.FC<Props> = props => {
 
     const copy = useCallback(() => {
         navigator.clipboard.writeText(url)
-        dispatch(showSuccessNotification('Скопировано'))
+        dispatch(showSuccessNotification('Copied'))
     }, [url, dispatch])
 
     return (
@@ -41,10 +41,10 @@ const InviteDialog: React.FC<Props> = props => {
                 <CloseIcon />
             </IconButton>
             <DialogTitle>
-                Ссылка для приглашения
+                Link for invitation
             </DialogTitle>
             <DialogContent>
-                <DialogContentText>При переходе по ссылке, новый участник присоединится к игре:</DialogContentText>
+                <DialogContentText>When you click on the link, a new participant will join the game:</DialogContentText>
                 <DialogContentText style={{ textAlign: 'center' }}><a href={url}>{url}</a></DialogContentText>
             </DialogContent>
             <DialogActions>
@@ -55,7 +55,7 @@ const InviteDialog: React.FC<Props> = props => {
                     autoFocus
                     endIcon={<FileCopyOutlinedIcon/>}
                 >
-                    Скопировать
+                    Copy
                 </Button>
             </DialogActions>
         </Dialog>

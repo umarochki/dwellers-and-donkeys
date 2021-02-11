@@ -56,12 +56,12 @@ const UserCard: React.FC<Props> = props => {
         <Card className={classes.me} raised>
             <Avatar className={classes.avatarLarge}><PersonIcon fontSize="large"/></Avatar>
             {/*<span className={classes.name}>Я кто-то там</span>*/}
-            <span className={classes.race}>Код приглашения:</span>
+            <span className={classes.race}>Invitation code:</span>
             <span className={classes.code}>{code}</span>
             <Button
                 color="secondary"
                 onClick={openDialog}>
-                Пригласить
+                Invite
             </Button>
             <InviteDialog open={open} code={code} onClose={closeDialog}/>
         </Card>

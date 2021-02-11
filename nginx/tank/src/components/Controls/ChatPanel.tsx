@@ -301,8 +301,8 @@ const ChatPanel: React.FC<Props> = props => {
                     </Grid>
                     <Grid container item xs={12} style={{ marginTop: 'auto', height: 50 }}>
                         {inputType === InputType.dices
-                            ? <Button color="secondary" disabled={isEmpty} onClick={roll}>Кинуть</Button>
-                            : <Button color="secondary" disabled={!chatInput} onClick={sendMessage}>Отправить</Button>}
+                            ? <Button color="secondary" disabled={isEmpty} onClick={roll}>Roll</Button>
+                            : <Button color="secondary" disabled={!chatInput} onClick={sendMessage}>Send</Button>}
                     </Grid>
                 </Grid>
             </Card>

@@ -26,7 +26,7 @@ const cards: CardItem[] = [
     { title: 'Гномик', date: '20.01.20', image: 'https://source.unsplash.com/random' },
 ]
 
-const CreatedCharacters: React.FC<Props> = props => {
+const CreatedCharacters: React.FC<Props> = () => {
     const classes = useStyles()
     const [open, setOpen] = React.useState(false)
 
@@ -41,7 +41,7 @@ const CreatedCharacters: React.FC<Props> = props => {
     return (
         <div className={classes.root}>
             <Container className={classes.cardGrid} maxWidth="md">
-                <CardList headerText={'Созданные персонажи:'} cards={cards} onAddClick={handleAddCharacter}/>
+                <CardList headerText={'Created characters:'} cards={cards} onAddClick={handleAddCharacter}/>
             </Container>
             <CreateCharacterDialog open={open} onClose={handleClose}/>
         </div>

@@ -77,15 +77,15 @@ const mapTypeToIcon = (type: MenuType) => {
 const mapTypeToTooltip = (type: MenuType): string => {
     switch (type) {
         case MenuType.global:
-            return 'Глобальная карта'
+            return 'Global map'
         case MenuType.globalSymbols:
-            return 'Обозначения на карте'
+            return 'Markings on the map'
         case MenuType.heroes:
-            return 'Персонажи'
+            return 'Characters'
         case MenuType.locations:
-            return 'Карты'
+            return 'Maps'
         case MenuType.markers:
-            return 'Маркеры'
+            return 'Markers'
         case MenuType.unselect:
             return 'unknown'
     }
@@ -131,7 +131,7 @@ const Switcher: React.FC<Props> = props => {
                 ))
             }
             <ConfirmDialog
-                title="Вы уверены, что хотите покинуть игру?"
+                title="Are you sure you want to leave the game?"
                 open={confirmOpen}
                 setOpen={setConfirmOpen}
                 onConfirm={goHome}

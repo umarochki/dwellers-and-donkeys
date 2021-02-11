@@ -39,14 +39,14 @@ const CreateCharacterDialog: React.FC<Props> = props => {
     return (
         <Dialog open={open} onClose={onClose} aria-labelledby="form-dialog-title">
             <form>
-                <DialogTitle id="form-dialog-title">Создать персонажа</DialogTitle>
+                <DialogTitle id="form-dialog-title">Create a character</DialogTitle>
                 <DialogContent>
                     <TextField
                         ref={register}
                         autoFocus
                         margin="dense"
                         id="name"
-                        label="Имя"
+                        label="Name"
                         type="text"
                         fullWidth
                     />
@@ -54,30 +54,30 @@ const CreateCharacterDialog: React.FC<Props> = props => {
                         ref={register}
                         margin="dense"
                         id="race"
-                        label="Раса"
+                        label="Race"
                         type="text"
                         fullWidth
                     />
                     <FormControl className={classes.formControl}>
-                        <InputLabel id="gender-select-label">Пол</InputLabel>
+                        <InputLabel id="gender-select-label">Gender</InputLabel>
                         <Select
                             labelId="gender-select-label"
                             id="gender-select"
                             name="gender"
                             ref={register}
                         >
-                            <MenuItem value="male">Мужской</MenuItem>
-                            <MenuItem value="female">Женский</MenuItem>
-                            <MenuItem value="other">Другое</MenuItem>
+                            <MenuItem value="male">Male</MenuItem>
+                            <MenuItem value="female">Female</MenuItem>
+                            <MenuItem value="other">Other</MenuItem>
                         </Select>
                     </FormControl>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={onClose} color="primary">
-                        Отменить
+                        Cancel
                     </Button>
                     <Button onClick={onClose} color="primary">
-                        Создать
+                        Create
                     </Button>
                 </DialogActions>
             </form>

@@ -30,7 +30,7 @@ const GameInfoSubmit: React.FC<Props> = props => {
             {game.title}
             <Grid container justify="flex-end">
                 <Button variant="contained" color="primary">
-                    Создать
+                    Create
                 </Button>
             </Grid>
         </Paper>

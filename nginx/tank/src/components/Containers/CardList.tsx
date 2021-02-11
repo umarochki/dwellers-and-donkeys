@@ -70,10 +70,10 @@ const CardList: React.FC<Props> = props => {
                                 <CardActions>
                                     <Grid container justify="space-between">
                                         <Button color="primary" variant="text">
-                                            Редактировать
+                                            Edit
                                         </Button>
                                         <Button color="primary" variant="contained">
-                                            Играть
+                                            Play
                                         </Button>
                                     </Grid>
                                 </CardActions>

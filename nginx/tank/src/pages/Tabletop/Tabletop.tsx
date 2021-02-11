@@ -30,7 +30,7 @@ const Tabletop = () => {
     const classes = useStyles()
     const dispatch = useDispatch()
     const divRef = React.useRef<HTMLDivElement>(null)
-    const boardRef = React.useRef()  // Ссылка на игровое поле
+    const boardRef = React.useRef()
 
     const ws = useContext(WebSocketContext)
     const game = useSelector(selectCurrentGame)
@@ -67,7 +67,6 @@ const Tabletop = () => {
         if (!myGameBoard && connectGameState === AsyncState.success && game && game.invitation_code && divRef && divRef.current && ws.socket) {
             const gameBoard = new Gameboard({
                 parent: divRef.current,
-                // Нужно указать ширину/длину, иначе отчего-то хендлеры не робят
                 width: divRef.current.clientWidth,
                 height: divRef.current.clientHeight,
                 transparent: true,
@@ -81,10 +80,8 @@ const Tabletop = () => {
             gameBoard.eventManager.subscribe('update_and_save', (data: any) => ws.sendMessage('update_and_save', data))
             gameBoard.eventManager.subscribe('delete', (data: any) => ws.sendMessage('delete', data))
 
-            // Картинки беру у клиента из точки входа
             const assets = [{ name: 'grid', path: '../globalSymbols/WorldMap.png' }]
 
-            // Грузим холст и статики (пока так)
             gameBoard.preload(assets, () => {
                 boardRef.current = gameBoard
                 ws.sendMessage('refresh')

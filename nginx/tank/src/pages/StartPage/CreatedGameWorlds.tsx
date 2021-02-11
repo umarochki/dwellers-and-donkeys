@@ -28,7 +28,7 @@ const CreatedGameWorlds: React.FC<Props> = () => {
     return null
     // return (
     // <Container className={classes.cardGrid} maxWidth="md">
-    //     <CardList headerText={'Созданные игровые миры:'} cards={cards} onAddClick={handleNewGameWorld}/>
+    //     <CardList headerText={'Created game worlds:'} cards={cards} onAddClick={handleNewGameWorld}/>
     // </Container>
     // )
 }

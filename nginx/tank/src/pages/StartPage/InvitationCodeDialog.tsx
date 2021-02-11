@@ -52,13 +52,13 @@ const InvitationCodeDialog: React.FC<Props> = props => {
             fullWidth
             maxWidth="xs"
             open={open} onClose={close} aria-labelledby="form-dialog-title" className={classes.root}>
-            <DialogTitle id="form-dialog-title">Введите код приглашения</DialogTitle>
+            <DialogTitle id="form-dialog-title">Enter the invitation code</DialogTitle>
             <DialogContent>
                 <TextField
                     autoFocus
                     margin="dense"
                     id="name"
-                    label="Код приглашения"
+                    label="Invitation code"
                     value={invitationCodeValue}
                     onChange={e => setInvitationCodeValue(e.target.value)}
                     type="email"
@@ -71,10 +71,10 @@ const InvitationCodeDialog: React.FC<Props> = props => {
                     ? (<Button color="primary"><CircularProgress size={26} className={classes.loader}/></Button>)
                     : <>
                         <Button onClick={close} color="primary">
-                            Отменить
+                            Cancel
                         </Button>
                         <Button onClick={handleConnect} color="primary" disabled={!invitationCodeValue}>
-                            Присоединиться
+                            Join
                         </Button>
                     </>}
             </DialogActions>

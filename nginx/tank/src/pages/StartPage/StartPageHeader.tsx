@@ -40,18 +40,18 @@ const StartPageHeader: React.FC<Props> = props => {
                     Dwellers & Donkeys
                 </Typography>
                 <Typography variant="h5" align="center" color="textSecondary" paragraph>
-                    В данный момент это MVP-версия.<br/>Надеемся, Вам понравится!
+                    This is currently the MVP version.<br/>Hope you enjoy!
                 </Typography>
                 <div className={classes.buttons}>
                     <Grid container spacing={2} justify="center">
                         <Grid item>
                             <Button variant="contained" color="primary" onClick={openWorldDialog}>
-                                Создать партию
+                                Create game
                             </Button>
                         </Grid>
                         <Grid item>
                             <Button variant="outlined" color="primary" onClick={openInvitationCodeDialog}>
-                                Присоединиться
+                                Join
                             </Button>
                         </Grid>
                     </Grid>

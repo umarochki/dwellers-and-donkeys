@@ -43,7 +43,7 @@ const CreateWorldDialog: React.FC<Props> = props => {
     return (
         <Dialog open={open} onClose={onClose} aria-labelledby="form-dialog-title">
             <form>
-                <DialogTitle id="form-dialog-title">Создать игровой мир</DialogTitle>
+                <DialogTitle id="form-dialog-title">Create game</DialogTitle>
                 <DialogContent>
                     <TextField
                         required
@@ -51,7 +51,7 @@ const CreateWorldDialog: React.FC<Props> = props => {
                         autoFocus
                         margin="dense"
                         id="name"
-                        label="Название"
+                        label="Name"
                         type="text"
                         value={nameValue}
                         onChange={e => setNameValue(e.target.value)}
@@ -61,7 +61,7 @@ const CreateWorldDialog: React.FC<Props> = props => {
                         ref={register}
                         margin="dense"
                         id="desc"
-                        label="Описание"
+                        label="Description"
                         type="text"
                         value={descValue}
                         onChange={e => setDescValue(e.target.value)}
@@ -73,7 +73,7 @@ const CreateWorldDialog: React.FC<Props> = props => {
                         ? (<CircularProgress size={26}/>)
                         : <>
                             <Button onClick={onClose} color="primary">
-                                Отменить
+                                Cancel
                             </Button>
                             <Button
                                 color="primary"
@@ -82,7 +82,7 @@ const CreateWorldDialog: React.FC<Props> = props => {
                                     setIsLoading(true)
                                     dispatch(createGame(nameValue, descValue))
                                 }}>
-                                Создать
+                                Create
                             </Button>
                         </>}
                 </DialogActions>

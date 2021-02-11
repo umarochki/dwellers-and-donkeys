@@ -30,7 +30,7 @@ const ConfirmDialog: React.FC<Props> = props => {
                     onClick={() => setOpen(false)}
                     color="primary"
                 >
-                    Нет
+                    No
                 </Button>
                 <Button
                     variant="contained"
@@ -40,7 +40,7 @@ const ConfirmDialog: React.FC<Props> = props => {
                     }}
                     color="primary"
                 >
-                    Да
+                    Yes
                 </Button>
             </DialogActions>
         </Dialog>

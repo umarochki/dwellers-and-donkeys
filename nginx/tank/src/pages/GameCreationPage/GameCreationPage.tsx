@@ -47,9 +47,9 @@ const GameCreationPage: React.FC = () => {
     }, [setValue])
 
     const steps = useMemo<StepItem[]>(() => [
-        { name: 'Название сессии игры', onClick: () => setActiveStep(0) },
-        { name: 'Выбор игрового мира', onClick: () => setActiveStep(1) },
-        { name: 'Подтверждение', onClick: () => setActiveStep(2) }
+        { name: 'Game session name', onClick: () => setActiveStep(0) },
+        { name: 'Game map selection', onClick: () => setActiveStep(1) },
+        { name: 'Confirmation', onClick: () => setActiveStep(2) }
     ], [])
 
     const getStepContent = useCallback((step: number) => {
@@ -75,7 +75,7 @@ const GameCreationPage: React.FC = () => {
             <AppBar position="relative">
                 <Toolbar>
                     <Button onClick={handleReturn} variant="contained">
-                        <ArrowBackIosIcon fontSize="small" />Вернуться
+                        <ArrowBackIosIcon fontSize="small" />Return
                     </Button>
                 </Toolbar>
             </AppBar>
