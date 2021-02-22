@@ -14,6 +14,8 @@ import { useSelector } from 'react-redux'
 import { selectConnectGameState } from '../../store/game/selectors'
 import { AsyncState } from '../../store/user/reducer'
 import { GameDataMessage } from '../../models/game'
+import ChatMessage from './ChatPanel/ChatMessage'
+import MiniDiceWithCount, { DiceWithCount } from './ChatPanel/MiniDiceWithCount'
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -68,26 +70,11 @@ const useStyles = makeStyles((theme: Theme) =>
                 backgroundColor: primary800
             }
         },
-        dice: {
-            display: 'flex',
-            alignItems: 'center',
-            marginRight: theme.spacing(1)
-        },
         chatContent: {
             flexGrow: 1,
             overflow: 'auto',
             marginBottom: '8px',
             overflowY: 'scroll'
-        },
-        messageHeader: {
-            width: '100%'
-        },
-        chatMessage: {
-            minHeight: 30,
-            marginBottom: theme.spacing(2),
-            display: 'flex',
-            alignItems: 'flex-end',
-            flexWrap: 'wrap'
         },
         chatInputBtn: {
             marginLeft: 'auto',
@@ -101,93 +88,9 @@ const useStyles = makeStyles((theme: Theme) =>
             '::-webkit-scrollbar': {
                 display: 'none'
             }
-        },
-        diceSquare: {
-            marginRight: theme.spacing(1),
-            marginLeft: theme.spacing(1),
-            paddingLeft: theme.spacing(1),
-            paddingRight: theme.spacing(1),
-            minWidth: 30,
-            height: 30,
-            border: `2px solid ${primary200}`,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontWeight: 'bold',
-            fontSize: '1rem'
-        },
-        messageText: {
-            'overflow-wrap': 'anywhere',
-            marginRight: theme.spacing(1),
-            marginLeft: theme.spacing(1),
-        },
-        messageTime: {
-            fontStyle: 'italic',
-            marginLeft: theme.spacing(1)
-        },
-        messageSender: {
-            fontWeight: 'bold',
-            marginLeft: theme.spacing(1)
         }
     })
 )
-
-interface Dice {
-    type: string
-    count: number
-}
-
-const MiniDice: React.FC<Dice> = props => {
-    const classes = useStyles()
-    const { type, count } = props
-
-    if (!count) {
-        return null
-    }
-
-    return (
-        <span className={classes.dice}>
-            <span className={classes.diceSquare}>{type}</span>x{count}
-        </span>
-    )
-}
-
-interface MessageProps {
-    message: GameDataMessage
-}
-
-const ChatMessage: React.FC<MessageProps> = props => {
-    const classes = useStyles()
-    const { message } = props
-
-    const date = new Date(message.time)
-    const h = date.getHours()
-    const min = date.getMinutes()
-
-    const time = `${h > 9 ? h : '0' + h}:${min > 9 ? min : '0' + min}`
-
-    if (message.type === 'roll') {
-        return (
-            <div className={classes.chatMessage}>
-                <div className={classes.messageHeader}>
-                    <span className={classes.messageSender}>{message.sender}</span>
-                    <span className={classes.messageTime}>{time}</span>
-                </div>
-                <span className={classes.diceSquare}>{message.total}</span>
-            </div>
-        )
-    }
-
-    return (
-        <div className={classes.chatMessage}>
-            <div className={classes.messageHeader}>
-                <span className={classes.messageSender}>{message.sender}</span>
-                <span className={classes.messageTime}>{time}</span>
-            </div>
-            <span className={classes.messageText}>{message.message}</span>
-        </div>
-    )
-}
 
 enum InputType {
     text,
@@ -209,7 +112,7 @@ const ChatPanel: React.FC<Props> = props => {
     const messagesEnd = useRef(null)
 
     const emptyDices = useMemo(() => ['4', '6', '8', '10', '12', '20'].map(type => ({ type: type, count: 0 })), [])
-    const [dices, setDices] = useState<Dice[]>(emptyDices)
+    const [dices, setDices] = useState<DiceWithCount[]>(emptyDices)
     const isEmpty = useMemo(() => !dices.some(dice => dice.count > 0), [dices])
 
     const addDice = useCallback((type: string) => () => {
@@ -281,7 +184,7 @@ const ChatPanel: React.FC<Props> = props => {
                     </div>
                     <div className={classes.chatInput}>
                         {inputType === InputType.dices
-                            ? <div className={classes.miniDices}>{dices.map(dice => <MiniDice key={dice.type} {...dice} />)}</div>
+                            ? <div className={classes.miniDices}>{dices.map(dice => <MiniDiceWithCount key={dice.type} {...dice} />)}</div>
                             : <input className={classes.chatInputText} value={chatInput} onChange={handleChatInputChange} onKeyPress={handleKeyPress}/>}
                         <IconButton className={classes.chatInputBtn} disabled={isEmpty} onClick={handleClear}>
                             <ClearIcon fontSize="inherit" />
