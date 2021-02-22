@@ -6,6 +6,7 @@ import { useDispatch } from 'react-redux'
 import { showSuccessNotification } from '../../store/notifications/actions'
 import CloseIcon from '@material-ui/icons/Close'
 import FileCopyOutlinedIcon from '@material-ui/icons/FileCopyOutlined'
+import { copyTextToClipboard } from '../../helpers/clipBoard'
 
 const useStyles = makeStyles(() =>
     createStyles({
@@ -31,8 +32,9 @@ const InviteDialog: React.FC<Props> = props => {
     const url = useMemo(() => `${getUrl()}/tabletop/${code}`, [code])
 
     const copy = useCallback(() => {
-        navigator.clipboard.writeText(url)
-        dispatch(showSuccessNotification('Copied'))
+        copyTextToClipboard(url, () => {
+            dispatch(showSuccessNotification('Copied'))
+        })
     }, [url, dispatch])
 
     return (
