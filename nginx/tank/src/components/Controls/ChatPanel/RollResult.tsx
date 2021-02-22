@@ -99,7 +99,7 @@ const RollResult: React.FC<Props> = props => {
                 <div className={classes.formula}>{getText(dices)}</div>
                 {
                     Object.keys(dices).map((dice, i) => (
-                        <div className={classes.die} key={i}>
+                        !!dices[dice] && <div className={classes.die} key={i}>
                             <div className={classes.rollResult}>
                                 <div className={classes.rollDie}>
                                     <Dice type={getNumber(dice)} className={classes.diceIcon}/>
