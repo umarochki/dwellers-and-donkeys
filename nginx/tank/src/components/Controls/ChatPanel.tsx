@@ -1,13 +1,7 @@
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { Button, Card, Grid, IconButton, Theme } from '@material-ui/core'
 import { createStyles, makeStyles } from '@material-ui/core/styles'
-import { primary200, primary50, primary800, primary900 } from '../../styles/colors'
-import { ReactComponent as D4 } from '../../assets/dices/d4.svg'
-import { ReactComponent as D6 } from '../../assets/dices/d6.svg'
-import { ReactComponent as D8 } from '../../assets/dices/d8.svg'
-import { ReactComponent as D10 } from '../../assets/dices/d10.svg'
-import { ReactComponent as D12 } from '../../assets/dices/d12.svg'
-import { ReactComponent as D20 } from '../../assets/dices/d20.svg'
+import { primary200, primary400, primary50, primary800, primary900 } from '../../styles/colors'
 import ClearIcon from '@material-ui/icons/Clear'
 import { WebSocketContext } from '../Contexts/WebSocketContext'
 import { useSelector } from 'react-redux'
@@ -16,6 +10,7 @@ import { AsyncState } from '../../store/user/reducer'
 import { GameDataMessage } from '../../models/game'
 import ChatMessage from './ChatPanel/ChatMessage'
 import MiniDiceWithCount, { DiceWithCount } from './ChatPanel/MiniDiceWithCount'
+import Dice from '../common/Dice'
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -69,6 +64,22 @@ const useStyles = makeStyles((theme: Theme) =>
             '&:hover': {
                 backgroundColor: primary800
             }
+        },
+        rollType: {
+            color: 'white',
+            textShadow: '0 0 7px #000',
+            backgroundColor: primary400,
+            width: '1.4em',
+            height: '1.4em',
+            display: 'inline-block',
+            textAlign: 'center',
+            position: 'absolute',
+            bottom: '1.4em',
+            left: '-.7em',
+            border: '1px solid #212C3D'
+        },
+        rollContainer: {
+            position: 'relative'
         },
         chatContent: {
             flexGrow: 1,
@@ -193,14 +204,14 @@ const ChatPanel: React.FC<Props> = props => {
                 </div>
                 <Grid container className={classes.rolls}>
                     <Grid container item xs={12} justify="space-between">
-                        <D4 className={classes.roll} onClick={addDice('4')}/>
-                        <D6 className={classes.roll} onClick={addDice('6')}/>
-                        <D8 className={classes.roll} onClick={addDice('8')}/>
+                        <div className={classes.rollContainer}><Dice type={4} className={classes.roll} onClick={addDice('4')}/><span className={classes.rollType}>4</span></div>
+                        <div className={classes.rollContainer}> <Dice type={6} className={classes.roll} onClick={addDice('6')}/><span className={classes.rollType}>6</span></div>
+                        <div className={classes.rollContainer}><Dice type={8} className={classes.roll} onClick={addDice('8')}/><span className={classes.rollType}>8</span></div>
                     </Grid>
                     <Grid container item xs={12} justify="space-between">
-                        <D10 className={classes.roll} onClick={addDice('10')}/>
-                        <D12 className={classes.roll} onClick={addDice('12')}/>
-                        <D20 className={classes.roll} onClick={addDice('20')}/>
+                        <div className={classes.rollContainer}><Dice type={10} className={classes.roll} onClick={addDice('10')}/><span className={classes.rollType}>10</span></div>
+                        <div className={classes.rollContainer}><Dice type={12} className={classes.roll} onClick={addDice('12')}/><span className={classes.rollType}>12</span></div>
+                        <div className={classes.rollContainer}><Dice type={20} className={classes.roll} onClick={addDice('20')}/><span className={classes.rollType}>20</span></div>
                     </Grid>
                     <Grid container item xs={12} style={{ marginTop: 'auto', height: 50 }}>
                         {inputType === InputType.dices

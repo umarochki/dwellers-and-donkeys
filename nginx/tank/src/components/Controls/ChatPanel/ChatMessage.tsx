@@ -2,7 +2,8 @@ import React from 'react'
 import { GameDataMessage } from '../../../models/game'
 import { createStyles, makeStyles } from '@material-ui/core/styles'
 import { Theme } from '@material-ui/core'
-import { MiniDice } from './MiniDiceWithCount'
+import RollResult from './RollResult'
+import { MessageContent } from './MessageContent'
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -32,6 +33,7 @@ const useStyles = makeStyles((theme: Theme) =>
     })
 )
 
+
 interface MessageProps {
     message: GameDataMessage
 }
@@ -53,7 +55,9 @@ const ChatMessage: React.FC<MessageProps> = props => {
                     <span className={classes.messageSender}>{message.sender}</span>
                     <span className={classes.messageTime}>{time}</span>
                 </div>
-                <MiniDice type={message.total}/>
+                <MessageContent>
+                    <RollResult dices={message.dice} total={message.total}/>
+                </MessageContent>
             </div>
         )
     }
