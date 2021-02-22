@@ -58,10 +58,10 @@ export default class GameObject extends Sprite {
       this.start = { x: this.x, y: this.y }
       this.last = { x: event.data.global.x, y: event.data.global.y }
 
-      // Change rendering order of objects
-      const parent = this.parent;
-      parent.removeChild(this);
-      parent.addChild(this);
+      this.eventManager.notify('update_and_start', {
+        id: this.id,
+        xy: [this.x, this.y]
+      })
 
     }
 
@@ -74,8 +74,6 @@ export default class GameObject extends Sprite {
       this.parent.pause = false;
       this.dragging = false;
       this.data = null;
-
-      console.log(e.data.global.x, e.data.global.y);
 
       this.eventManager.notify('update_and_save', {
         id: this.id,
@@ -113,12 +111,16 @@ export default class GameObject extends Sprite {
   };
 
   updatePosition(x, y) {
-        this.x = x;
-        this.y = y;
+    this.x = x;
+    this.y = y;
   }
 
-
-  
+  updateOverlap() {
+    // Change rendering order of objects
+    const parent = this.parent;
+    parent.removeChild(this);
+    parent.addChild(this);
+  }
 
 
 }

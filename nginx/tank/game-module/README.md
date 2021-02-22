@@ -18,17 +18,13 @@ Based on Pixi.JS
 * Ключевые методы:
     * preload(callback) - Предзагрузка игровго поля
     * setMap(path, callback) - Установка мапы
-    * addObject(data, callback) - Добавление объекта на поле. Callback опционально
-<<<<<<< Updated upstream
-    * deleteObject(data, callback) - Удаление объекта на поле. Callback опционально
-    * updateObjectPosition(data, callback) - Изменение координат объекта. Callback опционально
-    * clear(callback) - Очистить игровое поле. Callback опционально
-    * refresh(data, callback) - Обновить содержимое на игровом поле. Callback опционально
+    * addObject(data, callback) - Добавление объекта на поле.
+    * deleteObject(data, callback) - Удаление объекта на поле.
+    * updateObjectPosition(data, callback) - Изменение координат объекта. 
+    * updateObjectOverlay(data, callback) - Вынесение объекта поверх остальных.
+    * clear(callback) - Очистить игровое поле.
+    * refresh(data, callback) - Обновить содержимое на игровом поле. 
     * resetDraggedDOMListeners() - Пересоздать обработчики событий на перетаскиваемые объекты.
-=======
-    * deleteObject(data) - Удаление объектана поле. Callback опционально
-    * updateObjectPosition(data, callback) - Изменение координат объекта. Callback опционально
->>>>>>> Stashed changes
     * switchGrid() - Включение/выключение сетки (потом сделаю удобнее)
 
 ### Класс GameObject:
@@ -73,9 +69,14 @@ function App() {
 
     })
 
-    gameboard.eventManager.subscribe('map', (data) => console.log('Map has been changed!\n', data))
-    gameboard.eventManager.subscribe('add', (data) => console.log('New object!\n', data));
+    gameboard.eventManager.subscribe('map', (data) => gameboard.setMap({ sprite: data.sprite }))
+    gameboard.eventManager.subscribe('add', (data) => gameboard.addObject({ ...data, id: Math.floor(Math.random() * Math.floor(100))}));
+    gameboard.eventManager.subscribe('update_and_start', (data) => { gameboard.updateObjectOverlap(data) });
     gameboard.eventManager.subscribe('update', (data) => console.log('Update!\n', data));
+    gameboard.eventManager.subscribe('update_and_save', (data) => console.log('Update save!\n', data));
+    gameboard.eventManager.subscribe('set-location', (data) => console.log('Set location!\n', data));
+    gameboard.eventManager.subscribe('set-stats', (data) => console.log('Set stats!\n', data));
+    gameboard.eventManager.subscribe('grid', (data) => console.log('Grid!\n', data));
 
     // Картинки беру у клиента из точки входа
     var assets = [{ name: 'grid', path: './locations/{grid.png}' }]

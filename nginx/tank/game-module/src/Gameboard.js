@@ -195,7 +195,7 @@ export default class Gameboard {
 
     this.setDummyMap();
 
-    //this.drawer = new Drawer('#000', 1, this.app, this.viewport, this.app.renderer, this.app.loader.resources.grid.texture)
+    this.drawer = new Drawer('#000', 1, this.app, this.viewport, this.app.renderer, this.app.loader.resources.grid.texture)
 
   }
 
@@ -310,6 +310,19 @@ export default class Gameboard {
     }
 
     obj.updatePosition(options.xy[0], options.xy[1]);
+    typeof callback == "function" && callback();
+  }
+
+  updateObjectOverlap(options, callback) {
+
+    var obj = this.viewport.children.find(x => x.id === options.id)
+
+    if (!obj) {
+      console.warn('Cannot find an element with id: ', options.id);
+      return;
+    }
+
+    obj.updateOverlap();
     typeof callback == "function" && callback();
   }
 
