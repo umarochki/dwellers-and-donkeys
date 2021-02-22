@@ -21,11 +21,11 @@ export interface GameDataMessage {
     type: string
     time: string
     message?: string
-    dice: Dices
+    rolls: Dices
     total: number
     sender: string
 }
 
 export interface Dices {
-    [type: string]: number
+    [type: string]: number[]
 }

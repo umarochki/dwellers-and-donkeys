@@ -67,7 +67,9 @@ const useStyles = makeStyles(() =>
             fontWeight: 700
         },
         diceIcon: {
-
+            minWidth: 20,
+            height: 20,
+            marginRight: 3
         }
     })
 )
@@ -79,7 +81,7 @@ interface Props {
 
 const getText = (dices: Dices): string => {
     return Object.keys(dices).reduce((prev, dice) => (
-        dices[dice] ? prev + (prev ? ' + ' : '') + (dices[dice] + dice) : prev
+        dices[dice].length ? prev + (prev ? ' + ' : '') + (dices[dice].length + dice) : prev
     ), '')
 }
 
@@ -98,15 +100,17 @@ const RollResult: React.FC<Props> = props => {
             <div className={classes.rolls}>
                 <div className={classes.formula}>{getText(dices)}</div>
                 {
-                    Object.keys(dices).map((dice, i) => (
-                        !!dices[dice] && <div className={classes.die} key={i}>
-                            <div className={classes.rollResult}>
-                                <div className={classes.rollDie}>
-                                    <Dice type={getNumber(dice)} className={classes.diceIcon}/>
-                                    {dices[dice]}
+                    Object.keys(dices).map(dice => (
+                        dices[dice].map(count => (
+                            <div className={classes.die} key={dice + count}>
+                                <div className={classes.rollResult}>
+                                    <div className={classes.rollDie}>
+                                        <Dice type={getNumber(dice)} className={classes.diceIcon}/>
+                                        {count}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        ))
                     ))
                 }
             </div>
