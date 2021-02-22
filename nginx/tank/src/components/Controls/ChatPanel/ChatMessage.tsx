@@ -56,7 +56,7 @@ const ChatMessage: React.FC<MessageProps> = props => {
                     <span className={classes.messageTime}>{time}</span>
                 </div>
                 <MessageContent>
-                    <RollResult dices={message.dice} total={message.total}/>
+                    <RollResult dices={message.rolls} total={message.total}/>
                 </MessageContent>
             </div>
         )
