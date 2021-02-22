@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { Button, Card, Grid, IconButton, Theme } from '@material-ui/core'
 import { createStyles, makeStyles } from '@material-ui/core/styles'
-import { primary200, primary400, primary50, primary800, primary900 } from '../../styles/colors'
+import { primary200, primary400, primary50, primary500, primary800, primary900 } from '../../styles/colors'
 import ClearIcon from '@material-ui/icons/Clear'
 import { WebSocketContext } from '../Contexts/WebSocketContext'
 import { useSelector } from 'react-redux'
@@ -11,6 +11,7 @@ import { GameDataMessage } from '../../models/game'
 import ChatMessage from './ChatPanel/ChatMessage'
 import MiniDiceWithCount, { DiceWithCount } from './ChatPanel/MiniDiceWithCount'
 import Dice from '../common/Dice'
+import clsx from 'clsx'
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -63,6 +64,13 @@ const useStyles = makeStyles((theme: Theme) =>
             cursor: 'pointer',
             '&:hover': {
                 backgroundColor: primary800
+            }
+        },
+        rollDisabled: {
+            cursor: 'inherit',
+            color: primary500,
+            '&:hover': {
+                backgroundColor: 'transparent'
             }
         },
         rollType: {
@@ -126,7 +134,12 @@ const ChatPanel: React.FC<Props> = props => {
     const [dices, setDices] = useState<DiceWithCount[]>(emptyDices)
     const isEmpty = useMemo(() => !dices.some(dice => dice.count > 0), [dices])
 
-    const addDice = useCallback((type: string) => () => {
+    const typesCount = useMemo(() => dices.reduce((sum, d) => d.count ? sum + 1 : sum, 0), [dices])
+    const isFull = useMemo(() => typesCount === 3, [typesCount])
+
+    const addDice = useCallback((type: string, index: number) => () => {
+        if (isFull && !dices[index].count) return
+
         if (inputType !== InputType.dices) {
             setInputType(InputType.dices)
             setChatInput('')
@@ -135,7 +148,7 @@ const ChatPanel: React.FC<Props> = props => {
             ? { count: dice.count + 1, type }
             : dice
         ))
-    }, [inputType])
+    }, [inputType, isFull, dices])
 
     const roll = useCallback(() => {
         if (ws && connectGameState === AsyncState.success) {
@@ -185,6 +198,8 @@ const ChatPanel: React.FC<Props> = props => {
         scrollToBottom()
     }, [scrollToBottom, messagesEnd, data])
 
+    const isDisabled = useCallback((index: number) => isFull && !dices[index].count, [dices, isFull])
+
     return (
         <div className={classes.root}>
             <Card className={classes.content}>
@@ -204,14 +219,14 @@ const ChatPanel: React.FC<Props> = props => {
                 </div>
                 <Grid container className={classes.rolls}>
                     <Grid container item xs={12} justify="space-between">
-                        <div className={classes.rollContainer}><Dice type={4} className={classes.roll} onClick={addDice('4')}/><span className={classes.rollType}>4</span></div>
-                        <div className={classes.rollContainer}> <Dice type={6} className={classes.roll} onClick={addDice('6')}/><span className={classes.rollType}>6</span></div>
-                        <div className={classes.rollContainer}><Dice type={8} className={classes.roll} onClick={addDice('8')}/><span className={classes.rollType}>8</span></div>
+                        <div className={classes.rollContainer}><Dice type={4} className={clsx(classes.roll, isDisabled(0) && classes.rollDisabled)} onClick={addDice('4', 0)}/><span className={classes.rollType}>4</span></div>
+                        <div className={classes.rollContainer}> <Dice type={6} className={clsx(classes.roll, isDisabled(1) && classes.rollDisabled)} onClick={addDice('6', 1)}/><span className={classes.rollType}>6</span></div>
+                        <div className={classes.rollContainer}><Dice type={8} className={clsx(classes.roll, isDisabled(2) && classes.rollDisabled)} onClick={addDice('8', 2)}/><span className={classes.rollType}>8</span></div>
                     </Grid>
                     <Grid container item xs={12} justify="space-between">
-                        <div className={classes.rollContainer}><Dice type={10} className={classes.roll} onClick={addDice('10')}/><span className={classes.rollType}>10</span></div>
-                        <div className={classes.rollContainer}><Dice type={12} className={classes.roll} onClick={addDice('12')}/><span className={classes.rollType}>12</span></div>
-                        <div className={classes.rollContainer}><Dice type={20} className={classes.roll} onClick={addDice('20')}/><span className={classes.rollType}>20</span></div>
+                        <div className={classes.rollContainer}><Dice type={10} className={clsx(classes.roll, isDisabled(3) && classes.rollDisabled)} onClick={addDice('10', 3)}/><span className={classes.rollType}>10</span></div>
+                        <div className={classes.rollContainer}><Dice type={12} className={clsx(classes.roll, isDisabled(4) && classes.rollDisabled)} onClick={addDice('12', 4)}/><span className={classes.rollType}>12</span></div>
+                        <div className={classes.rollContainer}><Dice type={20} className={clsx(classes.roll, isDisabled(5) && classes.rollDisabled)} onClick={addDice('20', 5)}/><span className={classes.rollType}>20</span></div>
                     </Grid>
                     <Grid container item xs={12} style={{ marginTop: 'auto', height: 50 }}>
                         {inputType === InputType.dices
