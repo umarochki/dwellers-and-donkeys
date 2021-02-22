@@ -57,6 +57,11 @@ const Tabletop = () => {
         ws.sendMessage('map', map)
     }, [ws])
 
+    const closeSidebar = useCallback(() => {
+        setOpen(false)
+        setType(MenuType.unselect)
+    }, [])
+
     useEffect(() => {
         return () => {
             dispatch(disconnectGame())
@@ -110,6 +115,7 @@ const Tabletop = () => {
                 case 'refresh':
                     setUsers(currentGameData.meta.active_users)
                     setMessages(currentGameData.meta.chat)
+                    closeSidebar()
 
                     myGameBoard.setMap({
                         sprite: currentGameData.meta.map === 'Global'
@@ -129,29 +135,29 @@ const Tabletop = () => {
                     setUsers(prev => prev.filter(user => user.id !== currentGameData.meta))
                     break
                 case 'map':
-                    setIsGlobal(false)
                     myGameBoard.setMap({ sprite: `../locations/${currentGameData.meta.map}.png` }, () => {
                         myGameBoard.refresh({
                             ...currentGameData.meta
                         })
                     })
                     setIsGlobal(false)
+                    closeSidebar()
                     break
                 case 'global_map':
-                    setIsGlobal(true)
                     myGameBoard.setMap({ sprite: '../globalSymbols/WorldMap.png' }, () => {
                         myGameBoard.refresh({
                             ...currentGameData.meta
                         })
                     })
                     setIsGlobal(true)
+                    closeSidebar()
                     break
                 case 'clear':
                 default:
                     break
             }
         }
-    }, [myGameBoard, currentGameData, connectGameState])
+    }, [myGameBoard, currentGameData, connectGameState, closeSidebar])
 
     if (connectGameState === AsyncState.inProcess) {
         return <FullscreenLoader/>
@@ -191,8 +197,7 @@ const Tabletop = () => {
                         onMouseUp={e => {
                             if (!isSwiping && e.button === 0 && open) {
                                 // close sidebar
-                                setOpen(false)
-                                setType(MenuType.unselect)
+                                closeSidebar()
                             }
                             setSwiping(false)
                         }}
