@@ -11,6 +11,7 @@ import { useHistory } from 'react-router-dom'
 import ConfirmDialog from '../Dialogs/ConfirmDialog'
 import ExploreIcon from '@material-ui/icons/Explore'
 import FilterHdrIcon from '@material-ui/icons/FilterHdr'
+import { primary400 } from '../../styles/colors'
 
 const switcherWidth = 60
 
@@ -29,7 +30,7 @@ const useStyles = makeStyles(() => ({
         color: 'white'
     },
     icon_inactive: {
-        color: '#7888A4'
+        color: primary400
     },
     group: {
         height: `${switcherWidth}px`,
