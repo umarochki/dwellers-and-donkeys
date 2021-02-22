@@ -31,7 +31,7 @@ export function copyTextToClipboard(text: string, callback?: Function) {
     }
     navigator.clipboard.writeText(text).then(() => {
         callback && callback()
-    }, (err) => {
+    }, err => {
         console.error('Async: Could not copy text: ', err)
     })
 }

@@ -8,6 +8,7 @@ import Switcher, { MenuType } from './Switcher'
 import LazyLoad from 'react-lazy-load'
 import ImageLoader from '../Containers/ImageLoader'
 import { primary200, primary900 } from '../../styles/colors'
+import Zoom from '@material-ui/core/Zoom'
 
 const drawerWidth = 300
 
@@ -73,6 +74,20 @@ const useStyles = makeStyles((theme: Theme) => ({
         padding: '0 5px'
     }
 }))
+
+const useTooltipStyles = makeStyles(() =>
+    ({
+        tooltip: {
+            maxWidth: '200px',
+        },
+        tooltipPlacementTop: {
+            margin: '2px 0',
+        },
+        tooltipPlacementBottom: {
+            margin: '4px 0',
+        },
+    })
+)
 
 export const markersList = [
     'Bonfire',
@@ -167,6 +182,7 @@ interface Props {
 const LeftDrawer: React.FC<Props> = props => {
     const { onOpen, onMapChange, onOpenGlobalCard, global, open, setOpen, type, setType } = props
     const classes = useStyles()
+    const classesTooltip = useTooltipStyles()
 
     const toggleDrawer = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
         if (
@@ -214,7 +230,7 @@ const LeftDrawer: React.FC<Props> = props => {
                 return (
                     <GridList cellHeight={70} cols={3} className={classes.gridList}>
                         {markersList.map((marker: string) => (
-                            <Tooltip title={marker} key={marker}>
+                            <Tooltip classes={classesTooltip} TransitionComponent={Zoom} title={marker} key={marker}>
                                 <GridListTile cols={1} className={classes.tile}>
                                     <ImageLoader src={`/markers/${marker}.png`} draggable marker/>
                                 </GridListTile>
@@ -226,7 +242,7 @@ const LeftDrawer: React.FC<Props> = props => {
                 return (
                     <GridList cellHeight={70} cols={3} className={classes.gridList}>
                         {heroes.map((hero: string) => (
-                            <Tooltip title={hero} key={hero}>
+                            <Tooltip classes={classesTooltip} TransitionComponent={Zoom} title={hero} key={hero}>
                                 <GridListTile cols={1} className={classes.tile}>
                                     <ImageLoader src={`/heroes/${hero}.png`} draggable/>
                                 </GridListTile>
@@ -238,7 +254,7 @@ const LeftDrawer: React.FC<Props> = props => {
                 return (
                     <GridList cellHeight={100} cols={1}>
                         {mapsList.map((map: string) => (
-                            <Tooltip title={map} key={map}>
+                            <Tooltip classes={classesTooltip} TransitionComponent={Zoom} title={map} key={map}>
                                 <GridListTile cols={1} className={classes.tile} onClick={handleMapClick(map)}>
                                     <LazyLoad
                                         width={233}
@@ -256,7 +272,7 @@ const LeftDrawer: React.FC<Props> = props => {
                 return (
                     <GridList cellHeight={70} cols={3}>
                         {globalSymbols.map((globalSymbol: string) => (
-                            <Tooltip title={globalSymbol} key={globalSymbol}>
+                            <Tooltip classes={classesTooltip} TransitionComponent={Zoom} title={globalSymbol} key={globalSymbol}>
                                 <GridListTile cols={1} className={classes.tile}>
                                     <ImageLoader src={`/globalSymbols/${globalSymbol}.png`} draggable marker/>
                                 </GridListTile>
@@ -265,7 +281,7 @@ const LeftDrawer: React.FC<Props> = props => {
                     </GridList>
                 )
         }
-    }, [classes.tile, handleMapClick, classes.gridList])
+    }, [classes.tile, handleMapClick, classes.gridList, classesTooltip])
 
     return (
         <>
