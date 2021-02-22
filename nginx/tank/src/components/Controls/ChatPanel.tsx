@@ -2,12 +2,6 @@ import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } 
 import { Button, Card, Grid, IconButton, Theme } from '@material-ui/core'
 import { createStyles, makeStyles } from '@material-ui/core/styles'
 import { primary200, primary50, primary800, primary900 } from '../../styles/colors'
-import { ReactComponent as D4 } from '../../assets/dices/d4.svg'
-import { ReactComponent as D6 } from '../../assets/dices/d6.svg'
-import { ReactComponent as D8 } from '../../assets/dices/d8.svg'
-import { ReactComponent as D10 } from '../../assets/dices/d10.svg'
-import { ReactComponent as D12 } from '../../assets/dices/d12.svg'
-import { ReactComponent as D20 } from '../../assets/dices/d20.svg'
 import ClearIcon from '@material-ui/icons/Clear'
 import { WebSocketContext } from '../Contexts/WebSocketContext'
 import { useSelector } from 'react-redux'
@@ -16,6 +10,7 @@ import { AsyncState } from '../../store/user/reducer'
 import { GameDataMessage } from '../../models/game'
 import ChatMessage from './ChatPanel/ChatMessage'
 import MiniDiceWithCount, { DiceWithCount } from './ChatPanel/MiniDiceWithCount'
+import Dice from '../common/Dice'
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -193,14 +188,14 @@ const ChatPanel: React.FC<Props> = props => {
                 </div>
                 <Grid container className={classes.rolls}>
                     <Grid container item xs={12} justify="space-between">
-                        <D4 className={classes.roll} onClick={addDice('4')}/>
-                        <D6 className={classes.roll} onClick={addDice('6')}/>
-                        <D8 className={classes.roll} onClick={addDice('8')}/>
+                        <Dice type={4} className={classes.roll} onClick={addDice('4')}/>
+                        <Dice type={6} className={classes.roll} onClick={addDice('6')}/>
+                        <Dice type={8} className={classes.roll} onClick={addDice('8')}/>
                     </Grid>
                     <Grid container item xs={12} justify="space-between">
-                        <D10 className={classes.roll} onClick={addDice('10')}/>
-                        <D12 className={classes.roll} onClick={addDice('12')}/>
-                        <D20 className={classes.roll} onClick={addDice('20')}/>
+                        <Dice type={10} className={classes.roll} onClick={addDice('10')}/>
+                        <Dice type={12} className={classes.roll} onClick={addDice('12')}/>
+                        <Dice type={20} className={classes.roll} onClick={addDice('20')}/>
                     </Grid>
                     <Grid container item xs={12} style={{ marginTop: 'auto', height: 50 }}>
                         {inputType === InputType.dices
