@@ -79,7 +79,7 @@ class UserViewSet(viewsets.ModelViewSet, IsAuthorisedMixin):
     @action(detail=False, methods=['GET', 'POST'])
     def quickstart(self, request):
         response = HttpResponse("OK!", status=201)
-        username = generate('ru')  # TODO: query param 'lang'
+        username = generate('en')  # TODO: query param 'lang'
         user = User.objects.create(username=username, is_temporary=True)
         auth_token = auth_manager.add_token(user)
         response.set_cookie("auth_token", auth_token)
