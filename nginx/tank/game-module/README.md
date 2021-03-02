@@ -21,7 +21,7 @@ Based on Pixi.JS
     * addObject(data, callback) - Добавление объекта на поле.
     * deleteObject(data, callback) - Удаление объекта на поле.
     * updateObjectPosition(data, callback) - Изменение координат объекта. 
-    * updateObjectOverlay(data, callback) - Вынесение объекта поверх остальных.
+    * updateObjectOverlap(data, callback) - Вынесение объекта поверх остальных.
     * clear(callback) - Очистить игровое поле.
     * refresh(data, callback) - Обновить содержимое на игровом поле. 
     * resetDraggedDOMListeners() - Пересоздать обработчики событий на перетаскиваемые объекты.
