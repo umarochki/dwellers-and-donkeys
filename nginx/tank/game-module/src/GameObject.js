@@ -1,4 +1,4 @@
-import { Container, Text } from 'pixi.js-legacy';
+import { Container, Sprite, Text } from 'pixi.js-legacy';
 
 
 export default class GameObject extends Container {
@@ -17,7 +17,7 @@ export default class GameObject extends Container {
     
     super();
 
-    const sprite = new PIXI.Sprite(options.texture);
+    const sprite = new Sprite(options.texture);
     sprite.anchor.set(0.5);  // Center the sprite's anchor point
     sprite.scale.set(0.1);   // TEMP
     this.sprite = sprite;
