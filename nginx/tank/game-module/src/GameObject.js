@@ -1,7 +1,7 @@
-import { Sprite } from 'pixi.js-legacy';
+import { Container, Text } from 'pixi.js-legacy';
 
 
-export default class GameObject extends Sprite {
+export default class GameObject extends Container {
 
   /**
    * @constructor
@@ -15,24 +15,39 @@ export default class GameObject extends Sprite {
    */
   constructor(options) {
     
-    console.log(options);
+    super();
 
-    super(options.texture);
+    const sprite = new PIXI.Sprite(options.texture);
+    sprite.anchor.set(0.5);  // Center the sprite's anchor point
+    sprite.scale.set(0.1);   // TEMP
+    this.sprite = sprite;
+    this.addChild(sprite);
 
+    if (options.name) {
+      let text = new PIXI.Text(
+        options.name,
+        {
+          fontFamily : 'Arial', 
+          fontSize: 20, 
+          fill : 0xffffff, 
+          align : 'center',
+          fontWeight: "bold",
+          strokeThickness: 5
+        }
+      );
+      text.anchor.set(0.5);  
+      text.y += sprite.height / 2 + 10;
+      this.addChild(text);
+    }
+    
     this.position.set(options.xy[0], options.xy[1]);
 
     this.id = options.id;
     this.eventManager = options.eventManager;
 
-    // Center the sprite's anchor point
-    this.anchor.set(0.5);
-
     // TODO: Set sprite size the same as DOM size is (?)
     //obj.width = w;
     //obj.height = h;
-
-    // TEMP
-    this.scale.set(0.1);
 
     this.interactive = true;
 
@@ -121,6 +136,4 @@ export default class GameObject extends Sprite {
     parent.removeChild(this);
     parent.addChild(this);
   }
-
-
 }

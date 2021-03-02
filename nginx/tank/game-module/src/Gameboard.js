@@ -295,7 +295,7 @@ export default class Gameboard {
 
       const obj = this.createObject(options);
       this.viewport.addChild(obj);
-      
+
       typeof callback == "function" && callback();
     });
   }
