@@ -7,7 +7,7 @@ export default class Marker extends GameObject {
         super(options);
 
         this.location = options.sprite;
-        this.scale.set(0.3);
+        this.sprite.scale.set(0.3);
    }
 
    

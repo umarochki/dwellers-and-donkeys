@@ -5,6 +5,8 @@ export default class Character extends GameObject {
     constructor(options) {
       super(options);
 
+      this.sprite.scale.set(0.1);   // TEMP
+
       this.sprite.containsPoint = function containsPoint(point) {
         const tempPoint = {x: 0, y: 0 }
 
