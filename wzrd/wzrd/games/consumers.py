@@ -55,6 +55,9 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
     def save_game_session(self, session):
         session.save()
 
+    def is_game_master_for(self, game_session):
+        return game_session.game_master == self.user_info["id"]
+
     async def connect(self):
         self.session_name = self.scope["url_route"]["kwargs"]["session_name"]
 
@@ -120,7 +123,22 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
         message_type = "send_all_but_me"
         if action_type == "add":
             object_id = str(game_session.last_object_id)
-            game_session.current_game_objects[object_id] = meta
+
+            if self.is_game_master_for(game_session):
+                game_session.current_game_objects[object_id] = meta
+            else:
+                object_id = str(game_session.last_object_id + 10000)
+                user_id = str(self.user_info["id"])
+                old_hero_id = None
+                for k, v in game_session.dummy_heroes.items():
+                    if v["owner"] == user_id:
+                        old_hero_id = k
+                        break
+                if old_hero_id:
+                    del game_session.dummy_heroes[old_hero_id]
+                    await self.start_sending("send_all", {"type": "delete", "meta": {"id": old_hero_id}})
+                game_session.dummy_heroes[object_id] = meta
+                meta.update({"owner": user_id, "name": self.user_info["username"]})
 
             message_type = "send_all"
             json_data["meta"]["id"] = object_id
@@ -128,7 +146,12 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
             save = True
 
         elif action_type in ("update", "update_and_save", "update_and_start"):
-            obj = game_session.current_game_objects.get(str(meta["id"]))
+            obj_id = str(meta["id"])
+            if len(obj_id) == 5:
+                obj = game_session.dummy_heroes.get(obj_id)
+            else:
+                obj = game_session.current_game_objects.get(str(meta["id"]))
+
             if not obj:
                 json_data["type"] = "error"
                 json_data["meta"] = f"Object [{meta['id']}] not found!"
@@ -150,20 +173,24 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
 
         elif action_type == "delete":
             object_id = str(meta["id"])
-            if object_id not in game_session.current_game_objects:
+            if (len(object_id) == 5 and object_id not in game_session.dummy_heroes or
+                    object_id not in game_session.current_game_objects):
                 json_data["type"] = "error"
                 json_data["meta"] = f"Object [{meta['id']}] not found!"
                 logging.warning(f"[WS {self.session_name} DELETE] Object [{meta['id']}] not found!")
                 return await self.start_sending("send_me", json_data)
 
-            del game_session.current_game_objects[object_id]
+            if len(object_id) == 5:
+                del game_session.dummy_heroes[object_id]
+            else:
+                del game_session.current_game_objects[object_id]
             save = True
 
         elif action_type == "refresh":
             message_type = "send_me"
             json_data["meta"] = {
                 "active_users": list(game_session.active_users.values()),
-                "game_objects": game_session.current_game_objects,
+                "game_objects": {**game_session.current_game_objects, **game_session.dummy_heroes},
                 "chat": game_session.chat,
                 "map": game_session.map,
             }
@@ -173,9 +200,12 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
             game_session.map = meta if action_type == "map" else "Global"
 
             json_data["meta"] = {
-                "map": meta,
-                "game_objects": game_session.current_game_objects,
+                "map": meta
             }
+            if action_type == "map":
+                json_data["meta"]["game_objects"] = {**game_session.current_game_objects, **game_session.dummy_heroes}
+            else:
+                json_data["meta"]["game_objects"] = game_session.current_game_objects,
             save = True
 
         elif action_type == "clear":
