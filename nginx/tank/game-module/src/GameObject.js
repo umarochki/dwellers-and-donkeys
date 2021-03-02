@@ -24,7 +24,7 @@ export default class GameObject extends Container {
     this.addChild(sprite);
 
     if (options.name) {
-      let text = new PIXI.Text(
+      let text = new Text(
         options.name,
         {
           fontFamily : 'Arial', 
