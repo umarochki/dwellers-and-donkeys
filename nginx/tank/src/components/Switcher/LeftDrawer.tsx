@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import Drawer from '@material-ui/core/Drawer'
 import { GridList, GridListTile, Theme, Tooltip } from '@material-ui/core'
@@ -9,6 +9,8 @@ import LazyLoad from 'react-lazy-load'
 import ImageLoader from '../Containers/ImageLoader'
 import { primary200, primary900 } from '../../styles/colors'
 import Zoom from '@material-ui/core/Zoom'
+import AddCard from '../Cards/AddCard'
+import AddMapDialog from '../Dialogs/AddMapDialog'
 
 const drawerWidth = 300
 
@@ -177,12 +179,16 @@ interface Props {
     setOpen: (v: boolean) => void
     type: MenuType
     setType: (v: MenuType) => void
+    maps: string[]
 }
 
 const LeftDrawer: React.FC<Props> = props => {
-    const { onOpen, onMapChange, onOpenGlobalCard, global, open, setOpen, type, setType } = props
+    const { onOpen, onMapChange, onOpenGlobalCard, global, open, setOpen, type, setType, maps } = props
     const classes = useStyles()
     const classesTooltip = useTooltipStyles()
+
+    const mapsToAdd = useMemo(() => mapsList.filter(m => !maps.includes(m)), [maps])
+    const [openAddMap, setOpenAddMap] = useState(false)
 
     const toggleDrawer = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
         if (
@@ -214,9 +220,9 @@ const LeftDrawer: React.FC<Props> = props => {
         }
     }, [type, onOpenGlobalCard, setOpen, setType])
 
-    const handleMapClick = useCallback((map: string) => () => {
+    const handleMapClick = (map: string) => () => {
         onMapChange(map)
-    }, [onMapChange])
+    }
 
     React.useEffect(() => {
         if (open === true) {
@@ -224,7 +230,7 @@ const LeftDrawer: React.FC<Props> = props => {
         }
     }, [type, open, onOpen])
 
-    const renderSidebar = useCallback((type: string) => {
+    const renderSidebar = (type: string) => {
         switch (type) {
             case MenuType.markers:
                 return (
@@ -253,8 +259,8 @@ const LeftDrawer: React.FC<Props> = props => {
             case MenuType.locations:
                 return (
                     <GridList cellHeight={100} cols={1}>
-                        {mapsList.map((map: string) => (
-                            <Tooltip classes={classesTooltip} TransitionComponent={Zoom} title={map} key={map}>
+                        {maps.map((map: string) => (
+                            map && <Tooltip classes={classesTooltip} TransitionComponent={Zoom} title={map} key={map}>
                                 <GridListTile cols={1} className={classes.tile} onClick={handleMapClick(map)}>
                                     <LazyLoad
                                         width={233}
@@ -266,6 +272,11 @@ const LeftDrawer: React.FC<Props> = props => {
                                 </GridListTile>
                             </Tooltip>
                         ))}
+                        {!!mapsToAdd.length && <GridListTile cols={1} className={classes.tile} onClick={() => {
+                            setOpenAddMap(true)
+                        }}>
+                            <AddCard />
+                        </GridListTile>}
                     </GridList>
                 )
             case MenuType.globalSymbols:
@@ -281,7 +292,7 @@ const LeftDrawer: React.FC<Props> = props => {
                     </GridList>
                 )
         }
-    }, [classes.tile, handleMapClick, classes.gridList, classesTooltip])
+    }
 
     return (
         <>
@@ -309,6 +320,12 @@ const LeftDrawer: React.FC<Props> = props => {
                     {renderSidebar(type)}
                 </div>
             </Drawer>
+            <AddMapDialog
+                open={openAddMap}
+                onClose={() => setOpenAddMap(false)}
+                onChoose={(id: string) => handleMapClick(id)()}
+                maps={mapsToAdd}
+            />
         </>
     )
 }

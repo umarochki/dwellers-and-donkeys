@@ -1,13 +1,13 @@
 import React from 'react'
-import { Card, CardActionArea } from '@material-ui/core'
 import AddBoxIcon from '@material-ui/icons/AddBox'
 import { makeStyles } from '@material-ui/core/styles'
 import { primary200 } from '../../styles/colors'
 
 const useStyles = makeStyles(() => ({
     addCard: {
-        padding: '10px',
-        height: '100%'
+        cursor: 'pointer',
+        height: '100px',
+        width: '233px'
     },
     addCardInner: {
         display: 'flex',
@@ -15,7 +15,7 @@ const useStyles = makeStyles(() => ({
         height: '100%',
         alignItems: 'center',
         justifyContent: 'center',
-        border: `4px ${primary200} dashed`
+        border: `1px ${primary200} dashed`
     },
     addIcon: {
         fontSize: '4rem',
@@ -23,23 +23,15 @@ const useStyles = makeStyles(() => ({
     }
 }))
 
-interface Props {
-    className: string
-    onClick: () => void
-}
-
-const AddCard: React.FC<Props> = props => {
-    const { className, onClick } = props
+const AddCard: React.FC = () => {
     const classes = useStyles()
 
     return (
-        <Card className={className} onClick={onClick}>
-            <CardActionArea className={classes.addCard}>
-                <div className={classes.addCardInner}>
-                    <AddBoxIcon  className={classes.addIcon}/>
-                </div>
-            </CardActionArea>
-        </Card>
+        <div className={classes.addCard}>
+            <div className={classes.addCardInner}>
+                <AddBoxIcon className={classes.addIcon}/>
+            </div>
+        </div>
     )
 }
 

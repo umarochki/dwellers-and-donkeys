@@ -193,6 +193,7 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
                 "game_objects": {**game_session.current_game_objects, **game_session.dummy_heroes},
                 "chat": game_session.chat,
                 "map": game_session.map,
+                "maps": list(_.omit(game_session.game_objects, "Global", "dummy_heroes").keys())
             }
 
         elif action_type in ("map", "global_map"):

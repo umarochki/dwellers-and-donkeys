@@ -45,6 +45,8 @@ const Tabletop = () => {
     const [open, setOpen] = React.useState(false)
     const [type, setType] = useState<MenuType>(MenuType.unselect)
 
+    const [maps, setMaps] = useState((currentGameData && currentGameData.meta.maps) || [])
+
     const handleOpenDrawer = useCallback(() => {
         myGameBoard && myGameBoard.resetDraggedDOMListeners()
     }, [myGameBoard])
@@ -53,9 +55,12 @@ const Tabletop = () => {
         ws.sendMessage('global_map')
     }, [ws])
 
-    const handleMapChange = useCallback((map: string) => {
+    const handleMapChange = (map: string) => {
         ws.sendMessage('map', map)
-    }, [ws])
+        if (!maps.includes(map)) {
+            setMaps((prev: string[]) => [...prev, map])
+        }
+    }
 
     const closeSidebar = useCallback(() => {
         setOpen(false)
@@ -127,6 +132,7 @@ const Tabletop = () => {
                         })
                     })
                     setIsGlobal(currentGameData.meta.map === 'Global')
+                    setMaps(currentGameData.meta.maps || [])
                     break
                 case 'connect':
                     setUsers(prev => [...prev, currentGameData.meta])
@@ -135,13 +141,19 @@ const Tabletop = () => {
                     setUsers(prev => prev.filter(user => user.id !== currentGameData.meta))
                     break
                 case 'map':
-                    myGameBoard.setMap({ sprite: `../locations/${currentGameData.meta.map}.png` }, () => {
+                    const map = currentGameData.meta.map
+
+                    myGameBoard.setMap({ sprite: `../locations/${map}.png` }, () => {
                         myGameBoard.refresh({
                             ...currentGameData.meta
                         })
                     })
                     setIsGlobal(false)
                     closeSidebar()
+
+                    setMaps((prev: string[]) => {
+                        return prev.includes(map) ? prev : [...prev, map]
+                    })
                     break
                 case 'global_map':
                     myGameBoard.setMap({ sprite: '../globalSymbols/WorldMap.png' }, () => {
@@ -183,6 +195,7 @@ const Tabletop = () => {
                     setOpen={setOpen}
                     type={type}
                     setType={setType}
+                    maps={maps}
                 />
                 <main className={classes.content}>
                     <div

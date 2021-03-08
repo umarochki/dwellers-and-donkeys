@@ -4,7 +4,6 @@ import StartPage from '../../pages/StartPage/StartPage'
 import { CssBaseline, ThemeProvider } from '@material-ui/core'
 import theme from '../../styles/mui-theme'
 import Tabletop from '../../pages/Tabletop/Tabletop'
-import GameCreationPage from '../../pages/GameCreationPage/GameCreationPage'
 import LoginPage from '../../pages/LoginPage/LoginPage'
 import { AuthRoutes, NonAuthRoutes } from '../../routes'
 import { useDispatch } from 'react-redux'
@@ -32,7 +31,7 @@ const App = () => {
                         <Switch>
                             <Route path="/" exact component={StartPage}/>
                             <Route path={NonAuthRoutes.login} exact component={LoginPage}/>
-                            <Route path={AuthRoutes.newGame} exact component={GameCreationPage}/>
+                            {/*<Route path={AuthRoutes.newGame} exact component={GameCreationPage}/>*/}
                             <Route path={`${AuthRoutes.tabletop}/:id`} exact component={Tabletop}/>
                         </Switch>
                     </WebSocketProvider>
