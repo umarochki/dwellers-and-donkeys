@@ -13,6 +13,7 @@ import { ConnectedRouter } from 'connected-react-router'
 import { history } from '../../helpers/history'
 import WebSocketProvider from '../Contexts/WebSocketContext'
 import Toaster from './Toaster'
+import ErrorBoundary from '../ErrorBoundary'
 
 const App = () => {
     const dispatch = useDispatch()
@@ -22,20 +23,22 @@ const App = () => {
     }, [dispatch])
 
     return (
-        <ThemeProvider theme={theme}>
-            <CssBaseline/>
-            <ConnectedRouter history={history}>
-                <WebSocketProvider>
-                    <Toaster/>
-                    <Switch>
-                        <Route path="/" exact component={StartPage}/>
-                        <Route path={NonAuthRoutes.login} exact component={LoginPage}/>
-                        <Route path={AuthRoutes.newGame} exact component={GameCreationPage}/>
-                        <Route path={`${AuthRoutes.tabletop}/:id`} exact component={Tabletop}/>
-                    </Switch>
-                </WebSocketProvider>
-            </ConnectedRouter>
-        </ThemeProvider>
+        <ErrorBoundary>
+            <ThemeProvider theme={theme}>
+                <CssBaseline/>
+                <ConnectedRouter history={history}>
+                    <WebSocketProvider>
+                        <Toaster/>
+                        <Switch>
+                            <Route path="/" exact component={StartPage}/>
+                            <Route path={NonAuthRoutes.login} exact component={LoginPage}/>
+                            <Route path={AuthRoutes.newGame} exact component={GameCreationPage}/>
+                            <Route path={`${AuthRoutes.tabletop}/:id`} exact component={Tabletop}/>
+                        </Switch>
+                    </WebSocketProvider>
+                </ConnectedRouter>
+            </ThemeProvider>
+        </ErrorBoundary>
     )
 }
 
