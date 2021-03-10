@@ -1,4 +1,5 @@
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
+import { primary400, primary700 } from '../../styles/colors'
 
 const drawerWidth = 240
 
@@ -81,6 +82,37 @@ export default makeStyles((theme: Theme) =>
         },
         controlPanel: {
             maxHeight: '100%'
+        },
+        mapBtn: {
+            width: 70,
+            height: 70,
+            backgroundColor: primary700,
+            borderRadius: '50%',
+            boxShadow: '0 6px 10px 0 #1c1c1c',
+            fontSize: '50px',
+            lineHeight: '60px',
+            color: primary400,
+            textAlign: 'center',
+            position: 'fixed',
+        },
+        switchGridBtn: {
+            right: 25,
+            top: 25,
+            transition: 'all 0.1s ease-in-out',
+            '&:hover': {
+                boxShadow: '0 6px 14px 0 #1c1c1c',
+                transform: 'scale(1.05)'
+            }
+        },
+        deleteBtn: {
+            right: 25,
+            top: 115,
+            opacity: 0.4
+        },
+        mapIcon: {
+            width: '1em',
+            height: '1.35em',
+            fontSize: '3.3rem'
         }
-    }),
+    })
 )

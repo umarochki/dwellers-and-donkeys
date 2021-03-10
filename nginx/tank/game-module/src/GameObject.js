@@ -67,6 +67,8 @@ export default class GameObject extends Container {
     
     function onDragStart(event) {
 
+      this.updateOverlap();
+
       this.parent.pause = true;
       this.dragging = true;
       this.data = event.data;
@@ -82,9 +84,9 @@ export default class GameObject extends Container {
 
     function onDragEnd(e) {
 
-      if (Math.abs(this.x - this.start.x) <= 2 && 
-          Math.abs(this.y - this.start.y) <= 2)
-            this.onClick(e);
+      //if (Math.abs(this.x - this.start.x) <= 2 && 
+      //    Math.abs(this.y - this.start.y) <= 2)
+      //      this.onClick(e);
 
       this.parent.pause = false;
       this.dragging = false;
