@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:rogue/api.dart';
+import 'package:flutter/foundation.dart';
 
 void main() => runApp(
       new MyApp(),
@@ -8,19 +10,26 @@ void main() => runApp(
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    imageCache.clear();
     return new MaterialApp(home: HomeScreen());
   }
 }
 
 class HomeScreen extends StatelessWidget {
   String _email;
+  String _login;
   String _password;
   final formKey = new GlobalKey<FormState>();
-  final _sizeTextBlack = const TextStyle(fontSize: 20.0, color: Colors.black);
-  final _sizeTextWhite = const TextStyle(fontSize: 20.0, color: Colors.white);
+  final _sizeTextInput =
+      const TextStyle(fontSize: 20.0, color: Color.fromRGBO(173, 185, 206, 1));
+  final _sizeTextPlaceholder =
+      const TextStyle(fontSize: 20.0, color: Color.fromRGBO(97, 116, 146, 1));
+  final _sizeTextWhite =
+      const TextStyle(fontSize: 20.0, color: Color.fromRGBO(120, 136, 164, 1));
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
+      backgroundColor: Color.fromRGBO(33, 44, 61, 1),
       body: new Center(
         child: new Form(
             key: formKey,
@@ -29,20 +38,23 @@ class HomeScreen extends StatelessWidget {
               children: <Widget>[
                 new Container(
                   child: new TextFormField(
-                    decoration: new InputDecoration(labelText: "Email"),
+                    decoration: new InputDecoration(
+                        labelText: "Login", labelStyle: _sizeTextPlaceholder),
                     keyboardType: TextInputType.emailAddress,
-                    style: _sizeTextBlack,
-                    onSaved: (val) => _email = val,
-                    validator: (val) =>
-                        !val.contains("@") ? 'Not a valid email.' : null,
+                    style: _sizeTextInput,
+                    onSaved: (val) => _login = val,
+                    // validator: (val) =>
+                    //     !val.contains("@") ? 'Not a valid email.' : null,
                   ),
                   width: 300.0,
                 ),
                 new Container(
                   child: new TextFormField(
-                    decoration: new InputDecoration(labelText: "Password"),
+                    decoration: new InputDecoration(
+                        labelText: "Password",
+                        labelStyle: _sizeTextPlaceholder),
                     obscureText: true,
-                    style: _sizeTextBlack,
+                    style: _sizeTextInput,
                     onSaved: (val) => _password = val,
                   ),
                   width: 300.0,
@@ -51,23 +63,48 @@ class HomeScreen extends StatelessWidget {
                 new Padding(
                   padding: new EdgeInsets.only(top: 25.0),
                   child: new MaterialButton(
-                    onPressed: () {
+                    onPressed: () async {
                       final form = formKey.currentState;
                       if (form.validate()) {
                         form.save();
                         hideKeyboard();
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    SecondScreen(_email, _password)));
+                        String cookie = await login(_login, _password);
+                        debugPrint('rsp: $cookie');
+                        if (cookie != "Bad credentials") {
+                          debugPrint('lol');
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      Menu(_login, _password)));
+                        } else {
+                          debugPrint('kek');
+                          showDialog<void>(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Text('Bad credentials'),
+                                content: const Text(
+                                    'Check your login and password and try again'),
+                                actions: <Widget>[
+                                  FlatButton(
+                                    child: Text('Ok'),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        }
                       }
                     },
-                    color: Theme.of(context).accentColor,
+                    color: Color.fromRGBO(29, 39, 54, 1),
                     height: 50.0,
-                    minWidth: 150.0,
+                    minWidth: 300.0,
                     child: new Text(
-                      "LOGIN",
+                      "Sign in",
                       style: _sizeTextWhite,
                     ),
                   ),
@@ -83,47 +120,53 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-class SecondScreen extends StatelessWidget {
-  String _email;
+class Menu extends StatelessWidget {
+  String _login;
   String _password;
-  final _sizeTextBlack = const TextStyle(fontSize: 20.0, color: Colors.black);
+  final _color = const Color.fromRGBO(120, 136, 164, 1);
+  final _bgc = const Color.fromRGBO(233, 238, 251, 1);
+  final _titleTextStyle = const TextStyle(fontSize: 25.0, color: Colors.black);
 
-  SecondScreen(String email, String password) {
-    _email = email;
+  Menu(String login, String password) {
+    _login = login;
     _password = password;
   }
 
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      appBar: new AppBar(
-        title: new Text("Dwellers & Donkeys"),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(
-              Icons.account_box,
-              color: Colors.white,
-            ),
-            tooltip: 'Аккаунт',
-            onPressed: null,
-          ),
-        ],
-      ),
+      // appBar: new AppBar(
+      //   backgroundColor: _color,
+      //   title: new Text("Dwellers & Donkeys"),
+      //   actions: <Widget>[
+      //     IconButton(
+      //       icon: Icon(
+      //         Icons.account_box,
+      //         color: Colors.white,
+      //       ),
+      //       tooltip: 'Аккаунт',
+      //       onPressed: null,
+      //     ),
+      //   ],
+      // ),
+
+      backgroundColor: _bgc,
       body: new Center(
         child: new Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             new Padding(
                 padding: new EdgeInsets.only(top: 25.0),
-                child: new Text("Dwellers & Donkeys")),
+                child: new Text("Dwellers & Donkeys", style: _titleTextStyle)),
             new Padding(
               padding: new EdgeInsets.only(top: 25.0),
               child: new MaterialButton(
                 onPressed: () {},
-                color: Theme.of(context).accentColor,
+                color: _color,
                 height: 50.0,
                 minWidth: 150.0,
-                child: new Text("Создать партию"),
+                child: new Text("CREATE GAME",
+                    style: TextStyle(fontSize: 15.0, color: Colors.white)),
               ),
             ),
             new Padding(
@@ -133,10 +176,11 @@ class SecondScreen extends StatelessWidget {
                   Navigator.push(context,
                       MaterialPageRoute(builder: (context) => GameBoard()));
                 },
-                color: Theme.of(context).accentColor,
+                color: _bgc,
                 height: 50.0,
                 minWidth: 150.0,
-                child: new Text("Присоединиться"),
+                child: new Text("JOIN",
+                    style: TextStyle(fontSize: 15.0, color: _color)),
               ),
             )
           ],
@@ -148,12 +192,17 @@ class SecondScreen extends StatelessWidget {
 
 class GameBoard extends StatelessWidget {
   final _sizeTextWhite = const TextStyle(fontSize: 20.0, color: Colors.white);
+  final _bgc = const Color.fromRGBO(67, 83, 107, 1);
+  final _color = const Color.fromRGBO(83, 102, 129, 1);
+  final _light_grey = const Color.fromRGBO(173, 185, 206, 1);
+
+  String _invite_code = "invite_code_filler";
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
         home: DefaultTabController(
-            length: 3,
+            length: 4,
             child: Scaffold(
                 body: SafeArea(
                     child: Column(children: <Widget>[
@@ -173,6 +222,9 @@ class GameBoard extends StatelessWidget {
                       text: 'Chat',
                     ),
                     Tab(
+                      text: 'Dices',
+                    ),
+                    Tab(
                       text: 'Info',
                     )
                   ],
@@ -182,14 +234,13 @@ class GameBoard extends StatelessWidget {
                 child: TabBarView(
                   children: [
                     Container(
-                      color: Colors.deepOrange,
+                      color: _bgc,
                       child: Center(
-                          child: new Column(children: <Widget>[
+                          child: new ListView(children: <Widget>[
                         new Container(
                           margin: const EdgeInsets.all(15.0),
                           padding: const EdgeInsets.all(3.0),
-                          decoration: BoxDecoration(
-                              color: Color.fromRGBO(67, 83, 107, 1)),
+                          decoration: BoxDecoration(color: _color),
                           child: ListTile(
                             leading: CircleAvatar(
                               backgroundColor: Colors.blueGrey,
@@ -205,8 +256,7 @@ class GameBoard extends StatelessWidget {
                         new Container(
                           margin: const EdgeInsets.all(15.0),
                           padding: const EdgeInsets.all(3.0),
-                          decoration: BoxDecoration(
-                              color: Color.fromRGBO(67, 83, 107, 1)),
+                          decoration: BoxDecoration(color: _color),
                           child: ListTile(
                             leading: CircleAvatar(
                               backgroundColor: Colors.blueGrey,
@@ -223,22 +273,120 @@ class GameBoard extends StatelessWidget {
                       ])),
                     ),
                     Container(
-                      color: Colors.red,
-                      child: Center(child: Text('Chat')),
-                    ),
+                        color: _bgc,
+                        child: Column(
+                          children: <Widget>[
+                            new Container(
+                              child: new ListView(children: <Widget>[
+                                Text('Player 2 : tmp question',
+                                    style: _sizeTextWhite),
+                                Text('Player 1 : tmp answer',
+                                    style: _sizeTextWhite),
+                                Text('Player 2 : tmp question',
+                                    style: _sizeTextWhite),
+                                Text('Player 1 : tmp answer',
+                                    style: _sizeTextWhite),
+                                Text('Player 2 : tmp question',
+                                    style: _sizeTextWhite),
+                                Text('Player 1 : tmp answer',
+                                    style: _sizeTextWhite),
+                                Text('Player 2 : tmp question',
+                                    style: _sizeTextWhite),
+                                Text('Player 1 : tmp answer',
+                                    style: _sizeTextWhite),
+                              ]),
+                              height: 96,
+                              padding: const EdgeInsets.all(6.0),
+                              color: _color,
+                            ),
+                            Row(
+                              children: <Widget>[
+                                SizedBox(
+                                  width: 15,
+                                ),
+                                Expanded(
+                                  child: TextField(
+                                    decoration: InputDecoration(
+                                        hintText: "Write message...",
+                                        hintStyle:
+                                            TextStyle(color: _light_grey),
+                                        border: InputBorder.none),
+                                    style: TextStyle(color: _light_grey),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 15,
+                                ),
+                                FloatingActionButton(
+                                  onPressed: () {},
+                                  child: Icon(
+                                    Icons.send,
+                                    color: Colors.white,
+                                    size: 18,
+                                  ),
+                                  backgroundColor: _color,
+                                  elevation: 0,
+                                ),
+                              ],
+                            ),
+                          ],
+                        )),
                     Container(
-                      color: Colors.yellowAccent,
+                        child: Column(
+                      children: [
+                        Container(
+                          child: ListView(
+                            children: [
+                              MaterialButton(
+                                onPressed: () {},
+                                child: Image.asset('assets/dices/d4.png'),
+                              ),
+                              MaterialButton(
+                                onPressed: () {},
+                                child: Image.asset('assets/dices/d6.png'),
+                              ),
+                              MaterialButton(
+                                onPressed: () {},
+                                child: Image.asset('assets/dices/d8.png'),
+                              ),
+                              MaterialButton(
+                                onPressed: () {},
+                                child: Image.asset('assets/dices/d10.png'),
+                              ),
+                              MaterialButton(
+                                onPressed: () {},
+                                child: Image.asset('assets/dices/d12.png'),
+                              ),
+                              MaterialButton(
+                                onPressed: () {},
+                                child: Image.asset('assets/dices/d20.png'),
+                              ),
+                            ],
+                            scrollDirection: Axis.horizontal,
+                            padding: const EdgeInsets.all(4),
+                          ),
+                          color: _light_grey,
+                          height: 118.5,
+                        ),
+                        Container(
+                          height: 50,
+                          color: _color,
+                        )
+                      ],
+                    )),
+                    Container(
+                      color: _bgc,
                       child: Center(
                           child: new Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[
                             Text('Invite Code'),
                             Text(''),
-                            Text('FILLER CODE'),
+                            Text(_invite_code),
                             new MaterialButton(
                               onPressed: () {
                                 Clipboard.setData(
-                                    new ClipboardData(text: "FILLER CODE"));
+                                    new ClipboardData(text: _invite_code));
                               },
                               color: Theme.of(context).accentColor,
                               height: 30.0,
