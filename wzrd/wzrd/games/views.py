@@ -1,14 +1,13 @@
 import logging
 import pydash as _
 
+from django.http import JsonResponse
 from rest_framework import viewsets
-from rest_framework.response import Response
 from rest_framework.decorators import action
-from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 
 from wzrd.utils import generate_key
-from wzrd.users.decorators import is_authorized, self_set_auth_token
 from wzrd.users.mixins import IsAuthorisedMixin
+from wzrd.users.decorators import is_authorized, self_set_auth_token
 
 from .models import Session, Hero, HeroSession
 from .serializers import DetailGameSessionSerializer, HeroSerializer, HeroSessionSerializer
