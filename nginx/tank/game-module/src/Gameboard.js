@@ -11,6 +11,7 @@ import EventManager from './EventManager';
 import Drawer from './Drawer';
 
 import createElementSVG from './utils/createElementSVG';
+import drawDashedPolygon from './utils/drawDashedPolygon';
 import DUMMY_MAP_RAW from './assets/dummy-map'
 
 // PIXI.settings.FAIL_IF_MAJOR_PERFORMANCE_CAVEAT = false;
@@ -167,12 +168,15 @@ export default class Gameboard {
         screenHeight: this.height,
         worldWidth: world.width,
         worldHeight: world.height,
-
+        stopPropagation: true,
+        preventDefault: true,
         interaction: this.app.renderer.plugins.interaction,
 
         // To prevent interaction with overlay DOM's
         divWheel: this.app.view
     })
+
+    console.log(this.viewport)
 
     // Add the viewport to the stage
     this.app.stage.addChild(this.viewport)
@@ -193,6 +197,11 @@ export default class Gameboard {
       bottom: world.width 
     })
 
+    // Unselect object by clicking anywhere
+    this.viewport.on('clicked', () => {
+      if (this.viewport && this.viewport.selectedObject) this.viewport.selectedObject.offEdit();
+    })
+
     this.setDummyMap();
 
     this.drawer = new Drawer('#000', 1, this.app, this.viewport, this.app.renderer, this.app.loader.resources.grid.texture)
@@ -202,8 +211,6 @@ export default class Gameboard {
   setDummyMap(callback) {
       var dummy = new SVG(createElementSVG(DUMMY_MAP_RAW));
       this.viewport.addChild(dummy);
-
-      console.log(dummy)
 
       dummy.scale.set(0.5)
       dummy.x = this.width / 2 - dummy.width / 2;
@@ -217,8 +224,6 @@ export default class Gameboard {
 
       // Draw map image as a background
       const image = new PIXI.Sprite(this.app.loader.resources[options.sprite].texture);
-
-      console.log(image);
 
       this.mapContainer = new MapContainer(
         this.app.loader.resources.grid.texture, 

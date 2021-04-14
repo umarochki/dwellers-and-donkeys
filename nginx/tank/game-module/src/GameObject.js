@@ -1,4 +1,4 @@
-import { Container, Sprite, Text } from 'pixi.js-legacy';
+import { Container, Sprite, Text, Graphics } from 'pixi.js-legacy';
 
 
 export default class GameObject extends Container {
@@ -17,11 +17,10 @@ export default class GameObject extends Container {
     
     super();
 
-    const sprite = new Sprite(options.texture);
-    sprite.anchor.set(0.5);  // Center the sprite's anchor point
-    sprite.scale.set(0.1);   // TEMP
-    this.sprite = sprite;
-    this.addChild(sprite);
+    this.sprite = new Sprite(options.texture);
+    this.sprite.anchor.set(0.5);  // Center the sprite's anchor point
+    this.sprite.scale.set(0.1);   // TEMP
+    this.addChild(this.sprite);
 
     if (options.name) {
       let text = new Text(
@@ -36,7 +35,7 @@ export default class GameObject extends Container {
         }
       );
       text.anchor.set(0.5);  
-      text.y += sprite.height / 2 + 10;
+      text.y += this.sprite.height / 2 + 10;
       this.addChild(text);
     }
     
@@ -50,15 +49,16 @@ export default class GameObject extends Container {
     //obj.height = h;
 
     this.interactive = true;
-
-     this
+    this.cursor = 'pointer';
+    
+    this
       // events for drag start
-      .on('mousedown', onDragStart)
+      .on('mousedown',  onDragStart)
       .on('touchstart', onDragStart)
       // events for drag end
-      .on('mouseup', onDragEnd)
-      .on('mouseupoutside', onDragEnd)
-      .on('touchend', onDragEnd)
+      .on('mouseup',         onDragEnd)
+      .on('mouseupoutside',  onDragEnd)
+      .on('touchend',        onDragEnd)
       .on('touchendoutside', onDragEnd)
       // events for drag move
       .on('mousemove', onDragMove)
@@ -80,16 +80,17 @@ export default class GameObject extends Container {
 
       this.eventManager.notify('update_and_start', {
         id: this.id,
-        xy: [this.x, this.y]
+        xy: [this.current.x, this.current.y]
       })
 
     }
 
     function onDragEnd(e) {
 
-      //if (Math.abs(this.x - this.start.x) <= 2 && 
-      //    Math.abs(this.y - this.start.y) <= 2)
-      //      this.onClick(e);
+      //e.stopPropagation();
+
+      if (Math.abs(this.current.x - this.start.x) <= 2 && Math.abs(this.current.y - this.start.y) <= 2)
+        this.onClick(e);
 
       this.parent.pause = false;
       this.dragging = false;
@@ -97,7 +98,7 @@ export default class GameObject extends Container {
 
       this.eventManager.notify('update_and_save', {
         id: this.id,
-        xy: [this.x, this.y]
+        xy: [this.current.x, this.current.y]
       })
     }
 
@@ -132,8 +133,116 @@ export default class GameObject extends Container {
   }
 
   onClick(e) {
-
+    e.stopPropagation();
+    this.onEdit();
   };
+
+  
+  onEdit() {
+
+    if (this.parent.selectedObject) {
+      this.parent.selectedObject.offEdit();
+    }
+
+    this.parent.selectedObject = this;
+
+    const [width, height] = [this.sprite.width, this.sprite.height];
+
+    var border = new Graphics();
+    this.border = border;
+    this.addChild(border);
+
+    var polygons = [];
+    polygons.push({ x:  width / 2, y:  height / 2 });
+    polygons.push({ x: -width / 2, y:  height / 2 });
+    polygons.push({ x: -width / 2, y: -height / 2 });
+    polygons.push({ x:  width / 2, y: -height / 2 });    
+
+    function animate(time) {
+      border.clear();
+      border.lineStyle(2, 0xffffff, 0.5);
+      
+      var offsetInterval = 750;
+      border.drawDashedPolygon(polygons, 0, 0, 0, 10, 5, (Date.now() % offsetInterval + 1) / offsetInterval);
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    const angle = new Graphics();
+    angle.beginFill(0xffffff, 0.25);
+    angle.moveTo(width / 2,      height / 2     );
+    angle.lineTo(width / 2,      height / 2 - 20);
+    angle.lineTo(width / 2 - 20, height / 2     );
+    angle.lineTo(width / 2,      height / 2     );
+    angle.interactive = true;
+    angle.cursor = 'nwse-resize';
+    
+    this.border.addChild(angle);
+    
+    angle
+      // events for drag start
+      .on('mousedown',  onResizeStart)
+      .on('touchstart', onResizeStart)
+      // events for drag end
+      .on('mouseup',         onResizeEnd)
+      .on('mouseupoutside',  onResizeEnd)
+      .on('touchend',        onResizeEnd)
+      .on('touchendoutside', onResizeEnd)
+      // events for drag move
+      .on('mousemove', onResizeMove)
+      .on('touchmove', onResizeMove);
+
+    
+    function onResizeStart(e) {
+      e.stopPropagation();
+
+      this.resizing = true;
+      this.data = e.data;
+      this.start   = { x: this.parent.parent.width, y: this.parent.parent.height }
+      this.current = { x: this.parent.parent.width, y: this.parent.parent.height }
+      this.last = { x: e.data.global.x, y: e.data.global.y }
+      this.timer = null;
+    }
+
+    function onResizeEnd(e) {
+       e.stopPropagation();
+
+      this.resizing = false;
+      this.data = null;
+    }
+
+    function onResizeMove(e) {
+
+      if (this.resizing) {
+
+        const x = e.data.global.x
+        const y = e.data.global.y
+
+        this.current.x += (x - this.last.x) / this.parent.scale.x; 
+        this.current.y += (y - this.last.y) / this.parent.scale.y;
+
+        this.last = { x, y };
+
+        this.parent.parent.width = this.current.x;
+        this.parent.parent.height = this.current.y;
+
+        if (this.timer == null) {
+
+          this.timer = window.setTimeout(() => {
+            this.timer = null;
+          }, 17);
+
+        }
+      }
+    }
+  } 
+
+  offEdit() {
+    this.parent.selectedObject = null;
+    this.removeChild(this.border);
+  }
+
 
   updatePosition(x, y) {
     this.x = x;
