@@ -22,7 +22,7 @@ const palette = {
         default: '#212C3D',
     },
     text: {
-        primary: '#00000',
+        primary: '#000000',
         secondary: '#617492'
     }
 }
@@ -86,4 +86,14 @@ const overrides = {
     }
 }
 
-export default createMuiTheme({ overrides, palette, typography })
+const breakpoints = {
+    values: {
+        xs: 0,
+        sm: 600,
+        md: 960,
+        lg: 1400,
+        xl: 1920
+    }
+}
+
+export default createMuiTheme({ overrides, palette, typography, breakpoints })

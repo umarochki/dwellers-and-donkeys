@@ -128,7 +128,7 @@ const ChatPanel: React.FC<Props> = props => {
 
     const [chatInput, setChatInput] = useState('')
     const [inputType, setInputType] = useState(InputType.text)
-    const messagesEnd = useRef(null)
+    const messagesEnd = useRef<HTMLDivElement | null>(null)
 
     const emptyDices = useMemo(() => ['4', '6', '8', '10', '12', '20'].map(type => ({ type: type, count: 0 })), [])
     const [dices, setDices] = useState<DiceWithCount[]>(emptyDices)

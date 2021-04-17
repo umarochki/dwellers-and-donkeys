@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react'
 import LeftDrawer from '../../components/Switcher/LeftDrawer'
-import { Grid } from '@material-ui/core'
+import { Grid, Hidden } from '@material-ui/core'
 import UserCard from '../../components/Controls/UserCard'
 import PersonCard from '../../components/Controls/PersonCard'
 import ChatPanel from '../../components/Controls/ChatPanel'
@@ -18,6 +18,7 @@ import { ConnectedUser } from '../../models/user'
 import useStyles from './styles'
 import { useParams } from 'react-router-dom'
 import { MenuType } from '../../components/Switcher/Switcher'
+import RightDrawer from '../../components/Controls/RightDrawer/RightDrawer'
 
 // https://codesandbox.io/s/ykk2x8k7xj?file=/src/App/index.js
 interface ParamTypes {
@@ -67,11 +68,11 @@ const Tabletop = () => {
         setType(MenuType.unselect)
     }, [])
 
-    useEffect(() => {
-        return () => {
-            dispatch(disconnectGame())
-        }
-    }, [dispatch])
+    // useEffect(() => {
+    //     return () => {
+    //         dispatch(disconnectGame())
+    //     }
+    // }, [dispatch])
 
     useEffect(() => {
         if (!myGameBoard && connectGameState === AsyncState.success && game && game.invitation_code && divRef && divRef.current && ws.socket) {
@@ -171,17 +172,17 @@ const Tabletop = () => {
         }
     }, [myGameBoard, currentGameData, connectGameState, closeSidebar])
 
-    if (connectGameState === AsyncState.inProcess) {
-        return <FullscreenLoader/>
-    }
+    // if (connectGameState === AsyncState.inProcess) {
+    //     return <FullscreenLoader/>
+    // }
 
-    if (connectGameState === AsyncState.error || connectGameState === AsyncState.unknown) {
-        if (!game || game.invitation_code !== id) {
-            dispatch(connectGame(id))
-            return <FullscreenLoader/>
-        }
-        dispatch(push('/'))
-    }
+    // if (connectGameState === AsyncState.error || connectGameState === AsyncState.unknown) {
+    //     if (!game || game.invitation_code !== id) {
+    //         dispatch(connectGame(id))
+    //         return <FullscreenLoader/>
+    //     }
+    //     dispatch(push('/'))
+    // }
 
     return (
         <div className={classes.root}>
@@ -209,28 +210,36 @@ const Tabletop = () => {
                         }}
                         onMouseUp={e => {
                             if (!isSwiping && e.button === 0 && open) {
-                                // close sidebar
                                 closeSidebar()
                             }
                             setSwiping(false)
                         }}
                     />
-                    <div className={classes.controls}>
-                        <Grid container>
-                            <Grid item xs={5} className={classes.controlPanel}>
-                                <div className={classes.people}>
-                                    {users.map(user => <PersonCard user={user.username} key={user.username}/>)}
-                                </div>
+                    <Hidden mdDown={true}>
+                        <div className={classes.controls} >
+                            <Grid container>
+                                <Grid item xs={5} className={classes.controlPanel}>
+                                    <div className={classes.people}>
+                                        {users.map(user => <PersonCard user={user.username} key={user.username}/>)}
+                                    </div>
+                                </Grid>
+                                <Grid item xs={2} className={classes.controlPanel}>
+                                    <UserCard code={game ? game.invitation_code || '' : ''}/>
+                                </Grid>
+                                <Grid item xs={5} className={classes.controlPanel}>
+                                    <ChatPanel data={messages}/>
+                                </Grid>
                             </Grid>
-                            <Grid item xs={2} className={classes.controlPanel}>
-                                <UserCard code={game ? game.invitation_code || '' : ''}/>
-                            </Grid>
-                            <Grid item xs className={classes.controlPanel}>
-                                <ChatPanel data={messages}/>
-                            </Grid>
-                        </Grid>
-                    </div>
+                        </div>
+                    </Hidden>
                 </main>
+                <Hidden lgUp={true}>
+                    <RightDrawer
+                        messages={messages}
+                        invitation_code={game ? game.invitation_code || '' : ''}
+                        users={users}
+                    />
+                </Hidden>
             </div>
         </div>
     )

@@ -51,7 +51,8 @@ export default makeStyles((theme: Theme) =>
         },
         map: {
             flexGrow: 1,
-            marginBottom: '12px'
+            marginBottom: '12px',
+            overflow: 'hidden'
         },
         controls: {
             height: '30%',
