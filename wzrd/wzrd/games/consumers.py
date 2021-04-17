@@ -173,8 +173,7 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
 
         elif action_type == "delete":
             object_id = str(meta["id"])
-            if (len(object_id) == 5 and object_id not in game_session.dummy_heroes or
-                    object_id not in game_session.current_game_objects):
+            if object_id not in game_session.dummy_heroes and object_id not in game_session.current_game_objects:
                 json_data["type"] = "error"
                 json_data["meta"] = f"Object [{meta['id']}] not found!"
                 logging.warning(f"[WS {self.session_name} DELETE] Object [{meta['id']}] not found!")

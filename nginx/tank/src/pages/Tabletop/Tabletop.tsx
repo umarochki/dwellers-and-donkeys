@@ -18,6 +18,9 @@ import { ConnectedUser } from '../../models/user'
 import useStyles from './styles'
 import { useParams } from 'react-router-dom'
 import { MenuType } from '../../components/Switcher/Switcher'
+import AppsIcon from '@material-ui/icons/Apps'
+import DeleteIcon from '@material-ui/icons/Delete'
+import clsx from 'clsx'
 import RightDrawer from '../../components/Controls/RightDrawer/RightDrawer'
 
 // https://codesandbox.io/s/ykk2x8k7xj?file=/src/App/index.js
@@ -31,7 +34,7 @@ const Tabletop = () => {
     const classes = useStyles()
     const dispatch = useDispatch()
     const divRef = React.useRef<HTMLDivElement>(null)
-    const boardRef = React.useRef()
+    const boardRef = React.useRef<any>(null)
 
     const ws = useContext(WebSocketContext)
     const game = useSelector(selectCurrentGame)
@@ -47,6 +50,8 @@ const Tabletop = () => {
     const [type, setType] = useState<MenuType>(MenuType.unselect)
 
     const [maps, setMaps] = useState((currentGameData && currentGameData.meta.maps) || [])
+    const [idToDelete, setIdToDelete] = useState<null | number>(null)
+    const isDltBtnHovered = React.useRef<boolean>(false)
 
     const handleOpenDrawer = useCallback(() => {
         myGameBoard && myGameBoard.resetDraggedDOMListeners()
@@ -68,11 +73,11 @@ const Tabletop = () => {
         setType(MenuType.unselect)
     }, [])
 
-    // useEffect(() => {
-    //     return () => {
-    //         dispatch(disconnectGame())
-    //     }
-    // }, [dispatch])
+    useEffect(() => {
+        return () => {
+            dispatch(disconnectGame())
+        }
+    }, [dispatch])
 
     useEffect(() => {
         if (!myGameBoard && connectGameState === AsyncState.success && game && game.invitation_code && divRef && divRef.current && ws.socket) {
@@ -88,10 +93,24 @@ const Tabletop = () => {
             // gameBoard.eventManager.subscribe('map', (data: any) => ws.sendMessage('map', data))
             gameBoard.eventManager.subscribe('add', (data: any) => ws.sendMessage('add', data))
             gameBoard.eventManager.subscribe('update', (data: any) => ws.sendMessage('update', data))
-            gameBoard.eventManager.subscribe('update_and_save', (data: any) => ws.sendMessage('update_and_save', data))
-            gameBoard.eventManager.subscribe('delete', (data: any) => ws.sendMessage('delete', data))
+            gameBoard.eventManager.subscribe('update_and_save', (data: any) => {
+                ws.sendMessage('update_and_save', data)
 
-            const assets = [{ name: 'grid', path: '../globalSymbols/WorldMap.png' }]
+                if (isDltBtnHovered.current) {
+                    gameBoard.deleteObject({ id: data.id })
+                    ws.sendMessage('delete', { id: data.id })
+                    isDltBtnHovered.current = false
+                }
+
+                setIdToDelete(null)
+
+            })
+            gameBoard.eventManager.subscribe('update_and_start', (data: any) => {
+                ws.sendMessage('update_and_start', data)
+                setIdToDelete(data.id)
+            })
+
+            const assets = [{ name: 'grid', path: '../grid64.png' }]
 
             gameBoard.preload(assets, () => {
                 boardRef.current = gameBoard
@@ -106,6 +125,10 @@ const Tabletop = () => {
         if (currentGameData && myGameBoard !== null && boardRef.current && connectGameState === AsyncState.success) {
 
             switch (currentGameData.type) {
+                case 'update_and_start':
+                    myGameBoard.updateObjectPosition(currentGameData.meta)
+                    myGameBoard.updateObjectOverlap(currentGameData.meta)
+                    break
                 case 'update':
                     myGameBoard.updateObjectPosition(currentGameData.meta)
                     break
@@ -172,17 +195,17 @@ const Tabletop = () => {
         }
     }, [myGameBoard, currentGameData, connectGameState, closeSidebar])
 
-    // if (connectGameState === AsyncState.inProcess) {
-    //     return <FullscreenLoader/>
-    // }
+    if (connectGameState === AsyncState.inProcess) {
+        return <FullscreenLoader/>
+    }
 
-    // if (connectGameState === AsyncState.error || connectGameState === AsyncState.unknown) {
-    //     if (!game || game.invitation_code !== id) {
-    //         dispatch(connectGame(id))
-    //         return <FullscreenLoader/>
-    //     }
-    //     dispatch(push('/'))
-    // }
+    if (connectGameState === AsyncState.error || connectGameState === AsyncState.unknown) {
+        if (!game || game.invitation_code !== id) {
+            dispatch(connectGame(id))
+            return <FullscreenLoader/>
+        }
+        dispatch(push('/'))
+    }
 
     return (
         <div className={classes.root}>
@@ -233,6 +256,17 @@ const Tabletop = () => {
                         </div>
                     </Hidden>
                 </main>
+                <div className={clsx(classes.mapBtn, classes.switchGridBtn)} onClick={() => boardRef.current && boardRef.current.switchGrid()}>
+                    <AppsIcon className={classes.mapIcon}/>
+                </div>
+                {
+                    idToDelete && <div className={clsx(classes.mapBtn, classes.deleteBtn) }
+                                       onMouseEnter={() => { isDltBtnHovered.current = true  }}
+                                       onMouseLeave={() => { isDltBtnHovered.current = false }}
+                    >
+                        <DeleteIcon className={classes.mapIcon}/>
+                    </div>
+                }
                 <Hidden lgUp={true}>
                     <RightDrawer
                         messages={messages}

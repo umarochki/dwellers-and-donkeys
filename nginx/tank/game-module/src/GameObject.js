@@ -67,11 +67,16 @@ export default class GameObject extends Container {
     
     function onDragStart(event) {
 
+      this.updateOverlap();
+
       this.parent.pause = true;
       this.dragging = true;
       this.data = event.data;
-      this.start = { x: this.x, y: this.y }
+      this.start   = { x: this.x, y: this.y }
+      this.current = { x: this.x, y: this.y }
       this.last = { x: event.data.global.x, y: event.data.global.y }
+
+      this.timer = null;
 
       this.eventManager.notify('update_and_start', {
         id: this.id,
@@ -82,9 +87,9 @@ export default class GameObject extends Container {
 
     function onDragEnd(e) {
 
-      if (Math.abs(this.x - this.start.x) <= 2 && 
-          Math.abs(this.y - this.start.y) <= 2)
-            this.onClick(e);
+      //if (Math.abs(this.x - this.start.x) <= 2 && 
+      //    Math.abs(this.y - this.start.y) <= 2)
+      //      this.onClick(e);
 
       this.parent.pause = false;
       this.dragging = false;
@@ -102,21 +107,26 @@ export default class GameObject extends Container {
         const x = e.data.global.x
         const y = e.data.global.y
 
-        const distX = x - this.last.x
-        const distY = y - this.last.y
+        this.current.x += (x - this.last.x) / this.parent.scale.x; 
+        this.current.y += (y - this.last.y) / this.parent.scale.y;
 
-        const newPoint = { x, y }
+        this.last = { x, y };
 
-        this.x += (newPoint.x - this.last.x) / this.parent.scale.x;
-        this.y += (newPoint.y - this.last.y) / this.parent.scale.y;
+        this.x = this.current.x;
+        this.y = this.current.y;
 
-        this.last = newPoint;
+        if (this.timer == null) {
 
-        this.eventManager.notify('update', {
-          id: this.id,
-          xy: [this.x, this.y]
-        })
+          this.eventManager.notify('update', {
+            id: this.id,
+            xy: [this.current.x, this.current.y]
+          })
+          
+          this.timer = window.setTimeout(() => {
+            this.timer = null;
+          }, 17);
 
+        }
       }
     }
   }
