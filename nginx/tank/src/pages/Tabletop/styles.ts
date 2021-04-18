@@ -52,7 +52,8 @@ export default makeStyles((theme: Theme) =>
         },
         map: {
             flexGrow: 1,
-            marginBottom: '12px'
+            marginBottom: '12px',
+            overflow: 'hidden'
         },
         controls: {
             height: '30%',
@@ -107,7 +108,16 @@ export default makeStyles((theme: Theme) =>
         deleteBtn: {
             right: 25,
             top: 115,
-            opacity: 0.4
+            opacity: 0.4,
+            [theme.breakpoints.down('md')]: {
+                top: 'auto',
+                bottom: 25,
+                marginLeft: 'auto',
+                marginRight: 'auto',
+                left: 0,
+                right: 0,
+                textAlign: 'center'
+            }
         },
         mapIcon: {
             width: '1em',

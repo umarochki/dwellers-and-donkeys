@@ -1,19 +1,23 @@
 import React from 'react'
 import Grid from '@material-ui/core/Grid'
 
-const FullscreenLoader: React.FC = ({ children }) => (
+interface Props {
+    styles?: CSSStyleSheet
+}
+
+const FullscreenPage: React.FC<Props> = ({ children, styles }) => (
     <Grid
         container
         spacing={0}
         direction="column"
         alignItems="center"
         justify="center"
-        style={{ minHeight: '100vh' }}
+        style={{ minHeight: '100vh', textAlign: 'center', ...styles }}
     >
-        <Grid item xs={3}>
+        <Grid item xs={5}>
             {children}
         </Grid>
     </Grid>
 )
 
-export default FullscreenLoader
+export default FullscreenPage

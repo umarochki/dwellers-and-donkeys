@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react'
 import LeftDrawer from '../../components/Switcher/LeftDrawer'
-import { Grid } from '@material-ui/core'
+import { Grid, Hidden } from '@material-ui/core'
 import UserCard from '../../components/Controls/UserCard'
 import PersonCard from '../../components/Controls/PersonCard'
 import ChatPanel from '../../components/Controls/ChatPanel'
@@ -21,6 +21,9 @@ import { MenuType } from '../../components/Switcher/Switcher'
 import AppsIcon from '@material-ui/icons/Apps'
 import DeleteIcon from '@material-ui/icons/Delete'
 import clsx from 'clsx'
+import RightDrawer from '../../components/Controls/RightDrawer/RightDrawer'
+import FullscreenPage from '../../components/Containers/FullscreenPage'
+import { primary50 } from '../../styles/colors'
 
 // https://codesandbox.io/s/ykk2x8k7xj?file=/src/App/index.js
 interface ParamTypes {
@@ -45,12 +48,24 @@ const Tabletop = () => {
     const [users, setUsers] = useState<ConnectedUser[]>([])
     const [isGlobal, setIsGlobal] = useState<boolean | null>(null)
     const [isSwiping, setSwiping] = useState(false)
-    const [open, setOpen] = React.useState(false)
+    const [open, setOpen] = useState(false)
     const [type, setType] = useState<MenuType>(MenuType.unselect)
 
     const [maps, setMaps] = useState((currentGameData && currentGameData.meta.maps) || [])
     const [idToDelete, setIdToDelete] = useState<null | number>(null)
     const isDltBtnHovered = React.useRef<boolean>(false)
+
+    const [orientation, setOrientation] = useState({
+        device: !!navigator.maxTouchPoints ? 'mobile' : 'computer',
+        orientation: !navigator.maxTouchPoints ? 'desktop' : !window.screen.orientation.angle ? 'portrait' : 'landscape'
+    })
+
+    const detect = useCallback(() => {
+        setOrientation({
+            device: !!navigator.maxTouchPoints ? 'mobile' : 'computer',
+            orientation: !navigator.maxTouchPoints ? 'desktop' : !window.screen.orientation.angle ? 'portrait' : 'landscape'
+        })
+    }, [])
 
     const handleOpenDrawer = useCallback(() => {
         myGameBoard && myGameBoard.resetDraggedDOMListeners()
@@ -194,6 +209,17 @@ const Tabletop = () => {
         }
     }, [myGameBoard, currentGameData, connectGameState, closeSidebar])
 
+    useEffect(() => {
+        window.addEventListener('resize', detect)
+        return () => {
+            window.removeEventListener('resize', detect)
+        }
+    }, [detect])
+
+    if (orientation.device === 'mobile' && orientation.orientation === 'portrait') {
+        return <FullscreenPage styles={{ color: primary50 }}>Please, rotate your device to landscape mode</FullscreenPage>
+    }
+
     if (connectGameState === AsyncState.inProcess) {
         return <FullscreenLoader/>
     }
@@ -232,39 +258,52 @@ const Tabletop = () => {
                         }}
                         onMouseUp={e => {
                             if (!isSwiping && e.button === 0 && open) {
-                                // close sidebar
                                 closeSidebar()
                             }
                             setSwiping(false)
                         }}
                     />
-                    <div className={classes.controls}>
-                        <Grid container>
-                            <Grid item xs={5} className={classes.controlPanel}>
-                                <div className={classes.people}>
-                                    {users.map(user => <PersonCard user={user.username} key={user.username}/>) }
-                                </div>
+                    <Hidden mdDown={true}>
+                        <div className={classes.controls} >
+                            <Grid container>
+                                <Grid item xs={5} className={classes.controlPanel}>
+                                    <div className={classes.people}>
+                                        {users.map(user => <PersonCard user={user.username} key={user.username}/>)}
+                                    </div>
+                                </Grid>
+                                <Grid item xs={2} className={classes.controlPanel}>
+                                    <UserCard code={game ? game.invitation_code || '' : ''}/>
+                                </Grid>
+                                <Grid item xs={5} className={classes.controlPanel}>
+                                    <ChatPanel data={messages}/>
+                                </Grid>
                             </Grid>
-                            <Grid item xs={2} className={classes.controlPanel}>
-                                <UserCard code={game ? game.invitation_code || '' : ''}/>
-                            </Grid>
-                            <Grid item xs className={classes.controlPanel}>
-                                <ChatPanel data={messages}/>
-                            </Grid>
-                        </Grid>
-                    </div>
+                        </div>
+                    </Hidden>
+                </main>
+                <Hidden mdDown={true}>
                     <div className={clsx(classes.mapBtn, classes.switchGridBtn)} onClick={() => boardRef.current && boardRef.current.switchGrid()}>
                         <AppsIcon className={classes.mapIcon}/>
                     </div>
-                    {
-                        idToDelete && <div className={clsx(classes.mapBtn, classes.deleteBtn) }
-                            onMouseEnter={() => { isDltBtnHovered.current = true  }}
-                            onMouseLeave={() => { isDltBtnHovered.current = false }}
-                        >
-                            <DeleteIcon className={classes.mapIcon}/>
-                        </div>
-                    }
-                </main>
+                </Hidden>
+                {
+                    idToDelete &&
+                    <div
+                        className={clsx(classes.mapBtn, classes.deleteBtn) }
+                        onMouseEnter={() => { isDltBtnHovered.current = true  }}
+                        onMouseLeave={() => { isDltBtnHovered.current = false }}
+                    >
+                        <DeleteIcon className={classes.mapIcon}/>
+                    </div>
+                }
+                <Hidden lgUp={true}>
+                    <RightDrawer
+                        messages={messages}
+                        invitation_code={game ? game.invitation_code || '' : ''}
+                        users={users}
+                        onSwitchGrid={() => boardRef.current && boardRef.current.switchGrid()}
+                    />
+                </Hidden>
             </div>
         </div>
     )

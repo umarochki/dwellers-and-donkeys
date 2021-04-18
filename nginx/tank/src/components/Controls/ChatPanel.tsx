@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
-import { Button, Card, Grid, IconButton, Theme } from '@material-ui/core'
+import { Button, Card, Grid, Hidden, IconButton, Theme } from '@material-ui/core'
 import { createStyles, makeStyles } from '@material-ui/core/styles'
 import { primary200, primary400, primary50, primary500, primary800, primary900 } from '../../styles/colors'
 import ClearIcon from '@material-ui/icons/Clear'
@@ -17,12 +17,18 @@ const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         root: {
             padding: theme.spacing(1),
-            height: '100%'
+            height: '100%',
+            [theme.breakpoints.down('md')]: {
+                height: 'auto'
+            }
         },
         content: {
             backgroundColor: primary900,
             display: 'flex',
-            height: '100%'
+            height: '100%',
+            [theme.breakpoints.down('md')]: {
+                flexDirection: 'column'
+            }
         },
         chat: {
             padding: theme.spacing(1),
@@ -30,7 +36,12 @@ const useStyles = makeStyles((theme: Theme) =>
             display: 'flex',
             flexDirection: 'column',
             color: primary200,
-            maxHeight: '100%'
+            maxHeight: '100%',
+            [theme.breakpoints.down('md')]: {
+                height: 250,
+                padding: 0,
+                paddingTop: theme.spacing(1)
+            }
         },
         chatInput: {
             padding: theme.spacing(1),
@@ -55,7 +66,13 @@ const useStyles = makeStyles((theme: Theme) =>
             padding: theme.spacing(1),
             width: 250,
             minWidth: 250,
-            height: '100%'
+            height: '100%',
+            [theme.breakpoints.down('md')]: {
+                height: 200,
+                width: '100%',
+                marginLeft: theme.spacing(1),
+                paddingBottom: 0
+            }
         },
         roll: {
             width: 60,
@@ -128,7 +145,7 @@ const ChatPanel: React.FC<Props> = props => {
 
     const [chatInput, setChatInput] = useState('')
     const [inputType, setInputType] = useState(InputType.text)
-    const messagesEnd = useRef(null)
+    const messagesEnd = useRef<HTMLDivElement | null>(null)
 
     const emptyDices = useMemo(() => ['4', '6', '8', '10', '12', '20'].map(type => ({ type: type, count: 0 })), [])
     const [dices, setDices] = useState<DiceWithCount[]>(emptyDices)
@@ -218,6 +235,13 @@ const ChatPanel: React.FC<Props> = props => {
                     </div>
                 </div>
                 <Grid container className={classes.rolls}>
+                    <Hidden lgUp={true}>
+                        <Grid container item xs={12} style={{ height: 40, display: 'flex', justifyContent: 'center' }}>
+                            {inputType === InputType.dices
+                                ? <Button color="secondary" disabled={isEmpty} onClick={roll}>Roll</Button>
+                                : <Button color="secondary" disabled={!chatInput} onClick={sendMessage}>Send</Button>}
+                        </Grid>
+                    </Hidden>
                     <Grid container item xs={12} justify="space-between">
                         <div className={classes.rollContainer}><Dice type={4} className={clsx(classes.roll, isDisabled(0) && classes.rollDisabled)} onClick={addDice('4', 0)}/><span className={classes.rollType}>4</span></div>
                         <div className={classes.rollContainer}> <Dice type={6} className={clsx(classes.roll, isDisabled(1) && classes.rollDisabled)} onClick={addDice('6', 1)}/><span className={classes.rollType}>6</span></div>
@@ -228,11 +252,13 @@ const ChatPanel: React.FC<Props> = props => {
                         <div className={classes.rollContainer}><Dice type={12} className={clsx(classes.roll, isDisabled(4) && classes.rollDisabled)} onClick={addDice('12', 4)}/><span className={classes.rollType}>12</span></div>
                         <div className={classes.rollContainer}><Dice type={20} className={clsx(classes.roll, isDisabled(5) && classes.rollDisabled)} onClick={addDice('20', 5)}/><span className={classes.rollType}>20</span></div>
                     </Grid>
-                    <Grid container item xs={12} style={{ marginTop: 'auto', height: 50 }}>
-                        {inputType === InputType.dices
-                            ? <Button color="secondary" disabled={isEmpty} onClick={roll}>Roll</Button>
-                            : <Button color="secondary" disabled={!chatInput} onClick={sendMessage}>Send</Button>}
-                    </Grid>
+                    <Hidden mdDown={true}>
+                        <Grid container item xs={12} style={{ marginTop: 'auto', height: 50 }}>
+                            {inputType === InputType.dices
+                                ? <Button color="secondary" disabled={isEmpty} onClick={roll}>Roll</Button>
+                                : <Button color="secondary" disabled={!chatInput} onClick={sendMessage}>Send</Button>}
+                        </Grid>
+                    </Hidden>
                 </Grid>
             </Card>
         </div>
