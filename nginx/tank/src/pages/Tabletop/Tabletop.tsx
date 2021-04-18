@@ -22,6 +22,8 @@ import AppsIcon from '@material-ui/icons/Apps'
 import DeleteIcon from '@material-ui/icons/Delete'
 import clsx from 'clsx'
 import RightDrawer from '../../components/Controls/RightDrawer/RightDrawer'
+import FullscreenPage from '../../components/Containers/FullscreenPage'
+import { primary50 } from '../../styles/colors'
 
 // https://codesandbox.io/s/ykk2x8k7xj?file=/src/App/index.js
 interface ParamTypes {
@@ -46,12 +48,24 @@ const Tabletop = () => {
     const [users, setUsers] = useState<ConnectedUser[]>([])
     const [isGlobal, setIsGlobal] = useState<boolean | null>(null)
     const [isSwiping, setSwiping] = useState(false)
-    const [open, setOpen] = React.useState(false)
+    const [open, setOpen] = useState(false)
     const [type, setType] = useState<MenuType>(MenuType.unselect)
 
     const [maps, setMaps] = useState((currentGameData && currentGameData.meta.maps) || [])
     const [idToDelete, setIdToDelete] = useState<null | number>(null)
     const isDltBtnHovered = React.useRef<boolean>(false)
+
+    const [orientation, setOrientation] = useState({
+        device: !!navigator.maxTouchPoints ? 'mobile' : 'computer',
+        orientation: !navigator.maxTouchPoints ? 'desktop' : !window.screen.orientation.angle ? 'portrait' : 'landscape'
+    })
+
+    const detect = useCallback(() => {
+        setOrientation({
+            device: !!navigator.maxTouchPoints ? 'mobile' : 'computer',
+            orientation: !navigator.maxTouchPoints ? 'desktop' : !window.screen.orientation.angle ? 'portrait' : 'landscape'
+        })
+    }, [])
 
     const handleOpenDrawer = useCallback(() => {
         myGameBoard && myGameBoard.resetDraggedDOMListeners()
@@ -195,6 +209,17 @@ const Tabletop = () => {
         }
     }, [myGameBoard, currentGameData, connectGameState, closeSidebar])
 
+    useEffect(() => {
+        window.addEventListener('resize', detect)
+        return () => {
+            window.removeEventListener('resize', detect)
+        }
+    }, [detect])
+
+    if (orientation.device === 'mobile' && orientation.orientation === 'portrait') {
+        return <FullscreenPage styles={{ color: primary50 }}>Please, rotate your device to landscape mode</FullscreenPage>
+    }
+
     if (connectGameState === AsyncState.inProcess) {
         return <FullscreenLoader/>
     }
@@ -256,13 +281,17 @@ const Tabletop = () => {
                         </div>
                     </Hidden>
                 </main>
-                <div className={clsx(classes.mapBtn, classes.switchGridBtn)} onClick={() => boardRef.current && boardRef.current.switchGrid()}>
-                    <AppsIcon className={classes.mapIcon}/>
-                </div>
+                <Hidden mdDown={true}>
+                    <div className={clsx(classes.mapBtn, classes.switchGridBtn)} onClick={() => boardRef.current && boardRef.current.switchGrid()}>
+                        <AppsIcon className={classes.mapIcon}/>
+                    </div>
+                </Hidden>
                 {
-                    idToDelete && <div className={clsx(classes.mapBtn, classes.deleteBtn) }
-                                       onMouseEnter={() => { isDltBtnHovered.current = true  }}
-                                       onMouseLeave={() => { isDltBtnHovered.current = false }}
+                    idToDelete &&
+                    <div
+                        className={clsx(classes.mapBtn, classes.deleteBtn) }
+                        onMouseEnter={() => { isDltBtnHovered.current = true  }}
+                        onMouseLeave={() => { isDltBtnHovered.current = false }}
                     >
                         <DeleteIcon className={classes.mapIcon}/>
                     </div>
@@ -272,6 +301,7 @@ const Tabletop = () => {
                         messages={messages}
                         invitation_code={game ? game.invitation_code || '' : ''}
                         users={users}
+                        onSwitchGrid={() => boardRef.current && boardRef.current.switchGrid()}
                     />
                 </Hidden>
             </div>

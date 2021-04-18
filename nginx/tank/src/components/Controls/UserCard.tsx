@@ -15,12 +15,19 @@ const useStyles = makeStyles((theme: Theme) =>
             flexDirection: 'column',
             height: '100%',
             paddingTop: theme.spacing(3),
-            borderRadius: 0
+            borderRadius: 0,
+            [theme.breakpoints.down('md')]: {
+                height: 250
+            }
         },
         avatarLarge: {
             width: theme.spacing(8),
             height: theme.spacing(8),
-            marginBottom: theme.spacing(3)
+            marginBottom: theme.spacing(3),
+            [theme.breakpoints.down('md')]: {
+                width: theme.spacing(6),
+                height: theme.spacing(6)
+            }
         },
         name: {
             color: primary50,
@@ -34,7 +41,10 @@ const useStyles = makeStyles((theme: Theme) =>
         },
         code: {
             fontSize: '1.5rem',
-            color: primary200
+            color: primary200,
+            [theme.breakpoints.down('md')]: {
+                fontSize: '1rem'
+            }
         }
     })
 )
