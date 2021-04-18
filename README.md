@@ -38,6 +38,25 @@ GET /api/v1/games [Список игр]
 POST /api/v1/games [Создать игру] 
 Ждет поля: name, description.. уточни у меня когда будешь делать
 ```
+Медия:
+```
+POST /api/v1/media [Загрузить изображение]
+Ждет: multipart-formdata
+file: binary
+
+Ответ:
+{
+    "file": <link>
+    "id": <int>
+    "created": <int>
+    "creator": <int>
+}
+```
+Персонажи:
+GET /api/v1/heroes [Список игр]
+POST /api/v1/heroes [Создать игру] 
+Ждет поля: name, sex, race, (добавить description), (пока все, потом статов добавим)
+
 Вебсокетная сессия:
 ```
 /ws/games/GAME_ID [Зайти]

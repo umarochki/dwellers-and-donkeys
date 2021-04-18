@@ -31,6 +31,9 @@ ALLOWED_HOSTS = [
     "wzrd",
 ]
 API_PREFIX = "api/v1/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media/wzrd")
+MEDIA_URL = '/media/wzrd/'
+
 APPEND_SLASH = False
 
 # Application definition
@@ -47,6 +50,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'wzrd.users',
     'wzrd.games',
+    'wzrd.media',
 ]
 
 MIDDLEWARE = [
