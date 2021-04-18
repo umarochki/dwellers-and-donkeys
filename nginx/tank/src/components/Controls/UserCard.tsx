@@ -4,6 +4,7 @@ import { createStyles, makeStyles } from '@material-ui/core/styles'
 import PersonIcon from '@material-ui/icons/Person'
 import { primary200, primary50 } from '../../styles/colors'
 import InviteDialog from '../Dialogs/InviteDialog'
+import CharacterInfoDialog from '../Dialogs/CharacterInfoDialog'
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -24,6 +25,7 @@ const useStyles = makeStyles((theme: Theme) =>
             width: theme.spacing(8),
             height: theme.spacing(8),
             marginBottom: theme.spacing(3),
+            cursor: 'pointer',
             [theme.breakpoints.down('md')]: {
                 width: theme.spacing(6),
                 height: theme.spacing(6)
@@ -62,9 +64,19 @@ const UserCard: React.FC<Props> = props => {
     const openDialog = useCallback(() => setOpen(true), [])
     const closeDialog = useCallback(() => setOpen(false), [])
 
+    const [characterCardOpen, setCharacterCardOpen] = useState(false)
+    const openCharacterCard = useCallback(() => setCharacterCardOpen(true), [])
+    const closeCharacterCard = useCallback(() => setCharacterCardOpen(false), [])
+
+    const handleShowCharacter = () => {
+        openCharacterCard()
+    }
+
     return (
         <Card className={classes.me} raised>
-            <Avatar className={classes.avatarLarge}><PersonIcon fontSize="large"/></Avatar>
+            <Avatar className={classes.avatarLarge} onClick={handleShowCharacter}>
+                <PersonIcon fontSize="large"/>
+            </Avatar>
             {/*<span className={classes.name}>Я кто-то там</span>*/}
             <span className={classes.race}>Invitation code:</span>
             <span className={classes.code}>{code}</span>
@@ -74,6 +86,7 @@ const UserCard: React.FC<Props> = props => {
                 Invite
             </Button>
             <InviteDialog open={open} code={code} onClose={closeDialog}/>
+            <CharacterInfoDialog open={characterCardOpen} onClose={closeCharacterCard}/>
         </Card>
     )
 }
