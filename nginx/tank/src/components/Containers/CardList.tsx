@@ -1,6 +1,10 @@
 import React from 'react'
 import { Button, Card, CardActionArea, CardActions, CardContent, CardMedia, Grid, Typography } from '@material-ui/core'
 import { createStyles, makeStyles } from '@material-ui/core/styles'
+import defaultImage from './default.png'
+import { primary200 } from '../../styles/colors'
+import AddCard from '../Cards/AddCard'
+import clsx from 'clsx'
 
 const useStyles = makeStyles(() =>
     createStyles({
@@ -11,6 +15,7 @@ const useStyles = makeStyles(() =>
         },
         cardMedia: {
             paddingTop: '56.25%', // 16:9
+            border: `2px solid ${primary200}`
         },
         cardContent: {
             flexGrow: 1,
@@ -21,6 +26,9 @@ const useStyles = makeStyles(() =>
         },
         date: {
             fontSize: '0.9rem'
+        },
+        addCard: {
+            width: '100%'
         }
     })
 )
@@ -38,7 +46,7 @@ interface Props {
 }
 
 const CardList: React.FC<Props> = props => {
-    const { headerText, cards } = props
+    const { headerText, cards, onAddClick } = props
     const classes = useStyles()
 
     return (
@@ -47,16 +55,16 @@ const CardList: React.FC<Props> = props => {
                 {headerText}
             </Typography>
             <Grid container spacing={4}>
-                {/*<Grid item xs={12} sm={6} md={4}>*/}
-                {/*    <AddCard className={classes.card} onClick={onAddClick}/>*/}
-                {/*</Grid>*/}
+                <Grid item xs={12} sm={6} md={4}>
+                    <AddCard className={clsx(classes.card, classes.addCard)} onClick={onAddClick} />
+                </Grid>
                 {cards.map(card => (
-                    <Grid item key={card.title} xs={12} sm={6} md={4}>
+                    <Grid item key={card.date} xs={12} sm={6} md={4}>
                         <Card className={classes.card}>
                             <CardActionArea>
                                 <CardMedia
                                     className={classes.cardMedia}
-                                    image={card.image}
+                                    image={card.image || defaultImage}
                                 />
                                 <CardContent className={classes.cardContent}>
                                     <Typography gutterBottom>
@@ -67,10 +75,7 @@ const CardList: React.FC<Props> = props => {
                                     </Typography>
                                 </CardContent>
                                 <CardActions>
-                                    <Grid container justify="space-between">
-                                        <Button color="primary" variant="text">
-                                            Edit
-                                        </Button>
+                                    <Grid container justify="flex-end">
                                         <Button color="primary" variant="contained">
                                             Play
                                         </Button>

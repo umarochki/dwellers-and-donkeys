@@ -11,9 +11,10 @@ import { Menu, MenuItem } from '@material-ui/core'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectCurrentUser, selectQuickStartState } from '../../store/user/selectors'
 import { logout } from '../../store/user/actions'
-import FullscreenLoader from '../../components/Containers/FullscreenLoader/FullscreenLoader'
 import { AsyncState } from '../../store/user/reducer'
 import ImageLoader from '../../components/Containers/ImageLoader'
+import CreateWorldDialog from '../../components/Dialogs/CreateWorldDialog'
+import FullscreenLoader from '../../components/Containers/FullscreenLoader/FullscreenLoader'
 
 function Copyright() {
     return (
@@ -53,6 +54,10 @@ const StartPage = () => {
     const [anchorEl, setAnchorEl] = useState(null)
     const dispatch = useDispatch()
 
+    const [worldDialogOpen, setWorldDialogOpen] = React.useState(false)
+    const openWorldDialog = useCallback(() => setWorldDialogOpen(true), [])
+    const closeWorldDialog = useCallback(() => setWorldDialogOpen(false), [])
+
     // const handleProfileClick = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
     //     setAnchorEl(event.currentTarget)
     // }, [])
@@ -91,8 +96,8 @@ const StartPage = () => {
                 </Toolbar>
             </AppBar>
             <main>
-                <StartPageHeader className={classes.content}/>
-                <CreatedGameWorlds/>
+                <StartPageHeader className={classes.content} openWorldDialog={openWorldDialog}/>
+                <CreatedGameWorlds openWorldDialog={openWorldDialog}/>
                 <ImageLoader src={seaDark} className={classes.seaDark}/>
                 {/*<CreatedCharacters />*/}
             </main>
@@ -105,6 +110,7 @@ const StartPage = () => {
                 </Typography>
                 <Copyright/>
             </footer>
+            <CreateWorldDialog open={worldDialogOpen} onClose={closeWorldDialog}/>
         </>
     )
 }
