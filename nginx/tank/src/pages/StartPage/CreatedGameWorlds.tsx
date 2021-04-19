@@ -14,20 +14,17 @@ const useStyles = makeStyles((theme: Theme) =>
 
 interface Props {
     openWorldDialog: () => void
+    title: string
+    cards: CardItem[]
 }
 
-const cards: CardItem[] = [
-    { title: 'Шахты', date: '20.01.20', image: '' },
-    { title: 'Шахты', date: '20.01.22', image: '' },
-]
-
 const CreatedGameWorlds: React.FC<Props> = props => {
-    const { openWorldDialog } = props
+    const { openWorldDialog, title, cards } = props
     const classes = useStyles()
 
     return (
         <Container className={classes.cardGrid} maxWidth="md">
-            <CardList headerText={'Created game worlds:'} cards={cards} onAddClick={openWorldDialog}/>
+            <CardList headerText={title} cards={cards} onAddClick={openWorldDialog}/>
         </Container>
     )
 }

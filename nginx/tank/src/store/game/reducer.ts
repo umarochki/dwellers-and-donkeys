@@ -5,20 +5,24 @@ import { Game, SocketMessage } from '../../models/game'
 
 export interface GameState {
     createGameState: AsyncState
-    getGamesState: AsyncState
+    getGameHistoryState: AsyncState
+    getGMGameHistoryState: AsyncState
     error: Error | null
     currentGame: Game | null
     games: Game[]
+    gamesGM: Game[]
     currentGameData: SocketMessage | null
     connectGameState: AsyncState
 }
 
 const INITIAL_STATE: GameState = {
     createGameState: AsyncState.unknown,
-    getGamesState: AsyncState.unknown,
+    getGameHistoryState: AsyncState.unknown,
+    getGMGameHistoryState: AsyncState.unknown,
     error: null,
     currentGame: null,
     games: [],
+    gamesGM: [],
     currentGameData: null,
     connectGameState: AsyncState.unknown,
 }
@@ -36,18 +40,28 @@ const gameReducer: Reducer<GameState> = (state = INITIAL_STATE, action) => {
             }
         case gameConstants.CREATE_GAME_REQUEST_ERROR:
             return { ...state, createGameState: AsyncState.error }
-        case gameConstants.GET_GAMES_REQUEST_STARTED:
-            return { ...state, getGamesState: AsyncState.inProcess }
-        case gameConstants.GET_GAMES_REQUEST_FINISHED:
+        case gameConstants.GET_GAME_HISTORY_REQUEST_STARTED:
+            return { ...state, getGameHistoryState: AsyncState.inProcess }
+        case gameConstants.GET_GAME_HISTORY_REQUEST_FINISHED:
             return {
                 ...state,
-                getGamesState: AsyncState.success,
+                getGameHistoryState: AsyncState.success,
                 games: action.payload
             }
-        case gameConstants.GET_GAMES_REQUEST_ERROR:
+        case gameConstants.GET_GAME_HISTORY_REQUEST_ERROR:
+            return { ...state, getGameHistoryState: AsyncState.error }
+        case gameConstants.GET_GM_GAME_HISTORY_REQUEST_STARTED:
+            return { ...state, getGMGameHistoryState: AsyncState.inProcess }
+        case gameConstants.GET_GM_GAME_HISTORY_REQUEST_FINISHED:
+            return {
+                ...state,
+                getGMGameHistoryState: AsyncState.success,
+                gamesGM: action.payload
+            }
+        case gameConstants.GET_GM_GAME_HISTORY_REQUEST_ERROR:
             return { ...state, getGamesState: AsyncState.error }
         case gameConstants.UPDATE_GAME_DATA:
-            return { ...state, currentGameData: action.payload }
+            return { ...state, getGMGameHistoryState: action.payload }
         case gameConstants.CONNECT_GAME_STARTED:
             return {
                 ...state,

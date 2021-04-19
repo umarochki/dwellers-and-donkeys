@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import CssBaseline from '@material-ui/core/CssBaseline'
 import AppBar from '@material-ui/core/AppBar'
 import Toolbar from '@material-ui/core/Toolbar'
@@ -15,6 +15,8 @@ import { AsyncState } from '../../store/user/reducer'
 import ImageLoader from '../../components/Containers/ImageLoader'
 import CreateWorldDialog from '../../components/Dialogs/CreateWorldDialog'
 import FullscreenLoader from '../../components/Containers/FullscreenLoader/FullscreenLoader'
+import { getGameHistory, getGMGameHistory } from '../../store/game/actions'
+import { selectGameHistory, selectGMGameHistory } from '../../store/game/selectors'
 
 function Copyright() {
     return (
@@ -58,6 +60,9 @@ const StartPage = () => {
     const openWorldDialog = useCallback(() => setWorldDialogOpen(true), [])
     const closeWorldDialog = useCallback(() => setWorldDialogOpen(false), [])
 
+    const gameHistory = useSelector(selectGameHistory)
+    const gameHistoryGM = useSelector(selectGMGameHistory)
+
     // const handleProfileClick = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
     //     setAnchorEl(event.currentTarget)
     // }, [])
@@ -70,6 +75,11 @@ const StartPage = () => {
         handleClose()
         dispatch(logout())
     }, [handleClose, dispatch])
+
+    useEffect(() => {
+        dispatch(getGameHistory())
+        dispatch(getGMGameHistory())
+    }, [dispatch])
 
     if (!user && quickStartState !== AsyncState.success) {
         return <FullscreenLoader/>
@@ -97,7 +107,8 @@ const StartPage = () => {
             </AppBar>
             <main>
                 <StartPageHeader className={classes.content} openWorldDialog={openWorldDialog}/>
-                <CreatedGameWorlds openWorldDialog={openWorldDialog}/>
+                <CreatedGameWorlds title="Created games (as Game Master):" cards={gameHistoryGM} openWorldDialog={openWorldDialog}/>
+                <CreatedGameWorlds title="Game history (as Player):" cards={gameHistory} openWorldDialog={openWorldDialog}/>
                 <ImageLoader src={seaDark} className={classes.seaDark}/>
                 {/*<CreatedCharacters />*/}
             </main>

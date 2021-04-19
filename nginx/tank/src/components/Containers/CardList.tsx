@@ -9,7 +9,7 @@ import clsx from 'clsx'
 const useStyles = makeStyles(() =>
     createStyles({
         card: {
-            height: '100%',
+            height: 300,
             display: 'flex',
             flexDirection: 'column',
         },
