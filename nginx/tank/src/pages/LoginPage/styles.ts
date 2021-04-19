@@ -1,7 +1,7 @@
 import { makeStyles } from '@material-ui/styles'
 import { Theme } from '@material-ui/core'
 import bg from '../../assets/Sword Coast.png'
-import { primary200, primary400, primary50 } from '../../styles/colors'
+import { primary200, primary400 } from '../../styles/colors'
 
 export default makeStyles((theme: Theme) => ({
     image: {
@@ -70,9 +70,13 @@ export default makeStyles((theme: Theme) => ({
     },
     googleButton: {
         marginTop: theme.spacing(6),
-        backgroundColor: primary50,
+        backgroundColor: primary200,
         width: '100%',
         textTransform: 'none',
+        '&:hover': {
+            backgroundColor: primary200,
+            filter: 'brightness(70%)'
+        }
     },
     googleButtonCreating: {
         marginTop: 0,
