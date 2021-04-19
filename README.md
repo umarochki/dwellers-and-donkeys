@@ -53,10 +53,11 @@ file: binary
 }
 ```
 Персонажи:
+```
 GET /api/v1/heroes [Список игр]
 POST /api/v1/heroes [Создать игру] 
 Ждет поля: name, sex, race, (добавить description), (пока все, потом статов добавим)
-
+```
 Вебсокетная сессия:
 ```
 /ws/games/GAME_ID [Зайти]
