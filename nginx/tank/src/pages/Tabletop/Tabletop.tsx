@@ -24,6 +24,7 @@ import clsx from 'clsx'
 import RightDrawer from '../../components/Controls/RightDrawer/RightDrawer'
 import FullscreenPage from '../../components/Containers/FullscreenPage'
 import { primary50 } from '../../styles/colors'
+import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos'
 
 // https://codesandbox.io/s/ykk2x8k7xj?file=/src/App/index.js
 interface ParamTypes {
@@ -50,6 +51,7 @@ const Tabletop = () => {
     const [isSwiping, setSwiping] = useState(false)
     const [open, setOpen] = useState(false)
     const [type, setType] = useState<MenuType>(MenuType.unselect)
+    const [showControls, setShowControls] = useState(true)
 
     const [maps, setMaps] = useState((currentGameData && currentGameData.meta.maps) || [])
     const [idToDelete, setIdToDelete] = useState<null | number>(null)
@@ -264,7 +266,10 @@ const Tabletop = () => {
                         }}
                     />
                     <Hidden mdDown={true}>
-                        <div className={classes.controls} >
+                        <div className={clsx(classes.controls, !showControls && classes.hideControls)}>
+                            <div className={clsx(classes.closeButton, classes.drawerBtn)} onClick={() => setShowControls(isOpen => !isOpen)}>
+                                <ArrowBackIosIcon className={clsx(classes.closeIcon, !showControls && classes.closeIconClosed)} />
+                            </div>
                             <Grid container>
                                 <Grid item xs={5} className={classes.controlPanel}>
                                     <div className={classes.people}>
