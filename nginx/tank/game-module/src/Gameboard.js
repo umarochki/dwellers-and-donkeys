@@ -304,7 +304,7 @@ export default class Gameboard {
   }
 
   
-  updateObject(options, method='all', callback) {
+  updateObject(options, method='default', callback) {
 
     var obj = this.viewport.children.find(x => x.id === options.id)
 
