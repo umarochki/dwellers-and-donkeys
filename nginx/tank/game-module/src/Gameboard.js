@@ -1,5 +1,5 @@
 import * as PIXI from 'pixi.js-legacy';
-import { Viewport } from 'pixi-viewport'
+import { Viewport } from 'pixi-viewport';
 import { SVG } from 'pixi-svg';
 
 //import { PixiPlugin } from "gsap/PixiPlugin";
@@ -11,7 +11,8 @@ import EventManager from './EventManager';
 import Drawer from './Drawer';
 
 import createElementSVG from './utils/createElementSVG';
-import DUMMY_MAP_RAW from './assets/dummy-map'
+import drawDashedPolygon from './utils/drawDashedPolygon';
+import DUMMY_MAP_RAW from './assets/dummy-map';
 
 // PIXI.settings.FAIL_IF_MAJOR_PERFORMANCE_CAVEAT = false;
 
@@ -167,7 +168,8 @@ export default class Gameboard {
         screenHeight: this.height,
         worldWidth: world.width,
         worldHeight: world.height,
-
+        stopPropagation: true,
+        preventDefault: true,
         interaction: this.app.renderer.plugins.interaction,
 
         // To prevent interaction with overlay DOM's
@@ -193,6 +195,11 @@ export default class Gameboard {
       bottom: world.width 
     })
 
+    // Unselect object by clicking anywhere
+    this.viewport.on('clicked', () => {
+      if (this.viewport && this.viewport.selectedObject) this.viewport.selectedObject.offSelect();
+    })
+
     this.setDummyMap();
 
     this.drawer = new Drawer('#000', 1, this.app, this.viewport, this.app.renderer, this.app.loader.resources.grid.texture)
@@ -202,8 +209,6 @@ export default class Gameboard {
   setDummyMap(callback) {
       var dummy = new SVG(createElementSVG(DUMMY_MAP_RAW));
       this.viewport.addChild(dummy);
-
-      console.log(dummy)
 
       dummy.scale.set(0.5)
       dummy.x = this.width / 2 - dummy.width / 2;
@@ -217,8 +222,6 @@ export default class Gameboard {
 
       // Draw map image as a background
       const image = new PIXI.Sprite(this.app.loader.resources[options.sprite].texture);
-
-      console.log(image);
 
       this.mapContainer = new MapContainer(
         this.app.loader.resources.grid.texture, 
@@ -300,7 +303,8 @@ export default class Gameboard {
     });
   }
 
-  updateObjectPosition(options, callback) {
+  
+  updateObject(options, method='default', callback) {
 
     var obj = this.viewport.children.find(x => x.id === options.id)
 
@@ -309,22 +313,28 @@ export default class Gameboard {
       return;
     }
 
-    obj.updatePosition(options.xy[0], options.xy[1]);
-    typeof callback == "function" && callback();
-  }
-
-  updateObjectOverlap(options, callback) {
-
-    var obj = this.viewport.children.find(x => x.id === options.id)
-
-    if (!obj) {
-      console.warn('Cannot find an element with id: ', options.id);
-      return;
+    switch (method) {
+      case 'size':
+        if (options.wh) obj.updateSize(options.wh[0], options.wh[1]);
+        break;
+      
+      case 'position':
+        if (options.xy) obj.updatePosition(options.xy[0], options.xy[1]);
+        break;
+      
+      case 'overlap':
+        obj.updateOverlap();
+        break;
+      
+      default:
+        if (options.wh) obj.updateSize(options.wh[0], options.wh[1]);
+        if (options.xy) obj.updatePosition(options.xy[0], options.xy[1]);
+        break;
     }
 
-    obj.updateOverlap();
     typeof callback == "function" && callback();
   }
+
 
   deleteObject(options, callback) {
 
