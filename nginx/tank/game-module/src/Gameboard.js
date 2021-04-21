@@ -1,5 +1,5 @@
 import * as PIXI from 'pixi.js-legacy';
-import { Viewport } from 'pixi-viewport'
+import { Viewport } from 'pixi-viewport';
 import { SVG } from 'pixi-svg';
 
 //import { PixiPlugin } from "gsap/PixiPlugin";
@@ -12,7 +12,7 @@ import Drawer from './Drawer';
 
 import createElementSVG from './utils/createElementSVG';
 import drawDashedPolygon from './utils/drawDashedPolygon';
-import DUMMY_MAP_RAW from './assets/dummy-map'
+import DUMMY_MAP_RAW from './assets/dummy-map';
 
 // PIXI.settings.FAIL_IF_MAJOR_PERFORMANCE_CAVEAT = false;
 
@@ -199,7 +199,7 @@ export default class Gameboard {
 
     // Unselect object by clicking anywhere
     this.viewport.on('clicked', () => {
-      if (this.viewport && this.viewport.selectedObject) this.viewport.selectedObject.offEdit();
+      if (this.viewport && this.viewport.selectedObject) this.viewport.selectedObject.offSelect();
     })
 
     this.setDummyMap();

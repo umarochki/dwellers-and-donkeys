@@ -22,23 +22,6 @@ export default class GameObject extends Container {
     this.sprite.scale.set(0.1);   // TEMP
     this.addChild(this.sprite);
 
-    if (options.name) {
-      let text = new Text(
-        options.name,
-        {
-          fontFamily : 'Arial', 
-          fontSize: 20, 
-          fill : 0xffffff, 
-          align : 'center',
-          fontWeight: "bold",
-          strokeThickness: 5
-        }
-      );
-      text.anchor.set(0.5);  
-      text.y += this.sprite.height / 2 + 10;
-      this.addChild(text);
-    }
-    
     this.position.set(options.xy[0], options.xy[1]);
 
     this.id = options.id;
@@ -50,6 +33,10 @@ export default class GameObject extends Container {
 
     this.interactive = true;
     this.cursor = 'pointer';
+    if (options.name) {
+      this.name = options.name;
+      this.updateName(options.name);
+    }
     
     this
       // events for drag start
@@ -88,7 +75,7 @@ export default class GameObject extends Container {
     function onDragEnd(e) {
 
       //e.stopPropagation();
-
+      // CHECK X Y
       if (Math.abs(this.current.x - this.start.x) <= 2 && Math.abs(this.current.y - this.start.y) <= 2)
         this.onClick(e);
 
@@ -134,14 +121,14 @@ export default class GameObject extends Container {
 
   onClick(e) {
     e.stopPropagation();
-    this.onEdit();
+    this.onSelect();
+    this.onResize();
   };
 
-  
-  onEdit() {
 
+  onSelect() {
     if (this.parent.selectedObject) {
-      this.parent.selectedObject.offEdit();
+      this.parent.selectedObject.offSelect();
     }
 
     this.parent.selectedObject = this;
@@ -152,28 +139,39 @@ export default class GameObject extends Container {
     this.border = border;
     this.addChild(border);
 
-    var polygons = [];
-    polygons.push({ x:  width / 2, y:  height / 2 });
-    polygons.push({ x: -width / 2, y:  height / 2 });
-    polygons.push({ x: -width / 2, y: -height / 2 });
-    polygons.push({ x:  width / 2, y: -height / 2 });    
+    var polygons = []
+    this.polygons = polygons;
+    this.polygons.push({ x:  width / 2, y:  height / 2 });
+    this.polygons.push({ x: -width / 2, y:  height / 2 });
+    this.polygons.push({ x: -width / 2, y: -height / 2 });
+    this.polygons.push({ x:  width / 2, y: -height / 2 });    
 
     function animate(time) {
       border.clear();
       border.lineStyle(2, 0xffffff, 0.5);
       
       var offsetInterval = 750;
-      border.drawDashedPolygon(polygons, 0, 0, 0, 10, 5, (Date.now() % offsetInterval + 1) / offsetInterval);
-      requestAnimationFrame(animate);
+      border.drawDashedPolygon(this.polygons, 0, 0, 0, 10, 5, (Date.now() % offsetInterval + 1) / offsetInterval);
+      requestAnimationFrame(animate.bind(this));
     }
 
-    animate();
+    animate.bind(this)();
+  }
+
+  offSelect() {
+    this.parent.selectedObject = null;
+    this.removeChild(this.border);
+  }
+  
+  onResize() {
+
+    const [width, height] = [this.sprite.width, this.sprite.height];
 
     const angle = new Graphics();
     angle.beginFill(0xffffff, 0.25);
     angle.moveTo(width / 2,      height / 2     );
-    angle.lineTo(width / 2,      height / 2 - 20);
-    angle.lineTo(width / 2 - 20, height / 2     );
+    angle.lineTo(width / 2,      height / 2 - 15);
+    angle.lineTo(width / 2 - 15, height / 2     );
     angle.lineTo(width / 2,      height / 2     );
     angle.interactive = true;
     angle.cursor = 'nwse-resize';
@@ -199,8 +197,8 @@ export default class GameObject extends Container {
 
       this.resizing = true;
       this.data = e.data;
-      this.start   = { x: this.parent.parent.width, y: this.parent.parent.height }
-      this.current = { x: this.parent.parent.width, y: this.parent.parent.height }
+      this.start   = { x: this.parent.parent.sprite.width, y: this.parent.parent.sprite.height }
+      this.current = { x: this.parent.parent.sprite.width, y: this.parent.parent.sprite.height }
       this.last = { x: e.data.global.x, y: e.data.global.y }
       this.timer = null;
     }
@@ -216,16 +214,42 @@ export default class GameObject extends Container {
 
       if (this.resizing) {
 
+        let object = this.parent.parent
+
         const x = e.data.global.x
         const y = e.data.global.y
 
-        this.current.x += (x - this.last.x) / this.parent.scale.x; 
-        this.current.y += (y - this.last.y) / this.parent.scale.y;
+        this.current.x += (x - this.last.x) * 2 / object.parent.scale.x; 
+        this.current.y += (y - this.last.y) * 2 / object.parent.scale.y;
+
+
+        console.log(x, y)
+        console.log(this.current.x, this.current.y)
+
+        this.x = (this.current.x - this.start.x) / 2;
+        this.y = (this.current.y - this.start.y) / 2;
 
         this.last = { x, y };
 
-        this.parent.parent.width = this.current.x;
-        this.parent.parent.height = this.current.y;
+
+        object.sprite.width = this.current.x;
+        object.sprite.height = this.current.y;
+
+        const [width, height] = [object.sprite.width, object.sprite.height];
+        
+        object.polygons[0].x = width / 2;
+        object.polygons[0].y = height / 2;
+
+        object.polygons[1].x = -width / 2;
+        object.polygons[1].y = height / 2;
+
+        object.polygons[2].x = -width / 2;
+        object.polygons[2].y = -height / 2;
+
+        object.polygons[3].x = width / 2;
+        object.polygons[3].y = -height / 2;
+
+        if (object.name) object.updateName(object.name)
 
         if (this.timer == null) {
 
@@ -238,11 +262,27 @@ export default class GameObject extends Container {
     }
   } 
 
-  offEdit() {
-    this.parent.selectedObject = null;
-    this.removeChild(this.border);
-  }
 
+  updateName(name) {
+
+    if (this.text) this.removeChild(this.text);
+
+    this.text = new Text(
+      name,
+      {
+        fontFamily : 'Arial', 
+        fontSize: 20, 
+        fill : 0xffffff, 
+        align : 'center',
+        fontWeight: "bold",
+        strokeThickness: 5
+      }
+    );
+
+    this.text.anchor.set(0.5, 0);  
+    this.text.y += this.sprite.height / 2 + 10;
+    this.addChild(this.text);
+  }
 
   updatePosition(x, y) {
     this.x = x;
