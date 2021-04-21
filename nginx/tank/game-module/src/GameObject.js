@@ -248,8 +248,8 @@ export default class GameObject extends Container {
 
         if (this.timer == null) {
 
-          this.eventManager.notify('update', {
-            id: this.id,
+          object.eventManager.notify('update', {
+            id: object.id,
             wh: [object.sprite.width,  object.sprite.height]
           })
           

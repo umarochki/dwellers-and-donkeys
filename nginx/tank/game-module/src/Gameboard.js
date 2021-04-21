@@ -308,6 +308,8 @@ export default class Gameboard {
 
     var obj = this.viewport.children.find(x => x.id === options.id)
 
+    console.log(obj)
+
     if (!obj) {
       console.warn('Cannot find an element with id: ', options.id);
       return;
