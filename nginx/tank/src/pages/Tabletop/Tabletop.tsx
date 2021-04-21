@@ -142,11 +142,11 @@ const Tabletop = () => {
 
             switch (currentGameData.type) {
                 case 'update_and_start':
-                    myGameBoard.updateObjectPosition(currentGameData.meta)
-                    myGameBoard.updateObjectOverlap(currentGameData.meta)
+                    myGameBoard.updateObject(currentGameData.meta, 'overlap')
+                    myGameBoard.updateObject(currentGameData.meta)
                     break
                 case 'update':
-                    myGameBoard.updateObjectPosition(currentGameData.meta)
+                    myGameBoard.updateObject(currentGameData.meta)
                     break
                 case 'add':
                     myGameBoard.addObject(currentGameData.meta)
