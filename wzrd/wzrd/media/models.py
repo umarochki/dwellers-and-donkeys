@@ -9,6 +9,7 @@ from .utils import media_slug
 
 class Media(models.Model):
     file = models.ImageField(upload_to=media_slug, max_length=256, null=True)
+    type = models.CharField(max_length=16, null=True, blank=True)
     name = models.TextField(null=True, default="Untitled")
     created = models.DateTimeField(auto_now_add=True)
     creator = models.IntegerField(null=True, blank=True)
