@@ -176,8 +176,6 @@ export default class Gameboard {
         divWheel: this.app.view
     })
 
-    console.log(this.viewport)
-
     // Add the viewport to the stage
     this.app.stage.addChild(this.viewport)
 
@@ -305,7 +303,8 @@ export default class Gameboard {
     });
   }
 
-  updateObjectPosition(options, callback) {
+  
+  updateObject(options, method='all', callback) {
 
     var obj = this.viewport.children.find(x => x.id === options.id)
 
@@ -314,22 +313,28 @@ export default class Gameboard {
       return;
     }
 
-    obj.updatePosition(options.xy[0], options.xy[1]);
-    typeof callback == "function" && callback();
-  }
-
-  updateObjectOverlap(options, callback) {
-
-    var obj = this.viewport.children.find(x => x.id === options.id)
-
-    if (!obj) {
-      console.warn('Cannot find an element with id: ', options.id);
-      return;
+    switch (method) {
+      case 'size':
+        if (options.wh) obj.updateSize(options.wh[0], options.wh[1]);
+        break;
+      
+      case 'position':
+        if (options.xy) obj.updatePosition(options.xy[0], options.xy[1]);
+        break;
+      
+      case 'overlap':
+        obj.updateOverlap();
+        break;
+      
+      default:
+        if (options.wh) obj.updateSize(options.wh[0], options.wh[1]);
+        if (options.xy) obj.updatePosition(options.xy[0], options.xy[1]);
+        break;
     }
 
-    obj.updateOverlap();
     typeof callback == "function" && callback();
   }
+
 
   deleteObject(options, callback) {
 

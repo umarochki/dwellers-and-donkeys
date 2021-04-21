@@ -177,7 +177,7 @@ export default class GameObject extends Container {
     angle.cursor = 'nwse-resize';
     
     this.border.addChild(angle);
-    
+
     angle
       // events for drag start
       .on('mousedown',  onResizeStart)
@@ -222,15 +222,10 @@ export default class GameObject extends Container {
         this.current.x += (x - this.last.x) * 2 / object.parent.scale.x; 
         this.current.y += (y - this.last.y) * 2 / object.parent.scale.y;
 
-
-        console.log(x, y)
-        console.log(this.current.x, this.current.y)
-
         this.x = (this.current.x - this.start.x) / 2;
         this.y = (this.current.y - this.start.y) / 2;
 
         this.last = { x, y };
-
 
         object.sprite.width = this.current.x;
         object.sprite.height = this.current.y;
@@ -253,6 +248,11 @@ export default class GameObject extends Container {
 
         if (this.timer == null) {
 
+          this.eventManager.notify('update', {
+            id: this.id,
+            wh: [object.sprite.width,  object.sprite.height]
+          })
+          
           this.timer = window.setTimeout(() => {
             this.timer = null;
           }, 17);
@@ -287,6 +287,16 @@ export default class GameObject extends Container {
   updatePosition(x, y) {
     this.x = x;
     this.y = y;
+  }
+
+  updateSize(w, h) {
+    this.sprite.width = w;
+    this.sprite.height = h;
+
+    if (this.parent.selectedObject)
+      this.parent.selectedObject.offSelect();
+
+    if (this.name) this.updateName(this.name);
   }
 
   updateOverlap() {
