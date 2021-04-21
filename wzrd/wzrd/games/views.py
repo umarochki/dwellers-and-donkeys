@@ -75,6 +75,20 @@ class GameSessionViewSet(viewsets.ModelViewSet, IsAuthorisedMixin):
         res = super().list(request, *args, **kwargs).data
         return JsonResponse(res, safe=False, status=200)
 
+    @is_authorized
+    @action(detail=False, methods=['GET'])
+    def history(self, request, *args, **kwargs):
+        qs = self.user.sessions.exclude(game_master=self.user.id)
+        serializer = self.get_serializer(qs, many=True, short=True)
+        return JsonResponse(serializer.data, safe=False, status=200)
+
+    @is_authorized
+    @action(detail=False, methods=['GET'])
+    def gm(self, request, *args, **kwargs):
+        qs = self.model_class.objects.filter(game_master=self.user.id)
+        serializer = self.get_serializer(qs, many=True, short=True)
+        return JsonResponse(serializer.data, safe=False, status=200)
+
     def get_serializer_context(self):
         return {
             'request': self.request,
