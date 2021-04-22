@@ -3,9 +3,12 @@ channels
 channels_redis
 django==3.0.5
 djangorestframework
+six
 djongo
 nickname-generator
 orjson
+pillow
 pydash
+python-slugify
 redis
 sqlparse==0.2.4

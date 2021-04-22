@@ -8,6 +8,8 @@ services:
     restart: unless-stopped
     ports:
       - "80:80"
+    volumes:
+      - ./_/media:/app/media
     depends_on:
       - tank
       - wzrd
@@ -28,6 +30,7 @@ services:
     container_name: umr_wzrd
     volumes:
       - ./wzrd/wzrd:/app/wzrd
+      - ./_/media:/app/media
     depends_on:
       - mongo
       - redis

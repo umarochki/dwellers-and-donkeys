@@ -1,4 +1,4 @@
-import { Container, Sprite, Text } from 'pixi.js-legacy';
+import { Container, Sprite, Text, Graphics } from 'pixi.js-legacy';
 
 
 export default class GameObject extends Container {
@@ -17,29 +17,11 @@ export default class GameObject extends Container {
     
     super();
 
-    const sprite = new Sprite(options.texture);
-    sprite.anchor.set(0.5);  // Center the sprite's anchor point
-    sprite.scale.set(0.1);   // TEMP
-    this.sprite = sprite;
-    this.addChild(sprite);
+    this.sprite = new Sprite(options.texture);
+    this.sprite.anchor.set(0.5);  // Center the sprite's anchor point
+    this.sprite.scale.set(0.1);   // TEMP
+    this.addChild(this.sprite);
 
-    if (options.name) {
-      let text = new Text(
-        options.name,
-        {
-          fontFamily : 'Arial', 
-          fontSize: 20, 
-          fill : 0xffffff, 
-          align : 'center',
-          fontWeight: "bold",
-          strokeThickness: 5
-        }
-      );
-      text.anchor.set(0.5);  
-      text.y += sprite.height / 2 + 10;
-      this.addChild(text);
-    }
-    
     this.position.set(options.xy[0], options.xy[1]);
 
     this.id = options.id;
@@ -50,15 +32,20 @@ export default class GameObject extends Container {
     //obj.height = h;
 
     this.interactive = true;
-
-     this
+    this.cursor = 'pointer';
+    if (options.name) {
+      this.name = options.name;
+      this.updateName(options.name);
+    }
+    
+    this
       // events for drag start
-      .on('mousedown', onDragStart)
+      .on('mousedown',  onDragStart)
       .on('touchstart', onDragStart)
       // events for drag end
-      .on('mouseup', onDragEnd)
-      .on('mouseupoutside', onDragEnd)
-      .on('touchend', onDragEnd)
+      .on('mouseup',         onDragEnd)
+      .on('mouseupoutside',  onDragEnd)
+      .on('touchend',        onDragEnd)
       .on('touchendoutside', onDragEnd)
       // events for drag move
       .on('mousemove', onDragMove)
@@ -80,16 +67,17 @@ export default class GameObject extends Container {
 
       this.eventManager.notify('update_and_start', {
         id: this.id,
-        xy: [this.x, this.y]
+        xy: [this.current.x, this.current.y]
       })
 
     }
 
     function onDragEnd(e) {
 
-      //if (Math.abs(this.x - this.start.x) <= 2 && 
-      //    Math.abs(this.y - this.start.y) <= 2)
-      //      this.onClick(e);
+      //e.stopPropagation();
+      // CHECK X Y
+      if (Math.abs(this.current.x - this.start.x) <= 2 && Math.abs(this.current.y - this.start.y) <= 2)
+        this.onClick(e);
 
       this.parent.pause = false;
       this.dragging = false;
@@ -97,7 +85,7 @@ export default class GameObject extends Container {
 
       this.eventManager.notify('update_and_save', {
         id: this.id,
-        xy: [this.x, this.y]
+        xy: [this.current.x, this.current.y]
       })
     }
 
@@ -132,12 +120,183 @@ export default class GameObject extends Container {
   }
 
   onClick(e) {
-
+    e.stopPropagation();
+    this.onSelect();
+    this.onResize();
   };
+
+
+  onSelect() {
+    if (this.parent.selectedObject) {
+      this.parent.selectedObject.offSelect();
+    }
+
+    this.parent.selectedObject = this;
+
+    const [width, height] = [this.sprite.width, this.sprite.height];
+
+    var border = new Graphics();
+    this.border = border;
+    this.addChild(border);
+
+    var polygons = []
+    this.polygons = polygons;
+    this.polygons.push({ x:  width / 2, y:  height / 2 });
+    this.polygons.push({ x: -width / 2, y:  height / 2 });
+    this.polygons.push({ x: -width / 2, y: -height / 2 });
+    this.polygons.push({ x:  width / 2, y: -height / 2 });    
+
+    function animate(time) {
+      border.clear();
+      border.lineStyle(2, 0xffffff, 0.5);
+      
+      var offsetInterval = 750;
+      border.drawDashedPolygon(this.polygons, 0, 0, 0, 10, 5, (Date.now() % offsetInterval + 1) / offsetInterval);
+      requestAnimationFrame(animate.bind(this));
+    }
+
+    animate.bind(this)();
+  }
+
+  offSelect() {
+    this.parent.selectedObject = null;
+    this.removeChild(this.border);
+  }
+  
+  onResize() {
+
+    const [width, height] = [this.sprite.width, this.sprite.height];
+
+    const angle = new Graphics();
+    angle.beginFill(0xffffff, 0.25);
+    angle.moveTo(width / 2,      height / 2     );
+    angle.lineTo(width / 2,      height / 2 - 15);
+    angle.lineTo(width / 2 - 15, height / 2     );
+    angle.lineTo(width / 2,      height / 2     );
+    angle.interactive = true;
+    angle.cursor = 'nwse-resize';
+    
+    this.border.addChild(angle);
+
+    angle
+      // events for drag start
+      .on('mousedown',  onResizeStart)
+      .on('touchstart', onResizeStart)
+      // events for drag end
+      .on('mouseup',         onResizeEnd)
+      .on('mouseupoutside',  onResizeEnd)
+      .on('touchend',        onResizeEnd)
+      .on('touchendoutside', onResizeEnd)
+      // events for drag move
+      .on('mousemove', onResizeMove)
+      .on('touchmove', onResizeMove);
+
+    
+    function onResizeStart(e) {
+      e.stopPropagation();
+
+      this.resizing = true;
+      this.data = e.data;
+      this.start   = { x: this.parent.parent.sprite.width, y: this.parent.parent.sprite.height }
+      this.current = { x: this.parent.parent.sprite.width, y: this.parent.parent.sprite.height }
+      this.last = { x: e.data.global.x, y: e.data.global.y }
+      this.timer = null;
+    }
+
+    function onResizeEnd(e) {
+       e.stopPropagation();
+
+      this.resizing = false;
+      this.data = null;
+    }
+
+    function onResizeMove(e) {
+
+      if (this.resizing) {
+
+        let object = this.parent.parent
+
+        const x = e.data.global.x
+        const y = e.data.global.y
+
+        this.current.x += (x - this.last.x) * 2 / object.parent.scale.x; 
+        this.current.y += (y - this.last.y) * 2 / object.parent.scale.y;
+
+        this.x = (this.current.x - this.start.x) / 2;
+        this.y = (this.current.y - this.start.y) / 2;
+
+        this.last = { x, y };
+
+        object.sprite.width = this.current.x;
+        object.sprite.height = this.current.y;
+
+        const [width, height] = [object.sprite.width, object.sprite.height];
+        
+        object.polygons[0].x = width / 2;
+        object.polygons[0].y = height / 2;
+
+        object.polygons[1].x = -width / 2;
+        object.polygons[1].y = height / 2;
+
+        object.polygons[2].x = -width / 2;
+        object.polygons[2].y = -height / 2;
+
+        object.polygons[3].x = width / 2;
+        object.polygons[3].y = -height / 2;
+
+        if (object.name) object.updateName(object.name)
+
+        if (this.timer == null) {
+
+          object.eventManager.notify('update', {
+            id: object.id,
+            wh: [object.sprite.width,  object.sprite.height]
+          })
+          
+          this.timer = window.setTimeout(() => {
+            this.timer = null;
+          }, 17);
+
+        }
+      }
+    }
+  } 
+
+
+  updateName(name) {
+
+    if (this.text) this.removeChild(this.text);
+
+    this.text = new Text(
+      name,
+      {
+        fontFamily : 'Arial', 
+        fontSize: 20, 
+        fill : 0xffffff, 
+        align : 'center',
+        fontWeight: "bold",
+        strokeThickness: 5
+      }
+    );
+
+    this.text.anchor.set(0.5, 0);  
+    this.text.y += this.sprite.height / 2 + 10;
+    this.addChild(this.text);
+  }
 
   updatePosition(x, y) {
     this.x = x;
     this.y = y;
+  }
+
+  updateSize(w, h) {
+    this.sprite.width = w;
+    this.sprite.height = h;
+
+    if (this.parent.selectedObject)
+      this.parent.selectedObject.offSelect();
+
+    if (this.name) this.updateName(this.name);
   }
 
   updateOverlap() {
