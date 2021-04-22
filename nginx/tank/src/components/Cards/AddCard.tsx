@@ -2,6 +2,7 @@ import React from 'react'
 import AddBoxIcon from '@material-ui/icons/AddBox'
 import { makeStyles } from '@material-ui/core/styles'
 import { primary200 } from '../../styles/colors'
+import clsx from 'clsx'
 
 const useStyles = makeStyles(() => ({
     addCard: {
@@ -23,11 +24,16 @@ const useStyles = makeStyles(() => ({
     }
 }))
 
-const AddCard: React.FC = () => {
+interface Props {
+    className?: string
+    onClick: () => void
+}
+
+const AddCard: React.FC<Props> = ({ className, onClick }) => {
     const classes = useStyles()
 
     return (
-        <div className={classes.addCard}>
+        <div className={clsx(classes.addCard, className)} onClick={onClick}>
             <div className={classes.addCardInner}>
                 <AddBoxIcon className={classes.addIcon}/>
             </div>

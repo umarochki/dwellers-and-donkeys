@@ -146,15 +146,15 @@ export default makeStyles((theme: Theme) =>
             backgroundColor: primary800
         },
         closeIcon: {
-            transform: 'rotate(90deg)',
-            marginTop: 10,
+            transform: 'rotate(270deg)',
+            marginTop: 0,
+            marginBottom: 10,
             transition: 'transform .5s ease',
             color: primary50
         },
         closeIconClosed: {
-            transform: 'rotate(270deg)',
-            marginTop: 0,
-            marginBottom: 10
+            transform: 'rotate(90deg)',
+            marginTop: 20
         }
     })
 )
