@@ -20,8 +20,8 @@ Based on Pixi.JS
     * setMap(path, callback) - Установка мапы
     * addObject(data, callback) - Добавление объекта на поле.
     * deleteObject(data, callback) - Удаление объекта на поле.
-    * updateObjectPosition(data, callback) - Изменение координат объекта. 
-    * updateObjectOverlap(data, callback) - Вынесение объекта поверх остальных.
+    * updateObject(data, method='default', callback) - Изменение свойств объекта.  \
+      _Доступные варианты method: overlap, size, position, default._
     * clear(callback) - Очистить игровое поле.
     * refresh(data, callback) - Обновить содержимое на игровом поле. 
     * resetDraggedDOMListeners() - Пересоздать обработчики событий на перетаскиваемые объекты.
@@ -71,7 +71,7 @@ function App() {
 
     gameboard.eventManager.subscribe('map', (data) => gameboard.setMap({ sprite: data.sprite }))
     gameboard.eventManager.subscribe('add', (data) => gameboard.addObject({ ...data, id: Math.floor(Math.random() * Math.floor(100))}));
-    gameboard.eventManager.subscribe('update_and_start', (data) => { gameboard.updateObjectOverlap(data) });
+    gameboard.eventManager.subscribe('update_and_start', (data) => { gameboard.updateObject(data, 'overlap') });
     gameboard.eventManager.subscribe('update', (data) => console.log('Update!\n', data));
     gameboard.eventManager.subscribe('update_and_save', (data) => console.log('Update save!\n', data));
     gameboard.eventManager.subscribe('set-location', (data) => console.log('Set location!\n', data));

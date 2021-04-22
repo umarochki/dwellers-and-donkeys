@@ -1,14 +1,13 @@
 import logging
 import pydash as _
 
+from django.http import JsonResponse
 from rest_framework import viewsets
-from rest_framework.response import Response
 from rest_framework.decorators import action
-from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 
 from wzrd.utils import generate_key
-from wzrd.users.decorators import is_authorized, self_set_auth_token
 from wzrd.users.mixins import IsAuthorisedMixin
+from wzrd.users.decorators import is_authorized, self_set_auth_token
 
 from .models import Session, Hero, HeroSession
 from .serializers import DetailGameSessionSerializer, HeroSerializer, HeroSessionSerializer
@@ -75,6 +74,20 @@ class GameSessionViewSet(viewsets.ModelViewSet, IsAuthorisedMixin):
     def list(self, request, *args, **kwargs):
         res = super().list(request, *args, **kwargs).data
         return JsonResponse(res, safe=False, status=200)
+
+    @is_authorized
+    @action(detail=False, methods=['GET'])
+    def history(self, request, *args, **kwargs):
+        qs = self.user.sessions.exclude(game_master=self.user.id)
+        serializer = self.get_serializer(qs, many=True, short=True)
+        return JsonResponse(serializer.data, safe=False, status=200)
+
+    @is_authorized
+    @action(detail=False, methods=['GET'])
+    def gm(self, request, *args, **kwargs):
+        qs = self.model_class.objects.filter(game_master=self.user.id)
+        serializer = self.get_serializer(qs, many=True, short=True)
+        return JsonResponse(serializer.data, safe=False, status=200)
 
     def get_serializer_context(self):
         return {

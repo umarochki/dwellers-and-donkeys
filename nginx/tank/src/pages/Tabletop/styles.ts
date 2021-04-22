@@ -1,5 +1,5 @@
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
-import { primary400, primary700 } from '../../styles/colors'
+import { primary400, primary50, primary600, primary700, primary800 } from '../../styles/colors'
 
 const drawerWidth = 240
 
@@ -56,9 +56,15 @@ export default makeStyles((theme: Theme) =>
             overflow: 'hidden'
         },
         controls: {
+            position: 'relative',
             height: '30%',
             backgroundColor: '#334055',
-            display: 'flex'
+            display: 'flex',
+            transition: 'bottom .5s cubic-bezier(0.820, 0.085, 0.395, 0.895)',
+            bottom: 0
+        },
+        hideControls: {
+            bottom: 'calc(-30% - 16px)'
         },
         people: {
             display: 'flex',
@@ -123,6 +129,32 @@ export default makeStyles((theme: Theme) =>
             width: '1em',
             height: '1.35em',
             fontSize: '3.3rem'
+        },
+        drawerBtn: {
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            position: 'absolute',
+            borderRadius: '10px 10px 0 0',
+            top: -35,
+            width: 60,
+            height: 35,
+            border: `solid 2px ${primary600}`,
+            borderBottom: 'none'
+        },
+        closeButton: {
+            backgroundColor: primary800
+        },
+        closeIcon: {
+            transform: 'rotate(270deg)',
+            marginTop: 0,
+            marginBottom: 10,
+            transition: 'transform .5s ease',
+            color: primary50
+        },
+        closeIconClosed: {
+            transform: 'rotate(90deg)',
+            marginTop: 20
         }
     })
 )

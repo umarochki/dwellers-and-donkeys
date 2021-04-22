@@ -66,3 +66,39 @@ export const disconnectGame = () => {
         type: gameConstants.DISCONNECT_GAME
     }
 }
+
+export const getGameHistory = () => {
+    return (dispatch: Dispatch) => {
+        dispatch(request())
+
+        gameService.getGameHistory()
+            .then((games: Game[]) => {
+                dispatch(success(games))
+            }, error => {
+                dispatch(failure(error))
+                dispatch(showErrorNotification(error.message))
+            })
+    }
+
+    function request() { return { type: gameConstants.GET_GAME_HISTORY_REQUEST_STARTED } }
+    function success(games: Game[]) { return { type: gameConstants.GET_GAME_HISTORY_REQUEST_FINISHED, payload: games } }
+    function failure(error: Error) { return { type: gameConstants.GET_GAME_HISTORY_REQUEST_ERROR, error } }
+}
+
+export const getGMGameHistory = () => {
+    return (dispatch: Dispatch) => {
+        dispatch(request())
+
+        gameService.getGMGameHistory()
+            .then((games: Game[]) => {
+                dispatch(success(games))
+            }, error => {
+                dispatch(failure(error))
+                dispatch(showErrorNotification(error.message))
+            })
+    }
+
+    function request() { return { type: gameConstants.GET_GM_GAME_HISTORY_REQUEST_STARTED } }
+    function success(games: Game[]) { return { type: gameConstants.GET_GM_GAME_HISTORY_REQUEST_FINISHED, payload: games } }
+    function failure(error: Error) { return { type: gameConstants.GET_GM_GAME_HISTORY_REQUEST_ERROR, error } }
+}

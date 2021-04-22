@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import CssBaseline from '@material-ui/core/CssBaseline'
 import AppBar from '@material-ui/core/AppBar'
 import Toolbar from '@material-ui/core/Toolbar'
@@ -11,9 +11,12 @@ import { Menu, MenuItem } from '@material-ui/core'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectCurrentUser, selectQuickStartState } from '../../store/user/selectors'
 import { logout } from '../../store/user/actions'
-import FullscreenLoader from '../../components/Containers/FullscreenLoader/FullscreenLoader'
 import { AsyncState } from '../../store/user/reducer'
 import ImageLoader from '../../components/Containers/ImageLoader'
+import CreateWorldDialog from '../../components/Dialogs/CreateWorldDialog'
+import FullscreenLoader from '../../components/Containers/FullscreenLoader/FullscreenLoader'
+import { getGameHistory, getGMGameHistory } from '../../store/game/actions'
+import { selectGameHistory, selectGMGameHistory } from '../../store/game/selectors'
 
 function Copyright() {
     return (
@@ -53,6 +56,13 @@ const StartPage = () => {
     const [anchorEl, setAnchorEl] = useState(null)
     const dispatch = useDispatch()
 
+    const [worldDialogOpen, setWorldDialogOpen] = React.useState(false)
+    const openWorldDialog = useCallback(() => setWorldDialogOpen(true), [])
+    const closeWorldDialog = useCallback(() => setWorldDialogOpen(false), [])
+
+    const gameHistory = useSelector(selectGameHistory)
+    const gameHistoryGM = useSelector(selectGMGameHistory)
+
     // const handleProfileClick = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
     //     setAnchorEl(event.currentTarget)
     // }, [])
@@ -65,6 +75,11 @@ const StartPage = () => {
         handleClose()
         dispatch(logout())
     }, [handleClose, dispatch])
+
+    useEffect(() => {
+        dispatch(getGameHistory())
+        dispatch(getGMGameHistory())
+    }, [dispatch])
 
     if (!user && quickStartState !== AsyncState.success) {
         return <FullscreenLoader/>
@@ -91,8 +106,9 @@ const StartPage = () => {
                 </Toolbar>
             </AppBar>
             <main>
-                <StartPageHeader className={classes.content}/>
-                <CreatedGameWorlds/>
+                <StartPageHeader className={classes.content} openWorldDialog={openWorldDialog}/>
+                <CreatedGameWorlds title="Created games (as Game Master):" games={gameHistoryGM} openWorldDialog={openWorldDialog}/>
+                <CreatedGameWorlds title="Game history (as Player):" games={gameHistory} openWorldDialog={openWorldDialog}/>
                 <ImageLoader src={seaDark} className={classes.seaDark}/>
                 {/*<CreatedCharacters />*/}
             </main>
@@ -105,6 +121,7 @@ const StartPage = () => {
                 </Typography>
                 <Copyright/>
             </footer>
+            <CreateWorldDialog open={worldDialogOpen} onClose={closeWorldDialog}/>
         </>
     )
 }
