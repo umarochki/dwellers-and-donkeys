@@ -59,9 +59,9 @@ const gameReducer: Reducer<GameState> = (state = INITIAL_STATE, action) => {
                 gamesGM: action.payload
             }
         case gameConstants.GET_GM_GAME_HISTORY_REQUEST_ERROR:
-            return { ...state, getGamesState: AsyncState.error }
+            return { ...state, getGMGameHistoryState: AsyncState.error }
         case gameConstants.UPDATE_GAME_DATA:
-            return { ...state, getGMGameHistoryState: action.payload }
+            return { ...state, currentGameData: action.payload }
         case gameConstants.CONNECT_GAME_STARTED:
             return {
                 ...state,

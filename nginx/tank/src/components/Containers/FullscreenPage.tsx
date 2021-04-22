@@ -1,8 +1,8 @@
-import React from 'react'
+import React, { CSSProperties } from 'react'
 import Grid from '@material-ui/core/Grid'
 
 interface Props {
-    styles?: CSSStyleSheet
+    styles?: CSSProperties
 }
 
 const FullscreenPage: React.FC<Props> = ({ children, styles }) => (

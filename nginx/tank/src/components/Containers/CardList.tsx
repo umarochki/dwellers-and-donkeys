@@ -1,17 +1,24 @@
-import React from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Button, Card, CardActionArea, CardActions, CardContent, CardMedia, Grid, Typography } from '@material-ui/core'
 import { createStyles, makeStyles } from '@material-ui/core/styles'
 import defaultImage from './default.png'
 import { primary200 } from '../../styles/colors'
 import AddCard from '../Cards/AddCard'
 import clsx from 'clsx'
+import { useDispatch, useSelector } from 'react-redux'
+import { selectConnectGameState } from '../../store/game/selectors'
+import { connectGameWithRedirect } from '../../store/game/actions'
+import { AsyncState } from '../../store/user/reducer'
 
 const useStyles = makeStyles(() =>
     createStyles({
         card: {
-            height: 300,
+            height: 277,
             display: 'flex',
             flexDirection: 'column',
+        },
+        cardActionArea: {
+            height: '100%'
         },
         cardMedia: {
             paddingTop: '56.25%', // 16:9
@@ -19,13 +26,20 @@ const useStyles = makeStyles(() =>
         },
         cardContent: {
             flexGrow: 1,
+            paddingBottom: 0,
+            paddingTop: 12,
+            height: 62
         },
         subtitle: {
             color: '#E9EEFB',
             marginBottom: '20px'
         },
         date: {
-            fontSize: '0.9rem'
+            fontSize: '0.9rem',
+            width: 250,
+            textOverflow: 'ellipsis',
+            overflow: 'hidden',
+            whiteSpace: 'nowrap'
         },
         addCard: {
             width: '100%'
@@ -34,9 +48,11 @@ const useStyles = makeStyles(() =>
 )
 
 export interface CardItem {
+    id: number
     title: string
-    image: string,
-    date: string
+    image?: string
+    description: string
+    invitation_code: string
 }
 
 interface Props {
@@ -48,6 +64,21 @@ interface Props {
 const CardList: React.FC<Props> = props => {
     const { headerText, cards, onAddClick } = props
     const classes = useStyles()
+    const dispatch = useDispatch()
+
+    const connected = useSelector(selectConnectGameState)
+    const [isLoading, setIsLoading] = useState(false)
+
+    const handleConnect = useCallback((invitation_code: string) => {
+        setIsLoading(true)
+        dispatch(connectGameWithRedirect(invitation_code))
+    }, [dispatch])
+
+    useEffect(() => {
+        if (connected === AsyncState.error) {
+            setIsLoading(false)
+        }
+    }, [connected, dispatch])
 
     return (
         <>
@@ -59,9 +90,9 @@ const CardList: React.FC<Props> = props => {
                     <AddCard className={clsx(classes.card, classes.addCard)} onClick={onAddClick} />
                 </Grid>
                 {cards.map(card => (
-                    <Grid item key={card.date} xs={12} sm={6} md={4}>
+                    <Grid item key={card.id} xs={12} sm={6} md={4}>
                         <Card className={classes.card}>
-                            <CardActionArea>
+                            <CardActionArea className={classes.cardActionArea}>
                                 <CardMedia
                                     className={classes.cardMedia}
                                     image={card.image || defaultImage}
@@ -71,12 +102,12 @@ const CardList: React.FC<Props> = props => {
                                         {card.title}
                                     </Typography>
                                     <Typography color="textSecondary" className={classes.date}>
-                                        {card.date}
+                                        {card.description}
                                     </Typography>
                                 </CardContent>
                                 <CardActions>
                                     <Grid container justify="flex-end">
-                                        <Button color="primary" variant="contained">
+                                        <Button color="primary" variant="contained" disabled={isLoading} onClick={() => handleConnect(card.invitation_code)}>
                                             Play
                                         </Button>
                                     </Grid>
