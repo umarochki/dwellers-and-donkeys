@@ -11,6 +11,7 @@ const useStyles = makeStyles(() => ({
         width: '233px'
     },
     addCardInner: {
+        width: '100%',
         display: 'flex',
         flexDirection: 'column',
         height: '100%',
