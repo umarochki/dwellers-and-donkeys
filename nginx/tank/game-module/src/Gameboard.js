@@ -299,6 +299,8 @@ export default class Gameboard {
       const obj = this.createObject(options);
       this.viewport.addChild(obj);
 
+      if (options.type == 'marker') obj.onSelect();
+
       typeof callback == "function" && callback();
     });
   }
