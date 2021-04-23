@@ -202,8 +202,13 @@ export default class Gameboard {
 
     this.setDummyMap();
 
-    this.drawer = new Drawer('#000', 1, this.app, this.viewport, this.app.renderer, this.app.loader.resources.grid.texture)
+    // Characters layer
+    this.characters = new PIXI.Container();
+    this.viewport.addChild(this.characters);
 
+    // Viewport layer
+    this.drawer = new Drawer([world.width, world.height]);
+    this.viewport.addChild(this.drawer);
   }
 
   setDummyMap(callback) {
@@ -277,6 +282,7 @@ export default class Gameboard {
 
     return new GameObjectFactory({
       ...options,
+      viewport: this.viewport,
       eventManager: this.eventManager, 
       texture: this.app.loader.resources[options.sprite].texture,
       width: 0, // TODO:
@@ -297,7 +303,7 @@ export default class Gameboard {
     this._safeLoad([options.sprite], () => {
 
       const obj = this.createObject(options);
-      this.viewport.addChild(obj);
+      this.characters.addChild(obj);
 
       if (options.type == 'marker') obj.onSelect();
 
@@ -308,9 +314,7 @@ export default class Gameboard {
   
   updateObject(options, method='default', callback) {
 
-    var obj = this.viewport.children.find(x => x.id === options.id)
-
-    console.log(obj)
+    var obj = this.characters.children.find(x => x.id === options.id)
 
     if (!obj) {
       console.warn('Cannot find an element with id: ', options.id);
@@ -342,7 +346,7 @@ export default class Gameboard {
 
   deleteObject(options, callback) {
 
-    var obj = this.viewport.children.find(x => x.id === options.id)
+    var obj = this.characters.children.find(x => x.id === options.id)
 
     if (!obj) {
       console.warn('Cannot find an element with id: ', options.id);
@@ -365,7 +369,7 @@ export default class Gameboard {
     this._safeLoad(resources, () => {
       for (let key in options.game_objects) {
         var obj = this.createObject(options.game_objects[key])
-        this.viewport.addChild(obj);
+        this.characters.addChild(obj);
       }
 
       typeof callback == "function" && callback()
@@ -373,8 +377,8 @@ export default class Gameboard {
   }
 
   clear(options, callback) {
-    for (var i = this.viewport.children.length - 1; i >= 1; i--) {  
-      this.viewport.removeChild(this.viewport.children[i])
+    for (var i = this.characters.children.length - 1; i >= 1; i--) {  
+      this.characters.removeChild(this.characters.children[i])
     };
 
     typeof callback == "function" && callback(); 
@@ -387,12 +391,9 @@ export default class Gameboard {
 
   draw(isEnabled = true) {
     if (isEnabled) 
-    {
-      this.viewport.addChild(this.drawer);
-    }
-    else {
-      //TODO: deactivate?
-    }
+      this.drawer.onDrawMode();
+    else
+      this.drawer.offDrawMode();
   }
 
   // If resource has already been loaded, not doing it again

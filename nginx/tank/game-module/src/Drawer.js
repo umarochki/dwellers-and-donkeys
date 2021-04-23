@@ -2,40 +2,35 @@ import * as PIXI from 'pixi.js-legacy';
 
 export default class Drawer extends PIXI.Container {
 
-  constructor(color, width, app, parent, renderer, img) {
+  constructor(wh, color='#000', boldness=1) {//, app, parent, renderer, img) {
     super();
 
-    this.width = width;
+    let [width, height] = wh;
     this.color = color;
-    this.img = img;
-    this.parent = parent;
 
     this.graphics = new PIXI.Graphics();
-    this.marker = new PIXI.Graphics();
-    this.oldPoint = undefined;
-    this.oldMidPoint = undefined;
-
     this.graphics.beginFill(0, 0.5);
-    this.graphics.drawRect(0, 0, this.parent.screenWidth, this.parent.screenHeight);
+    this.graphics.drawRect(-width, -height, width * 2, height * 2);
     this.graphics.endFill();
-    this.graphics.interactive = true;
-    this.graphics.on('mousedown', this.handleDown.bind(this));
+
+    this.marker = new PIXI.Graphics();
 
     this.addChild(this.graphics);
     this.addChild(this.marker);
 
+    this.handleDown = this.handleDown.bind(this);
     this.handleMoveListener = this.handleMove.bind(this);
     this.handleUpListener = this.handleUp.bind(this);
   }
 
   handleDown(event) {
-
+    event.stopPropagation();
     this.parent.pause = true;
 
     var point = new PIXI.Point(
-      event.data.global.x, 
-      event.data.global.y
-      );
+      (event.data.global.x - this.parent.x) / this.parent.scale.x, 
+      (event.data.global.y - this.parent.y) / this.parent.scale.y
+    );
 
     this.marker.beginFill(0xffd900);
     this.marker.lineStyle(2, 0xffd900, 1);
@@ -53,17 +48,15 @@ export default class Drawer extends PIXI.Container {
     const x = event.data.global.x
     const y = event.data.global.y
 
-    const distX = (x - this.oldPoint.x) / this.parent.scale.x;
-    const distY = (y - this.oldPoint.y) / this.parent.scale.y;
-
-    var point = new PIXI.Point(x, y);
+    var point = new PIXI.Point(
+      (x - this.parent.x) / this.parent.scale.x, 
+      (y - this.parent.y) / this.parent.scale.y
+    );
 
     var midPoint = new PIXI.Point(
       this.oldPoint.x + point.x >> 1, 
       this.oldPoint.y + point.y >> 1
     );
-
-    console.log(`x: ${x}, distX: ${distX}, midPoint.x: ${midPoint.x}, scaleX: ${this.parent.scale.x}`, );
 
     this.marker.moveTo(midPoint.x, midPoint.y);
 
@@ -96,6 +89,21 @@ export default class Drawer extends PIXI.Container {
     return parseInt(`0x${color.replace(/#/g, "")}`);
   }
 
+  onDrawMode() {
+    this.graphics.interactive = true;
+    this.graphics.on('mousedown', this.handleDown);
+  }
 
+  offDrawMode() {
+    this.graphics.interactive = false;
+    this.graphics.off('mousedown', this.handleDown);
+  }
 
+  onEraseMode() {
+    this.graphics.on('mousedown', this.handleDown);
+  }
+
+  offEraseMode() {
+    this.graphics.on('mousedown', this.handleDown);
+  }
 }
