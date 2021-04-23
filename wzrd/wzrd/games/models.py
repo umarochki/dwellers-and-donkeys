@@ -19,6 +19,8 @@ class GameObjectsField(djongo_models.JSONField):
 
 class Hero(models.Model):
     name = models.TextField(blank=True)
+    description = models.TextField(blank=True, null=True)
+    sprite = models.TextField(blank=True, null=True)
     race = models.TextField(blank=True, default="Human")
     sex = models.TextField(blank=True, default="TREBUSHET")
 
@@ -52,3 +54,6 @@ class HeroSession(models.Model):
     base = models.ForeignKey(Hero, related_name="hero_sessions", related_query_name="hero_session", on_delete=models.CASCADE)
     session = models.ForeignKey(Session, related_name="heroes", related_query_name="hero", on_delete=models.CASCADE)
     game_data = GameObjectsField(blank=True, default=dict)
+
+    def update(self, changes):
+        self.game_data.update(changes)
