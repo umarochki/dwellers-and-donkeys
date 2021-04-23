@@ -58,6 +58,10 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
         return HeroSession.objects.filter(id=herosession_id-10000).first()
 
     @database_sync_to_async
+    def get_herosession_by_user(self, session, user):
+        return HeroSession.objects.filter(session=session, base__user=user).first()
+
+    @database_sync_to_async
     def delete_herosession_by_id(self, herosession_id):
         herosession = HeroSession.objects.filter(id=herosession_id - 10000).first()
         return not herosession or herosession.delete()
