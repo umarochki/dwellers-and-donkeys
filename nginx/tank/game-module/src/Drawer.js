@@ -2,14 +2,16 @@ import * as PIXI from 'pixi.js-legacy';
 
 export default class Drawer extends PIXI.Container {
 
-  constructor(wh, color='#000', boldness=1) {//, app, parent, renderer, img) {
+  constructor(wh, color='#ffffff', boldness=2) {
     super();
 
     let [width, height] = wh;
-    this.color = color;
+    this.color = this.convertFromHexToNumericColor(color);
+    this.boldness = boldness;
 
     this.graphics = new PIXI.Graphics();
     this.graphics.beginFill(0, 0.5);
+    this.graphics.alpha = 0;
     this.graphics.drawRect(-width, -height, width * 2, height * 2);
     this.graphics.endFill();
 
@@ -32,8 +34,8 @@ export default class Drawer extends PIXI.Container {
       (event.data.global.y - this.parent.y) / this.parent.scale.y
     );
 
-    this.marker.beginFill(0xffd900);
-    this.marker.lineStyle(2, 0xffd900, 1);
+    this.marker.beginFill(this.color);
+    this.marker.lineStyle(this.boldness, this.color, 1);
     this.marker.moveTo(point.x, point.y);
     this.marker.lineTo(point.x, point.y);
 
