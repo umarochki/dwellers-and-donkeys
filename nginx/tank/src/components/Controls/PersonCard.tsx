@@ -19,6 +19,7 @@ const useStyles = makeStyles((theme: Theme) =>
             backgroundColor: primary900,
         },
         name: {
+            userSelect: 'none',
             color: primary50,
             fontWeight: 'bold',
             fontSize: '1rem',

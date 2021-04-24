@@ -14,6 +14,7 @@ router.trailing_slash = "/?"
 router.register(r"games", games_views.GameSessionViewSet, "game")
 router.register(r"heroes", games_views.HeroViewSet, "hero")
 router.register(r"media", media_views.MediaViewSet, "media")
+router.register(r"maps", media_views.AvailableMapViewSet, "media")
 
 
 urlpatterns = [

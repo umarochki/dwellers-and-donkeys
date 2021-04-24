@@ -8,9 +8,8 @@ export default class GameObject extends Container {
    *
    * @param {object} [options] - The optional game object parameters.
    * @param {string} [sprite] - Object image source.
-   * @param {number} [width] - Object width.
-   * @param {number} [height] - Object height.
    * @param {number[]} [xy] - Object init coordinates: [x, y].
+   * @param {number[]} [wh] - Object init size: [width, height].
    * @returns {GameObject}
    */
   constructor(options) {
@@ -33,238 +32,258 @@ export default class GameObject extends Container {
 
     this.interactive = true;
     this.cursor = 'pointer';
+    
     if (options.name) {
       this.name = options.name;
-      this.updateName(options.name);
+      this.redrawText(options.name);
     }
     
+    this.polygons = [{ x: 0, y: 0 }, 
+                     { x: 0, y: 0 }, 
+                     { x: 0, y: 0 }, 
+                     { x: 0, y: 0 }];
+
+    this.onDragStart = this.onDragStart.bind(this);
+    this.onDragMove = this.onDragMove.bind(this);
+    this.onDragEnd = this.onDragEnd.bind(this);
+
+    this.onResizeStart = this.onResizeStart.bind(this);
+    this.onResizeMove = this.onResizeMove.bind(this);
+    this.onResizeEnd = this.onResizeEnd.bind(this);   
+
+    this.animate = this.animate.bind(this); 
+
     this
       // events for drag start
-      .on('mousedown',  onDragStart)
-      .on('touchstart', onDragStart)
+      .on('mousedown',  this.onDragStart)
+      .on('touchstart', this.onDragStart)
       // events for drag end
-      .on('mouseup',         onDragEnd)
-      .on('mouseupoutside',  onDragEnd)
-      .on('touchend',        onDragEnd)
-      .on('touchendoutside', onDragEnd)
+      .on('mouseup',         this.onDragEnd)
+      .on('mouseupoutside',  this.onDragEnd)
+      .on('touchend',        this.onDragEnd)
+      .on('touchendoutside', this.onDragEnd)
       // events for drag move
-      .on('mousemove', onDragMove)
-      .on('touchmove', onDragMove);
-
-    
-    function onDragStart(event) {
-
-      this.updateOverlap();
-
-      this.parent.pause = true;
-      this.dragging = true;
-      this.data = event.data;
-      this.start   = { x: this.x, y: this.y }
-      this.current = { x: this.x, y: this.y }
-      this.last = { x: event.data.global.x, y: event.data.global.y }
-
-      this.timer = null;
-
-      this.eventManager.notify('update_and_start', {
-        id: this.id,
-        xy: [this.current.x, this.current.y]
-      })
-
-    }
-
-    function onDragEnd(e) {
-
-      //e.stopPropagation();
-      // CHECK X Y
-      if (Math.abs(this.current.x - this.start.x) <= 2 && Math.abs(this.current.y - this.start.y) <= 2)
-        this.onClick(e);
-
-      this.parent.pause = false;
-      this.dragging = false;
-      this.data = null;
-
-      this.eventManager.notify('update_and_save', {
-        id: this.id,
-        xy: [this.current.x, this.current.y]
-      })
-    }
-
-    function onDragMove(e) {
-      if (this.dragging) {
-
-        const x = e.data.global.x
-        const y = e.data.global.y
-
-        this.current.x += (x - this.last.x) / this.parent.scale.x; 
-        this.current.y += (y - this.last.y) / this.parent.scale.y;
-
-        this.last = { x, y };
-
-        this.x = this.current.x;
-        this.y = this.current.y;
-
-        if (this.timer == null) {
-
-          this.eventManager.notify('update', {
-            id: this.id,
-            xy: [this.current.x, this.current.y]
-          })
-          
-          this.timer = window.setTimeout(() => {
-            this.timer = null;
-          }, 17);
-
-        }
-      }
-    }
+      .on('mousemove', this.onDragMove)
+      .on('touchmove', this.onDragMove);
   }
 
   onClick(e) {
     e.stopPropagation();
     this.onSelect();
-    this.onResize();
   };
-
-
+  
   onSelect() {
-    if (this.parent.selectedObject) {
+    
+    this.eventManager.notify('click', {
+      id: this.id
+    })
+
+    if (this.parent.selectedObject)
       this.parent.selectedObject.offSelect();
-    }
 
     this.parent.selectedObject = this;
 
     const [width, height] = [this.sprite.width, this.sprite.height];
 
+    // -----=== SELECTION BORDER ===-----
     var border = new Graphics();
     this.border = border;
     this.addChild(border);
 
-    var polygons = []
-    this.polygons = polygons;
-    this.polygons.push({ x:  width / 2, y:  height / 2 });
-    this.polygons.push({ x: -width / 2, y:  height / 2 });
-    this.polygons.push({ x: -width / 2, y: -height / 2 });
-    this.polygons.push({ x:  width / 2, y: -height / 2 });    
+    // -----=== RESIZE ANGLE ===-----
+    const angle = new Graphics();
+    angle.interactive = true;
+    angle.cursor = 'nwse-resize';
+    this.border.addChild(angle);
+    this.calculateBorder();
+    this.redrawAngle();
+    this.animate();
+    if (this.name) this.calculateText()
 
-    function animate(time) {
-      border.clear();
-      border.lineStyle(2, 0xffffff, 0.5);
-      
-      var offsetInterval = 750;
-      border.drawDashedPolygon(this.polygons, 0, 0, 0, 10, 5, (Date.now() % offsetInterval + 1) / offsetInterval);
-      requestAnimationFrame(animate.bind(this));
-    }
+    this.beforeResize = { w: this.sprite.width, h: this.sprite.height };
 
-    animate.bind(this)();
+    angle
+      // events for drag start
+      .on('mousedown',  this.onResizeStart)
+      .on('touchstart', this.onResizeStart)
+      // events for drag end
+      .on('mouseup',         this.onResizeEnd)
+      .on('mouseupoutside',  this.onResizeEnd)
+      .on('touchend',        this.onResizeEnd)
+      .on('touchendoutside', this.onResizeEnd)
+      // events for drag move
+      .on('mousemove', this.onResizeMove)
+      .on('touchmove', this.onResizeMove);
   }
 
   offSelect() {
     this.parent.selectedObject = null;
     this.removeChild(this.border);
   }
-  
-  onResize() {
 
-    const [width, height] = [this.sprite.width, this.sprite.height];
+  onDragStart(e) {
+    this.updateOverlap();
 
-    const angle = new Graphics();
-    angle.beginFill(0xffffff, 0.25);
-    angle.moveTo(width / 2,      height / 2     );
-    angle.lineTo(width / 2,      height / 2 - 15);
-    angle.lineTo(width / 2 - 15, height / 2     );
-    angle.lineTo(width / 2,      height / 2     );
-    angle.interactive = true;
-    angle.cursor = 'nwse-resize';
+    this.parent.pause = true;
+    this.dragging = true;
     
-    this.border.addChild(angle);
+    this.start   = { x: this.x, y: this.y }
+    this.current = { x: this.x, y: this.y }
+    this.last = { x: e.data.global.x, y: e.data.global.y }
 
-    angle
-      // events for drag start
-      .on('mousedown',  onResizeStart)
-      .on('touchstart', onResizeStart)
-      // events for drag end
-      .on('mouseup',         onResizeEnd)
-      .on('mouseupoutside',  onResizeEnd)
-      .on('touchend',        onResizeEnd)
-      .on('touchendoutside', onResizeEnd)
-      // events for drag move
-      .on('mousemove', onResizeMove)
-      .on('touchmove', onResizeMove);
+    this.timer = null;
 
-    
-    function onResizeStart(e) {
-      e.stopPropagation();
+    this.eventManager.notify('update_and_start', {
+      id: this.id,
+      xy: [this.current.x, this.current.y]
+    })
+  }
 
-      this.resizing = true;
-      this.data = e.data;
-      this.start   = { x: this.parent.parent.sprite.width, y: this.parent.parent.sprite.height }
-      this.current = { x: this.parent.parent.sprite.width, y: this.parent.parent.sprite.height }
-      this.last = { x: e.data.global.x, y: e.data.global.y }
-      this.timer = null;
-    }
+  onDragEnd(e) {
+    // CHECK X Y
+    if (Math.abs(this.current.x - this.start.x) <= 2 && Math.abs(this.current.y - this.start.y) <= 2)
+      this.onClick(e);
 
-    function onResizeEnd(e) {
-       e.stopPropagation();
+    this.parent.pause = false;
+    this.dragging = false;
 
-      this.resizing = false;
-      this.data = null;
-    }
+    this.eventManager.notify('update_and_save', {
+      id: this.id,
+      xy: [this.current.x, this.current.y]
+    })
+  }
 
-    function onResizeMove(e) {
+  onDragMove(e) {
+    if (this.dragging) {
 
-      if (this.resizing) {
+      const x = e.data.global.x
+      const y = e.data.global.y
 
-        let object = this.parent.parent
+      this.current.x += (x - this.last.x) / this.parent.scale.x; 
+      this.current.y += (y - this.last.y) / this.parent.scale.y;
 
-        const x = e.data.global.x
-        const y = e.data.global.y
+      this.last = { x, y };
 
-        this.current.x += (x - this.last.x) * 2 / object.parent.scale.x; 
-        this.current.y += (y - this.last.y) * 2 / object.parent.scale.y;
+      this.x = this.current.x;
+      this.y = this.current.y;
 
-        this.x = (this.current.x - this.start.x) / 2;
-        this.y = (this.current.y - this.start.y) / 2;
+      if (this.timer == null) {
 
-        this.last = { x, y };
-
-        object.sprite.width = this.current.x;
-        object.sprite.height = this.current.y;
-
-        const [width, height] = [object.sprite.width, object.sprite.height];
+        this.eventManager.notify('update', {
+          id: this.id,
+          xy: [this.current.x, this.current.y]
+        })
         
-        object.polygons[0].x = width / 2;
-        object.polygons[0].y = height / 2;
-
-        object.polygons[1].x = -width / 2;
-        object.polygons[1].y = height / 2;
-
-        object.polygons[2].x = -width / 2;
-        object.polygons[2].y = -height / 2;
-
-        object.polygons[3].x = width / 2;
-        object.polygons[3].y = -height / 2;
-
-        if (object.name) object.updateName(object.name)
-
-        if (this.timer == null) {
-
-          object.eventManager.notify('update', {
-            id: object.id,
-            wh: [object.sprite.width,  object.sprite.height]
-          })
-          
-          this.timer = window.setTimeout(() => {
-            this.timer = null;
-          }, 17);
-
-        }
+        this.timer = window.setTimeout(() => {
+          this.timer = null;
+        }, 17);
       }
     }
-  } 
+  }
+
+  onResizeStart(e) {
+    e.stopPropagation();
+
+    this.resizing = true;
+    this.data = e.data;
+    this.current = { x: this.sprite.width, y: this.sprite.height }
+    this.start = { x: this.sprite.width, y: this.sprite.height }
+    this.last = { x: e.data.global.x, y: e.data.global.y }
+    this.timer = null;
+  }
+
+  onResizeEnd(e) {
+     e.stopPropagation();
+
+    this.resizing = false;
+    this.data = null;
+  }
+
+  onResizeMove(e) {
+
+    if (this.resizing) {
+
+      const [width, height] = [this.sprite.width, this.sprite.height];
+      const [x, y] = [e.data.global.x, e.data.global.y]
+
+      this.current.x += (x - this.last.x) * 2 / this.parent.scale.x; 
+      this.current.y += (y - this.last.y) * 2 / this.parent.scale.y;
+
+      this.last = { x, y };
+
+      this.sprite.width = this.current.x;
+      this.sprite.height = this.current.y;
+
+      this.calculateBorder();
+      this.calculateAngle();
+      this.redrawBorder();
+
+      if (this.name) this.calculateText()
+
+      if (this.timer == null) {
+        this.eventManager.notify('update', {
+          id: this.id,
+          wh: [this.sprite.width,  this.sprite.height]
+        })
+        
+        this.timer = window.setTimeout(() => {
+          this.timer = null;
+        }, 17);
+
+      }
+    }
+  }
 
 
-  updateName(name) {
+  updatePosition(x, y) {
+    this.x = x;
+    this.y = y;
+  }
 
+  updateSize(w, h) {
+    this.sprite.width = w;
+    this.sprite.height = h;
+
+    if (this.parent.selectedObject)
+      this.parent.selectedObject.offSelect();
+
+    if (this.name) this.calculateText();
+  }
+
+  updateOverlap() {
+    // Change rendering order of objects
+    const parent = this.parent;
+    parent.removeChild(this);
+    parent.addChild(this);
+  }
+
+  calculateText() {
+    this.text.y = this.sprite.height / 2 + 10;
+  }
+
+  calculateBorder(w = this.sprite.width, h = this.sprite.height) {
+    this.polygons[0].x =  w / 2;
+    this.polygons[0].y =  h / 2;
+    this.polygons[1].x = -w / 2;
+    this.polygons[1].y =  h / 2;
+    this.polygons[2].x = -w / 2;
+    this.polygons[2].y = -h / 2;
+    this.polygons[3].x =  w / 2;
+    this.polygons[3].y = -h / 2;
+  }
+
+  calculateAngle(w, h) {
+    if (!w || !h) {
+      w = (this.sprite.width - this.beforeResize.w) / 2;
+      h = (this.sprite.height - this.beforeResize.h) / 2;
+    }
+
+    const angle = this.border.getChildAt(0);
+    angle.x = w;
+    angle.y = h;
+  }
+
+  redrawText(name) {
     if (this.text) this.removeChild(this.text);
 
     this.text = new Text(
@@ -284,25 +303,24 @@ export default class GameObject extends Container {
     this.addChild(this.text);
   }
 
-  updatePosition(x, y) {
-    this.x = x;
-    this.y = y;
+  redrawAngle(w = this.sprite.width, h = this.sprite.height) {
+    const angle = this.border.getChildAt(0);
+    angle.clear();
+    angle.beginFill(0xffffff, 0.25);
+    angle.moveTo(w / 2,      h / 2     );
+    angle.lineTo(w / 2,      h / 2 - 15);
+    angle.lineTo(w / 2 - 15, h / 2     );
+    angle.lineTo(w / 2,      h / 2     );
   }
 
-  updateSize(w, h) {
-    this.sprite.width = w;
-    this.sprite.height = h;
-
-    if (this.parent.selectedObject)
-      this.parent.selectedObject.offSelect();
-
-    if (this.name) this.updateName(this.name);
+  redrawBorder(offset = 750) {
+    this.border.clear();
+    this.border.lineStyle(2, 0xffffff, 0.5);
+    this.border.drawDashedPolygon(this.polygons, 0, 0, 0, 10, 5, (Date.now() % offset + 1) / offset);
   }
 
-  updateOverlap() {
-    // Change rendering order of objects
-    const parent = this.parent;
-    parent.removeChild(this);
-    parent.addChild(this);
+  animate(time) {
+    this.redrawBorder();
+    requestAnimationFrame(this.animate);
   }
 }

@@ -38,10 +38,12 @@ const useStyles = makeStyles((theme: Theme) =>
             marginBottom: theme.spacing(1)
         },
         race: {
+            userSelect: 'none',
             color: primary200,
-            marginBottom: theme.spacing(1)
+            marginBottom: theme.spacing(1),
         },
         code: {
+            userSelect: 'none',
             fontSize: '1.5rem',
             color: primary200,
             [theme.breakpoints.down('md')]: {
