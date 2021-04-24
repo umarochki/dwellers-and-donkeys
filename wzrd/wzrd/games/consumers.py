@@ -71,7 +71,7 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
 
     @database_sync_to_async
     def get_all_herosessions(self, session):
-        return HeroSession.objects.get(session=session)
+        return HeroSession.objects.filter(session=session)
 
     @database_sync_to_async
     def add_session_to_user(self, user, game_session):
