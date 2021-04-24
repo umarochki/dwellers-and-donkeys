@@ -11,13 +11,14 @@ class MediaSerializer(serializers.ModelSerializer):
         model = Media
         fields = ('file', 'id', 'created', 'creator', 'name', 'type')
 
+    def to_representation(self, instance):
+        res = super().to_representation(instance)
+        res['hash'] = link_to_hash(res['file'])
+        return res
+
 
 class ListMapSerializer(MediaSerializer):
     class Meta:
         model = Media
         fields = ('file', 'name')
 
-    def to_representation(self, instance):
-        res = super().to_representation(instance)
-        res['id'] = link_to_hash(res['file'])
-        return res

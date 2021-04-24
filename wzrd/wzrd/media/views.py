@@ -34,7 +34,8 @@ class MediaViewSet(viewsets.ModelViewSet, IsAuthorisedMixin):
             "creator": self.user.id
         })
         request.data._mutable = False
-        return super().create(request, *args, **kwargs)
+        res = super().create(request, *args, **kwargs)
+        return res
 
 
 class AvailableMapViewSet(MediaViewSet):
