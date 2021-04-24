@@ -107,7 +107,7 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
         user_obj = {"id": user_id, "username": user.username}
         game_session.active_users[user_id] = user_obj
 
-        await self.save_game_session(game_session)
+        await self.save_game_session([game_session])
         await self.start_sending("send_all_but_me", {
             "type": "connect",
             "meta": user_obj
@@ -122,7 +122,7 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
         user_id = str(self.user_info.get("id"))
         if user_id and user_id in game_session.active_users:
             del game_session.active_users[user_id]
-            await self.save_game_session(game_session)
+            await self.save_game_session([game_session])
             await self.start_sending("send_all_but_me", {
                 "type": "disconnect",
                 "meta": user_id
