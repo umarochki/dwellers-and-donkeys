@@ -30,14 +30,16 @@ ALLOWED_HOSTS = [
     "nginx",
     "wzrd",
 ]
+
 API_PREFIX = "api/v1/"
-MEDIA_ROOT = os.path.join(BASE_DIR, "media/wzrd")
 MEDIA_URL = '/media/wzrd/'
+DEFAULT_MEDIA_URL = '/media/tank/'
+
+MEDIA_ROOT = os.path.join(BASE_DIR, "media/wzrd")
+DEFAULT_MEDIA_ROOT = os.path.join(BASE_DIR, "media/tank")
+
 
 APPEND_SLASH = False
-
-# Application definition
-
 INSTALLED_APPS = [
     'channels',
     'django.contrib.admin',

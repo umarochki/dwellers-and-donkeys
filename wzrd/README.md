@@ -1,4 +1,4 @@
-# WZRD
+ # WZRD
 ### Гайд по подниманию с нуля:
 
 #### 1) Запускаем все:
@@ -41,6 +41,47 @@ POST /api/v1/games [Создать игру]
 GET /api/v1/games/history [Список всех игр, где ты игрок]
 GET /api/v1/games/gm [Список всех игр, где ты ГМ]
 ```
+
+Медия:
+```
+POST /api/v1/media [Загрузить изображение]
+Ждет: multipart-formdata (file: binary), 
+а также поля: name, type
+
+Ответ:
+{
+    "file": <link>
+    "id": <int>
+    "type": <str>
+    "name": <str>
+    "created": <int>
+    "creator": <int>
+}
+```
+
+Карты:
+```
+GET /api/v1/maps [Получить список карт (дефолтные + загруженные пользователем)]
+Ответ:
+[
+    {
+    "file": "http://localhost/media/tank/Bayport.png",
+    "name": "Bayport",
+    "id": "44371d0e7cae73c9081dc2b7ed70aab1"
+    },
+    {
+    "file": "http://localhost/media/tank/Blackacre.png",
+    "name": "Blackacre",
+    "id": "363cceec56f7de119804457c21cce317"
+    },
+    ...
+]
+```
+Персонажи:
+```
+GET /api/v1/heroes [Список игр]
+POST /api/v1/heroes [Создать игру] 
+Ждет поля: name, sex, race, (добавить description), (пока все, потом статов добавим)
 Вебсокетная сессия:
 ```
 /ws/games/GAME_ID [Зайти]

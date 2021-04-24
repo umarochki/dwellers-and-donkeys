@@ -22,9 +22,10 @@
     "jsx": "react"
   },
   "include": [
-    "src/**/*.ts"
+    "src/**/*.ts",
+    "src/index.d.ts"
   ],
   "exclude": [
-    "node_modules/game-module"
+    "game-module/**/*.js"
   ]
 }
