@@ -18,12 +18,14 @@ import useStyles from './styles'
 import { useParams } from 'react-router-dom'
 import { MenuType } from '../../components/Switcher/Switcher'
 import AppsIcon from '@material-ui/icons/Apps'
-import DeleteIcon from '@material-ui/icons/Delete'
 import clsx from 'clsx'
 import RightDrawer from '../../components/Controls/RightDrawer/RightDrawer'
 import FullscreenPage from '../../components/Containers/FullscreenPage'
 import { primary50 } from '../../styles/colors'
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos'
+import CreateIcon from '@material-ui/icons/Create'
+import DeleteIcon from '@material-ui/icons/Delete'
+import { ReactComponent as EraserIcon } from '../../assets/eraser.svg'
 import { getMaps } from '../../store/map/actions'
 import { Map } from '../../models/map'
 import { selectMaps } from '../../store/map/selectors'
@@ -315,8 +317,11 @@ const Tabletop = () => {
                     </Hidden>
                 </main>
                 <Hidden mdDown={true}>
-                    <div className={clsx(classes.mapBtn, classes.switchGridBtn)} onClick={() => boardRef.current && boardRef.current.switchGrid()}>
-                        <AppsIcon className={classes.mapIcon}/>
+                    <div className={classes.mapControls}>
+                        <div className={classes.mapControl}><AppsIcon className={classes.mapControlIcon} onClick={() => boardRef.current && boardRef.current.switchGrid()}/></div>
+                        <div className={classes.mapControl}><CreateIcon className={classes.mapControlIcon}/></div>
+                        <div className={classes.mapControl}><DeleteIcon className={classes.mapControlIcon}/></div>
+                        <div className={classes.mapControl}><EraserIcon className={classes.mapControlIcon}/></div>
                     </div>
                 </Hidden>
                 {
