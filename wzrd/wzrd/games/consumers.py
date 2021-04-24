@@ -70,8 +70,11 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
         return not herosession or herosession.delete()
 
     @database_sync_to_async
-    def get_all_herosessions(self, session):
-        return HeroSession.objects.filter(session=session)
+    def get_all_herosessions(self, session, serializer=None):
+        qs = HeroSession.objects.filter(session=session)
+        if qs and serializer:
+            qs = list(map(serializer.to_representation, qs))
+        return qs
 
     @database_sync_to_async
     def add_session_to_user(self, user, game_session):
@@ -230,9 +233,9 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
         elif action_type == "refresh":
             message_type = "send_me"
             serializer = HeroSessionSerializer()
+            hero_sessions = await self.get_all_herosessions(game_session, serializer)
             heroes = {
-                r['id']: r
-                for r in map(serializer.to_representation, await self.get_all_herosessions(game_session))
+                hero['id']: hero for hero in hero_sessions
             }
 
             user = await self.get_user()
