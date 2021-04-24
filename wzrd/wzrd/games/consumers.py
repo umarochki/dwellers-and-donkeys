@@ -235,7 +235,7 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
             serializer = HeroSessionSerializer()
             hero_sessions = await self.get_all_herosessions(game_session, serializer)
             heroes = {
-                hero['id']: hero for hero in hero_sessions
+                str(hero['id']): hero for hero in hero_sessions
             }
 
             user = await self.get_user()
@@ -296,10 +296,9 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
             message_type = "send_me"
             json_data["meta"] = game_session.active_users
 
+        await self.start_sending(message_type, json_data)
         if save:
             await self.save_game_session(save)
-
-        return await self.start_sending(message_type, json_data)
 
     async def start_sending(self, message_type, json_data):
         return await self.channel_layer.group_send(self.session_name, {
