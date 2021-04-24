@@ -20,12 +20,10 @@ class MediaViewSet(viewsets.ModelViewSet, IsAuthorisedMixin):
 
     @self_set_auth_token
     def get_queryset(self):
-        qs= self.model_class.objects.none()
         pk = _.get(self, "request.parser_context.kwargs.pk")
         if pk:
             return self.model_class.objects.filter(pk=pk)
-        qs |= self.model_class.objects.filter(creator=self.user.id)
-        return qs
+        return self.model_class.objects.filter(creator=self.user.id)
 
     @is_authorized
     def create(self, request, *args, **kwargs):

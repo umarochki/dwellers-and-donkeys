@@ -9,7 +9,7 @@ from .utils import link_to_hash
 class MediaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Media
-        fields = ('file', 'id', 'created', 'creator')
+        fields = ('file', 'id', 'created', 'creator', 'name', 'type')
 
 
 class ListMapSerializer(MediaSerializer):
