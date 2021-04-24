@@ -66,7 +66,10 @@ const AddMapDialog: React.FC<Props> = props => {
             mapService
                 .uploadMedia(formData)
                 .then((result: MapFile) => {
-                    dispatch(addMap(result, () => onChoose(result.hash)))
+                    dispatch(addMap(result, () => {
+                        onChoose(result.hash)
+                        onClose()
+                    }))
                 })
                 .catch(error => console.log('Failed to add map. Error:', error))
         }

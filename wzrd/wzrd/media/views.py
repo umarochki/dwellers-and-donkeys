@@ -54,7 +54,7 @@ class AvailableMapViewSet(MediaViewSet):
             res.append({
                 "file": link,
                 "name": filename[:filename.rfind(".")],
-                "id": link_to_hash(link)
+                "hash": link_to_hash(link)
             })
 
         game_id = request.GET.get("game_id")
