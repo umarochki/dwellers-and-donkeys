@@ -11,6 +11,8 @@ import { primary200, primary900 } from '../../styles/colors'
 import Zoom from '@material-ui/core/Zoom'
 import AddCard from '../Cards/AddCard'
 import AddMapDialog from '../Dialogs/AddMapDialog'
+import { useSelector } from 'react-redux'
+import { selectMaps } from '../../store/map/selectors'
 
 const drawerWidth = 300
 
@@ -98,24 +100,6 @@ export const markersList = [
     'Tree',
 ]
 
-export const mapsList = [
-    'Bayport',
-    'Blackacre',
-    'Campfire',
-    'Deerbarrow',
-    'Loredge_Falls',
-    'Loredge_Springs',
-    'Lorness',
-    'Normoor',
-    'Ostton',
-    'OsttonCursed',
-    'OsttonMud',
-    'Summerwitch',
-    'TavernHouse',
-    'Whiteshadow',
-    'Witchwyn',
-]
-
 export const heroes = [
     'Ant',
     'Cat Smart',
@@ -179,15 +163,36 @@ interface Props {
     setOpen: (v: boolean) => void
     type: MenuType
     setType: (v: MenuType) => void
-    maps: string[]
+    selectedMaps: string[]
+}
+
+interface MapMapType {
+    [key: string]: {
+        file: string
+        name: string
+    }
 }
 
 const LeftDrawer: React.FC<Props> = props => {
-    const { onOpen, onMapChange, onOpenGlobalCard, global, open, setOpen, type, setType, maps } = props
+    const { onOpen, onMapChange, onOpenGlobalCard, global, open, setOpen, type, setType, selectedMaps } = props
     const classes = useStyles()
     const classesTooltip = useTooltipStyles()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const mapsList = useSelector(selectMaps) || []
 
-    const mapsToAdd = useMemo(() => mapsList.filter(m => !maps.includes(m)), [maps])
+    const mapsToAdd = useMemo(() => {
+        return mapsList.filter(m => !selectedMaps.find(map => m.hash === map))
+    }, [selectedMaps, mapsList])
+
+    const mapMap = useMemo<MapMapType>(() =>
+        mapsList.reduce((obj, map) => {
+            obj[map.hash] = {
+                file: map.file,
+                name: map.hash
+            }
+            return obj
+        }, {} as MapMapType), [mapsList])
+
     const [openAddMap, setOpenAddMap] = useState(false)
 
     const toggleDrawer = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
@@ -259,24 +264,24 @@ const LeftDrawer: React.FC<Props> = props => {
             case MenuType.locations:
                 return (
                     <GridList cellHeight={100} cols={1}>
-                        {maps.map((map: string) => (
-                            map && <Tooltip classes={classesTooltip} TransitionComponent={Zoom} title={map} key={map}>
+                        {selectedMaps.map((map: string) => (
+                            mapMap[map] && <Tooltip classes={classesTooltip} TransitionComponent={Zoom} title={mapMap[map].name} key={map}>
                                 <GridListTile cols={1} className={classes.tile} onClick={handleMapClick(map)}>
                                     <LazyLoad
                                         width={233}
                                         height={100}
                                         debounce={false}
                                     >
-                                        <ImageLoader src={`/locations/${map}.png`}/>
+                                        <ImageLoader src={mapMap[map].file}/>
                                     </LazyLoad>
                                 </GridListTile>
                             </Tooltip>
                         ))}
-                        {!!mapsToAdd.length && <GridListTile cols={1} className={classes.tile} onClick={() => {
+                        <GridListTile cols={1} className={classes.tile} onClick={() => {
                             setOpenAddMap(true)
                         }}>
                             <AddCard />
-                        </GridListTile>}
+                        </GridListTile>
                     </GridList>
                 )
             case MenuType.globalSymbols:

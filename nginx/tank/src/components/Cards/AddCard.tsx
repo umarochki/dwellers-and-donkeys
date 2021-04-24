@@ -26,7 +26,7 @@ const useStyles = makeStyles(() => ({
 
 interface Props {
     className?: string
-    onClick: () => void
+    onClick?: () => void
 }
 
 const AddCard: React.FC<Props> = ({ className, onClick }) => {

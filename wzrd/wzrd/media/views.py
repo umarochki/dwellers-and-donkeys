@@ -62,7 +62,7 @@ class AvailableMapViewSet(MediaViewSet):
             session = Session.objects.filter(invitation_code=game_id).first()
             if not session:
                 return Response("Game not found!", status=404)
-            queryset = self.model_class.objects.filter(creator=session.gm)
+            queryset = self.model_class.objects.filter(creator=session.game_master)
         else:
             queryset = self.filter_queryset(self.get_queryset())
         res += self.get_serializer(queryset, many=True).data
