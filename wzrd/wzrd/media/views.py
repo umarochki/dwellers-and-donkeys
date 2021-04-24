@@ -4,8 +4,10 @@ import pydash as _
 
 from rest_framework import viewsets
 from rest_framework.response import Response
+from django.http.response import HttpResponse
 
 from wzrd.settings import API_PREFIX, DEFAULT_MEDIA_ROOT, DEFAULT_MEDIA_URL
+from wzrd.games.models import Session
 from wzrd.users.decorators import is_authorized, self_set_auth_token
 from wzrd.users.mixins import IsAuthorisedMixin
 
@@ -54,7 +56,14 @@ class AvailableMapViewSet(MediaViewSet):
                 "id": link_to_hash(link)
             })
 
-        queryset = self.filter_queryset(self.get_queryset())
+        game_id = request.GET.get("game_id")
+        if game_id:
+            session = Session.objects.filter(invitation_code=game_id).first()
+            if not session:
+                return Response("Game not found!", status=404)
+            queryset = self.model_class.objects.filter(creator=session.gm)
+        else:
+            queryset = self.filter_queryset(self.get_queryset())
         res += self.get_serializer(queryset, many=True).data
         return Response(res)
 
