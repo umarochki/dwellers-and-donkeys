@@ -123,8 +123,8 @@ export default makeStyles((theme: Theme) =>
         },
         deleteBtn: {
             right: 25,
-            top: 115,
-            opacity: 0.4,
+            top: 25,
+            opacity: 0.6,
             [theme.breakpoints.down('md')]: {
                 top: 'auto',
                 bottom: 25,
