@@ -58,8 +58,11 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
         return HeroSession.objects.filter(id=herosession_id-10000).first()
 
     @database_sync_to_async
-    def get_herosession_by_user(self, session, user):
-        return HeroSession.objects.filter(session=session, base__user=user).first()
+    def get_herosession_by_user(self, session, user, serializer=None):
+        model = HeroSession.objects.filter(session=session, base__user=user).first()
+        if model and serializer:
+            model = serializer.to_representation(model)
+        return model
 
     @database_sync_to_async
     def delete_herosession_by_id(self, herosession_id):
@@ -226,17 +229,20 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
 
         elif action_type == "refresh":
             message_type = "send_me"
+            serializer = HeroSessionSerializer()
             heroes = {
                 r['id']: r
-                for r in map(HeroSessionSerializer().to_representation, await self.get_all_herosessions())
+                for r in map(serializer.to_representation, await self.get_all_herosessions())
             }
 
+            user = await self.get_user()
             json_data["meta"] = {
                 "active_users": list(game_session.active_users.values()),
                 "game_objects": {**game_session.current_game_objects, **heroes},
                 "chat": game_session.chat,
                 "map": game_session.map,
-                "maps": list(_.omit(game_session.game_objects, "Global").keys())
+                "maps": list(_.omit(game_session.game_objects, "Global").keys()),
+                "my_hero": await self.get_herosession_by_user(game_session, user, serializer)
             }
 
         elif action_type in ("map", "global_map"):
