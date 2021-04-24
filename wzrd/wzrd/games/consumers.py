@@ -232,7 +232,7 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
             serializer = HeroSessionSerializer()
             heroes = {
                 r['id']: r
-                for r in map(serializer.to_representation, await self.get_all_herosessions())
+                for r in map(serializer.to_representation, await self.get_all_herosessions(game_session))
             }
 
             user = await self.get_user()
