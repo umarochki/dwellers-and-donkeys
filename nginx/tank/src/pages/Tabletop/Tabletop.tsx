@@ -30,8 +30,15 @@ import { getMaps } from '../../store/map/actions'
 import { Map } from '../../models/map'
 import { selectMaps } from '../../store/map/selectors'
 import TutorialDialog from '../../components/Dialogs/TutorialDialog/TutorialDialog'
+import ChooseCharacterDialog from '../../components/Dialogs/ChooseCharacterDialog'
+import { Hero } from '../../models/hero'
 
-// https://codesandbox.io/s/ykk2x8k7xj?file=/src/App/index.js
+export enum MyHeroType {
+    unknown,
+    set,
+    unset
+}
+
 interface ParamTypes {
     id: string
 }
@@ -57,7 +64,9 @@ const Tabletop = () => {
     const [open, setOpen] = useState(false)
     const [type, setType] = useState<MenuType>(MenuType.unselect)
     const [showControls, setShowControls] = useState(true)
-    const [tutorialOpen, setTutorialOpen] = useState(true)
+    const [tutorialOpen, setTutorialOpen] = useState(false)
+    const [chooseHeroDialogOpen, setChooseHeroDialogOpen] = useState(false)
+    const [myHero, setMyHero] = useState(MyHeroType.unknown)
 
     const [selectedMaps, setSelectedMaps] = useState<string[]>((currentGameData && currentGameData.meta.maps) || [])
     const maps = useSelector(selectMaps) || []
@@ -203,9 +212,12 @@ const Tabletop = () => {
                 case 'refresh':
                     setUsers(currentGameData.meta.active_users)
                     setMessages(currentGameData.meta.chat)
+
+                    currentGameData.meta.my_hero === null ? setMyHero(MyHeroType.unset) : setMyHero(MyHeroType.set)
+
                     closeSidebar()
 
-                    currentGameData.meta.map === 'Global'
+                    currentGameData.meta.map !== 'Global'
                         ? handleUpdateMap(currentGameData.meta.map, currentGameData)
                         : myGameBoard.setMap({ sprite: '../globalSymbols/WorldMap.png' }, () =>
                             myGameBoard.refresh({
@@ -247,6 +259,12 @@ const Tabletop = () => {
             window.removeEventListener('resize', detect)
         }
     }, [detect])
+
+    useEffect(() => {
+        if (myHero === MyHeroType.unset) {
+            setChooseHeroDialogOpen(true)
+        }
+    }, [myHero])
 
     if (orientation.device === 'mobile' && orientation.orientation === 'portrait') {
         return <FullscreenPage styles={{ color: primary50 }}>Please, rotate your device to landscape mode</FullscreenPage>
@@ -343,6 +361,21 @@ const Tabletop = () => {
                     />
                 </Hidden>
                 <TutorialDialog open={tutorialOpen} onClose={() => setTutorialOpen(false)} />
+                <ChooseCharacterDialog
+                    open={chooseHeroDialogOpen}
+                    onChoose={(hero: Hero) => {
+                        setMyHero(MyHeroType.set)
+                        ws.sendMessage('add', {
+                            type: 'hero',
+                            hero_id: hero.id,
+                            xy: [0, 0],
+                            sprite: hero.sprite,
+                            name: hero.name
+                        })
+                        setChooseHeroDialogOpen(false)
+                        setTutorialOpen(true)
+                    }}
+                />
             </div>
         </div>
     )

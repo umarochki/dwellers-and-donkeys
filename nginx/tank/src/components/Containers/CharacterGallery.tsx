@@ -1,9 +1,14 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Avatar, Card, GridList } from '@material-ui/core'
 import { makeStyles, Theme } from '@material-ui/core/styles'
 import { primary50 } from '../../styles/colors'
 import AddCard from '../Cards/AddCard'
 import clsx from 'clsx'
+import { Hero } from '../../models/hero'
+import CharacterInfoDialog from '../Dialogs/CharacterInfoDialog'
+import { useDispatch, useSelector } from 'react-redux'
+import { selectHeroes } from '../../store/hero/selectors'
+import { getHeroes } from '../../store/hero/actions'
 
 const useStyles = makeStyles((theme: Theme) => ({
     root: {
@@ -65,17 +70,22 @@ const useStyles = makeStyles((theme: Theme) => ({
 }))
 
 interface Props {
-    onChoose: (id: string) => void
-    characters: string[]
+    onChoose: (hero: Hero) => void
 }
 
 const CharacterGallery: React.FC<Props> = props => {
-    const { onChoose, characters } = props
+    const { onChoose } = props
     const classes = useStyles()
+    const [createCharacterDialogOpen, setCreateCharacterDialogOpen] = useState(false)
 
-    const handleAddCharacter = () => {
+    const handleAddCharacter = () => setCreateCharacterDialogOpen(true)
 
-    }
+    const dispatch = useDispatch()
+    const characters = useSelector(selectHeroes)
+
+    useEffect(() => {
+        dispatch(getHeroes())
+    }, [dispatch])
 
     return (
         <GridList cellHeight={150} cols={3} className={classes.list} spacing={10}>
@@ -85,13 +95,17 @@ const CharacterGallery: React.FC<Props> = props => {
                 </Card>
             </div>
             {characters.map(character => (
-                <div className={classes.wrapper}>
-                    <Card key={character} className={clsx(classes.tile, classes.characterTile)} onClick={() => onChoose(character)}>
-                        <Avatar className={classes.avatarLarge} src={`/heroes/${character}.png`}/>
-                        <span className={classes.name}>{character}</span>
+                <div className={classes.wrapper} key={character.id}>
+                    <Card className={clsx(classes.tile, classes.characterTile)} onClick={() => onChoose(character)}>
+                        <Avatar className={classes.avatarLarge} src={`/heroes/${character.sprite}.png`}/>
+                        <span className={classes.name}>{character.name}</span>
                     </Card>
                 </div>
             ))}
+            <CharacterInfoDialog
+                open={createCharacterDialogOpen}
+                onClose={() => setCreateCharacterDialogOpen(false)}
+            />
         </GridList>
     )
 }

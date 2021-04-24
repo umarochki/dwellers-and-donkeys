@@ -22,11 +22,11 @@ export const getHeroes = () => {
     function failure(error: Error) { return { type: heroConstants.GET_HEROES_REQUEST_ERROR, error } }
 }
 
-export const updateHero = (hero: Hero) => {
+export const addHero = (hero: Hero) => {
     return (dispatch: Dispatch) => {
         dispatch(request())
 
-        heroesService.update(hero)
+        heroesService.add(hero)
             .then((hero: Hero) => {
                 dispatch(success(hero))
             }, error => {
@@ -35,7 +35,7 @@ export const updateHero = (hero: Hero) => {
             })
     }
 
-    function request() { return { type: heroConstants.UPDATE_HERO_REQUEST_STARTED } }
-    function success(hero: Hero) { return { type: heroConstants.UPDATE_HERO_REQUEST_FINISHED, payload: hero } }
-    function failure(error: Error) { return { type: heroConstants.UPDATE_HERO_REQUEST_ERROR, error } }
+    function request() { return { type: heroConstants.ADD_HERO_REQUEST_STARTED } }
+    function success(hero: Hero) { return { type: heroConstants.ADD_HERO_REQUEST_FINISHED, payload: hero } }
+    function failure(error: Error) { return { type: heroConstants.ADD_HERO_REQUEST_ERROR, error } }
 }

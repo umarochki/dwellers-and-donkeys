@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React from 'react'
 import {
     Avatar,
     Button,
@@ -17,11 +17,11 @@ import {
 import CloseIcon from '@material-ui/icons/Close'
 import { createStyles, makeStyles } from '@material-ui/core/styles'
 import { Controller, FormProvider, useForm } from 'react-hook-form'
-import PersonIcon from '@material-ui/icons/Person'
 import { useDispatch } from 'react-redux'
-import { updateHero } from '../../store/hero/actions'
+import { addHero } from '../../store/hero/actions'
 import { Hero } from '../../models/hero'
-import { WebSocketContext } from '../Contexts/WebSocketContext'
+import { heroes } from '../Switcher/LeftDrawer'
+import { getUrl } from '../../helpers/authHeader'
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -67,23 +67,16 @@ interface Props {
 const CharacterInfoDialog: React.FC<Props> = props => {
     const classes = useStyles()
     const { open, onClose } = props
+
     const methods = useForm()
-    const { control, handleSubmit } = methods
-    const ws = useContext(WebSocketContext)
+    const { control, handleSubmit, watch } = methods
+    const watchSprite = watch('sprite')
 
     const dispatch = useDispatch()
 
     const onSubmit = (data: Hero) => {
-        console.log(data)
-        dispatch(updateHero(data))
-
-        if (ws.socket) {
-            ws.sendMessage('')
-        }
-    }
-
-    const handleChooseAvatar = () => {
-
+        dispatch(addHero({ ...data, sprite: `${getUrl()}/heroes/${data.sprite}.png` }))
+        onClose()
     }
 
     return (
@@ -98,9 +91,7 @@ const CharacterInfoDialog: React.FC<Props> = props => {
                     </DialogTitle>
                     <DialogContent className={classes.content}>
                         <div className={classes.contentLeft}>
-                            <Avatar className={classes.avatarLarge} onClick={handleChooseAvatar}>
-                                <PersonIcon fontSize="large"/>
-                            </Avatar>
+                            <Avatar className={classes.avatarLarge} src={`/heroes/${watchSprite || heroes[0]}.png`}/>
                         </div>
                         <div className={classes.contentRight}>
                             <Controller
@@ -111,7 +102,23 @@ const CharacterInfoDialog: React.FC<Props> = props => {
                                 label="Name"
                                 fullWidth
                                 as={TextField}
+                                required
                             />
+                            <FormControl className={classes.formControl}>
+                                <InputLabel id="gender-select-label">Appearance</InputLabel>
+                                <Controller
+                                    defaultValue={heroes[0]}
+                                    control={control}
+                                    name="sprite"
+                                    as={
+                                        <Select id="gender-select">
+                                            {heroes.map(h => (
+                                                <MenuItem key={h} value={h}>{h}</MenuItem>
+                                            ))}
+                                        </Select>
+                                    }
+                                />
+                            </FormControl>
                             <Controller
                                 name="race"
                                 control={control}

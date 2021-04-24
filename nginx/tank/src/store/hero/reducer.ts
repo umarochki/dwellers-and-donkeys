@@ -7,14 +7,12 @@ export interface HeroState {
     getHeroesState: AsyncState
     updateHeroState: AsyncState
     heroes: Hero[]
-    hero: Hero | null
 }
 
 const INITIAL_STATE: HeroState = {
     getHeroesState: AsyncState.unknown,
     updateHeroState: AsyncState.unknown,
     heroes: [],
-    hero: null
 }
 
 const heroReducer: Reducer<HeroState> = (state = INITIAL_STATE, action) => {
@@ -29,16 +27,16 @@ const heroReducer: Reducer<HeroState> = (state = INITIAL_STATE, action) => {
             }
         case heroConstants.GET_HEROES_REQUEST_ERROR:
             return { ...state, getHeroesState: AsyncState.error }
-        case heroConstants.UPDATE_HERO_REQUEST_STARTED:
+        case heroConstants.ADD_HERO_REQUEST_STARTED:
             return { ...state, updateHeroState: AsyncState.inProcess }
-        case heroConstants.UPDATE_HERO_REQUEST_FINISHED:
+        case heroConstants.ADD_HERO_REQUEST_FINISHED:
             return {
                 ...state,
                 updateHeroState: AsyncState.success,
-                hero: action.payload,
+                heroes: [...state.heroes, action.payload],
             }
-        case heroConstants.UPDATE_HERO_REQUEST_ERROR:
-            return { ...state, updateHeroState: AsyncState.error, hero: null }
+        case heroConstants.ADD_HERO_REQUEST_ERROR:
+            return { ...state, updateHeroState: AsyncState.error }
         default:
             return state
     }

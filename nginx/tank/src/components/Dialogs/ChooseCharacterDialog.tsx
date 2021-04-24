@@ -2,6 +2,7 @@ import React from 'react'
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@material-ui/core'
 import { createStyles, makeStyles } from '@material-ui/core/styles'
 import CharacterGallery from '../Containers/CharacterGallery'
+import { Hero } from '../../models/hero'
 
 const useStyles = makeStyles(() =>
     createStyles({
@@ -13,13 +14,11 @@ const useStyles = makeStyles(() =>
 
 interface Props {
     open: boolean
-    onClose: () => void
-    onChoose: (id: string) => void
-    characters: string[]
+    onChoose: (hero: Hero) => void
 }
 
 const ChooseCharacterDialog: React.FC<Props> = props => {
-    const { open, characters, onChoose, onClose } = props
+    const { open, onChoose } = props
     const classes = useStyles()
 
     return (
@@ -29,13 +28,9 @@ const ChooseCharacterDialog: React.FC<Props> = props => {
             </DialogTitle>
             <DialogContent className={classes.root}>
                 <CharacterGallery
-                    onChoose={(id: string) => {
-                        if (id) {
-                            onClose()
-                            onChoose(id)
-                        }
+                    onChoose={(hero: Hero) => {
+                        onChoose(hero)
                     }}
-                    characters={characters}
                 />
             </DialogContent>
             <DialogActions>
