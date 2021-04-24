@@ -32,6 +32,7 @@ class HeroSessionSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         res = super().to_representation(instance)
+        res["id"] += 10000
         for field in HeroSerializer.Meta.fields:
             res[field] = getattr(instance.base, field)
         res["game_data"] = instance.game_data

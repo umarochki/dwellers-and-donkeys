@@ -15,11 +15,19 @@ from .models import Session, HeroSession
 from .serializers import HeroSessionSerializer
 
 
-@alru_cache(maxsize=128)
+@alru_cache(maxsize=256)
 async def get_game_session(session_name):
     @database_sync_to_async
     def request():
         return Session.objects.filter(invitation_code=session_name).first()
+    return await request()
+
+
+@alru_cache(maxsize=1024)
+async def get_hero_session(hero_session_id):
+    @database_sync_to_async
+    def request():
+        return HeroSession.objects.filter(id=hero_session_id - 10000).first()
     return await request()
 
 
@@ -39,11 +47,34 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
         return User.objects.get(id=self.user_info["id"])
 
     @database_sync_to_async
-    def create_herosession(self, user, session, hero_id):
+    def add_herosession(self, user, session, hero_id, game_data):
         hero = user.heroes.filter(id=hero_id).first()
         if not hero:
             return None
-        return HeroSession.objects.create(base=hero, session=session)
+        return HeroSession.objects.create(base=hero, session=session, game_data=game_data)
+
+    @database_sync_to_async
+    def get_herosession_by_id(self, herosession_id):
+        return HeroSession.objects.filter(id=herosession_id-10000).first()
+
+    @database_sync_to_async
+    def get_herosession_by_user(self, session, user, serializer=None):
+        model = HeroSession.objects.filter(session=session, base__user=user).first()
+        if model and serializer:
+            model = serializer.to_representation(model)
+        return model
+
+    @database_sync_to_async
+    def delete_herosession_by_id(self, herosession_id):
+        herosession = HeroSession.objects.filter(id=herosession_id - 10000).first()
+        return not herosession or herosession.delete()
+
+    @database_sync_to_async
+    def get_all_herosessions(self, session, serializer=None):
+        qs = HeroSession.objects.filter(session=session)
+        if qs and serializer:
+            qs = list(map(serializer.to_representation, qs))
+        return qs
 
     @database_sync_to_async
     def add_session_to_user(self, user, game_session):
@@ -52,8 +83,9 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
             user.save()
 
     @database_sync_to_async
-    def save_game_session(self, session):
-        session.save()
+    def save_game_session(self, save):
+        for model in save:
+            model.save()
 
     def is_game_master_for(self, game_session):
         return game_session.game_master == self.user_info["id"]
@@ -78,7 +110,7 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
         user_obj = {"id": user_id, "username": user.username}
         game_session.active_users[user_id] = user_obj
 
-        await self.save_game_session(game_session)
+        await self.save_game_session([game_session])
         await self.start_sending("send_all_but_me", {
             "type": "connect",
             "meta": user_obj
@@ -93,7 +125,7 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
         user_id = str(self.user_info.get("id"))
         if user_id and user_id in game_session.active_users:
             del game_session.active_users[user_id]
-            await self.save_game_session(game_session)
+            await self.save_game_session([game_session])
             await self.start_sending("send_all_but_me", {
                 "type": "disconnect",
                 "meta": user_id
@@ -105,7 +137,7 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
         json_data = json.loads(text_data)
         action_type = json_data["type"]
         meta = json_data.get("meta")
-        save = False
+        save = []
 
         if action_type not in self.ACTION_TYPES:
             json_data["type"] = "error"
@@ -122,35 +154,39 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
 
         message_type = "send_all_but_me"
         if action_type == "add":
+            message_type = "send_all"
             object_id = str(game_session.last_object_id)
 
-            if self.is_game_master_for(game_session):
-                game_session.current_game_objects[object_id] = meta
-            else:
-                object_id = str(game_session.last_object_id + 10000)
-                user_id = str(self.user_info["id"])
-                old_hero_id = None
-                for k, v in game_session.dummy_heroes.items():
-                    if v["owner"] == user_id:
-                        old_hero_id = k
-                        break
-                if old_hero_id:
-                    del game_session.dummy_heroes[old_hero_id]
-                    await self.start_sending("send_all", {"type": "delete", "meta": {"id": old_hero_id}})
-                game_session.dummy_heroes[object_id] = meta
-                meta.update({"owner": user_id, "name": self.user_info["username"]})
+            if meta["type"] == "hero":
+                hero_id = meta.pop("hero_id", None)
+                if not hero_id:
+                    json_data["type"] = "error"
+                    json_data["meta"] = "hero_id was not provided!"
+                    logging.warning(f"[WS {self.session_name}] hero_id was not provided!")
+                    return await self.start_sending("send_me", json_data)
 
-            message_type = "send_all"
-            json_data["meta"]["id"] = object_id
-            game_session.last_object_id += 1
-            save = True
+                user = await self.get_user()
+                hero = await self.add_herosession(user, game_session, hero_id, meta)
+
+                if not hero:
+                    json_data["type"] = "error"
+                    json_data["meta"] = f"Hero [{meta}] not found!"
+                    logging.warning(f"[WS {self.session_name} ADD HERO] Hero [{meta}] not found!")
+                    return await self.start_sending("send_me", json_data)
+
+                json_data["meta"] = HeroSessionSerializer().to_representation(instance=hero)
+            else:
+                game_session.current_game_objects[object_id] = meta
+                json_data["meta"]["id"] = object_id
+                game_session.last_object_id += 1
+                save = [game_session]
 
         elif action_type in ("update", "update_and_save", "update_and_start"):
             obj_id = str(meta["id"])
-            if len(obj_id) == 5:
-                obj = game_session.dummy_heroes.get(obj_id)
+            if len(obj_id) >= 5:
+                obj = await get_hero_session(int(obj_id))
             else:
-                obj = game_session.current_game_objects.get(str(meta["id"]))
+                obj = game_session.current_game_objects.get(obj_id)
 
             if not obj:
                 json_data["type"] = "error"
@@ -169,30 +205,47 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
 
             if action_type == "update_and_save":
                 json_data["type"] = "update"
-                save = True
+                if len(obj_id) >= 5:
+                    save = [obj]
+                else:
+                    save = [game_session]
 
         elif action_type == "delete":
             object_id = str(meta["id"])
-            if object_id not in game_session.dummy_heroes and object_id not in game_session.current_game_objects:
-                json_data["type"] = "error"
-                json_data["meta"] = f"Object [{meta['id']}] not found!"
-                logging.warning(f"[WS {self.session_name} DELETE] Object [{meta['id']}] not found!")
-                return await self.start_sending("send_me", json_data)
 
             if len(object_id) == 5:
-                del game_session.dummy_heroes[object_id]
+                error = await self.delete_herosession_by_id(int(object_id))
+                if error:
+                    json_data["type"] = "error"
+                    json_data["meta"] = f"Object [{meta['id']}] not found!"
+                    logging.warning(f"[WS {self.session_name} DELETE] Object [{meta['id']}] not found!")
+                    return await self.start_sending("send_me", json_data)
             else:
+                if object_id not in game_session.current_game_objects:
+                    json_data["type"] = "error"
+                    json_data["meta"] = f"Object [{meta['id']}] not found!"
+                    logging.warning(f"[WS {self.session_name} DELETE] Object [{meta['id']}] not found!")
+                    return await self.start_sending("send_me", json_data)
+
                 del game_session.current_game_objects[object_id]
-            save = True
+                save = [game_session]
 
         elif action_type == "refresh":
             message_type = "send_me"
+            serializer = HeroSessionSerializer()
+            hero_sessions = await self.get_all_herosessions(game_session, serializer)
+            heroes = {
+                hero['id']: hero for hero in hero_sessions
+            }
+
+            user = await self.get_user()
             json_data["meta"] = {
                 "active_users": list(game_session.active_users.values()),
-                "game_objects": {**game_session.current_game_objects, **game_session.dummy_heroes},
+                "game_objects": {**game_session.current_game_objects, **heroes},
                 "chat": game_session.chat,
                 "map": game_session.map,
-                "maps": list(_.omit(game_session.game_objects, "Global", "dummy_heroes").keys())
+                "maps": list(_.omit(game_session.game_objects, "Global").keys()),
+                "my_hero": await self.get_herosession_by_user(game_session, user, serializer)
             }
 
         elif action_type in ("map", "global_map"):
@@ -205,12 +258,12 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
                 }
             else:
                 json_data["meta"] = {"game_objects": game_session.current_game_objects}
-            save = True
+            save = [game_session]
 
         elif action_type == "clear":
             game_session.current_game_objects.clear()
             game_session.last_object_id = 1
-            save = True
+            save = [game_session]
 
         elif action_type == "chat":
             message_type = "send_all"
@@ -221,7 +274,7 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
                 "sender": self.user_info["username"],
             }
             game_session.chat.append(json_data["meta"])
-            save = True
+            save = [game_session]
 
         elif action_type == "roll":
             total, rolled = roll(meta)
@@ -243,21 +296,8 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
             message_type = "send_me"
             json_data["meta"] = game_session.active_users
 
-        elif action_type == "add_hero":
-            user = await self.get_user()
-            hero = await self.create_herosession(user, game_session, meta)
-
-            if not hero:
-                json_data["type"] = "error"
-                json_data["meta"] = f"Hero [{meta}] not found!"
-                logging.warning(f"[WS {self.session_name} ADD HERO] Hero [{meta}] not found!")
-                return await self.start_sending("send_me", json_data)
-
-            message_type = "send_all"
-            json_data["meta"] = HeroSessionSerializer().to_representation(instance=hero)
-
         if save:
-            await self.save_game_session(game_session)
+            await self.save_game_session(save)
 
         return await self.start_sending(message_type, json_data)
 
@@ -274,7 +314,7 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
             return False
 
         for k, v in obj.items():
-            if k == "xy":
+            if k in ("xy", "wh"):
                 if not isinstance(v, list):
                     return False
         return True
