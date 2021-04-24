@@ -188,7 +188,7 @@ const LeftDrawer: React.FC<Props> = props => {
         mapsList.reduce((obj, map) => {
             obj[map.hash] = {
                 file: map.file,
-                name: map.hash
+                name: map.name
             }
             return obj
         }, {} as MapMapType), [mapsList])
