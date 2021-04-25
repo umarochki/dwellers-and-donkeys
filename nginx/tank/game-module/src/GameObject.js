@@ -162,8 +162,8 @@ export default class GameObject extends Container {
       const x = e.data.global.x
       const y = e.data.global.y
 
-      this.current.x += (x - this.last.x) / this.parent.scale.x; 
-      this.current.y += (y - this.last.y) / this.parent.scale.y;
+      this.current.x += (x - this.last.x) / this.viewport.scale.x; 
+      this.current.y += (y - this.last.y) / this.viewport.scale.y;
 
       this.last = { x, y };
 
