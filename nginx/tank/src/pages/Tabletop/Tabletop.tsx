@@ -67,6 +67,7 @@ const Tabletop = () => {
     const [tutorialOpen, setTutorialOpen] = useState(false)
     const [chooseHeroDialogOpen, setChooseHeroDialogOpen] = useState(false)
     const [myHero, setMyHero] = useState(MyHeroType.unknown)
+    const [hero, setHero] = useState<Hero | null>(null)
 
     const [selectedMaps, setSelectedMaps] = useState<string[]>((currentGameData && currentGameData.meta.maps) || [])
     const maps = useSelector(selectMaps) || []
@@ -213,7 +214,13 @@ const Tabletop = () => {
                     setUsers(currentGameData.meta.active_users)
                     setMessages(currentGameData.meta.chat)
 
-                    currentGameData.meta.my_hero === null ? setMyHero(MyHeroType.unset) : setMyHero(MyHeroType.set)
+                    if (currentGameData.meta.my_hero === null) {
+                        setMyHero(MyHeroType.unset)
+                    }
+                    else {
+                        setMyHero(MyHeroType.set)
+                        setHero(currentGameData.meta.my_hero)
+                    }
 
                     closeSidebar()
 
@@ -325,7 +332,7 @@ const Tabletop = () => {
                                     </div>
                                 </Grid>
                                 <Grid item xs={2} className={classes.controlPanel}>
-                                    <UserCard code={game ? game.invitation_code || '' : ''}/>
+                                    <UserCard code={game ? game.invitation_code || '' : ''} hero={hero}/>
                                 </Grid>
                                 <Grid item xs={5} className={classes.controlPanel}>
                                     <ChatPanel data={messages}/>
@@ -354,6 +361,7 @@ const Tabletop = () => {
                 }
                 <Hidden lgUp={true}>
                     <RightDrawer
+                        hero={hero}
                         messages={messages}
                         invitation_code={game ? game.invitation_code || '' : ''}
                         users={users}
@@ -365,6 +373,7 @@ const Tabletop = () => {
                     open={chooseHeroDialogOpen}
                     onChoose={(hero: Hero) => {
                         setMyHero(MyHeroType.set)
+                        setHero(hero)
                         ws.sendMessage('add', {
                             type: 'hero',
                             hero_id: hero.id,

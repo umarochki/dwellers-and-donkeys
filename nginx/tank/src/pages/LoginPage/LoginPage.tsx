@@ -5,7 +5,7 @@ import clsx from 'clsx'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectLoginState, selectSignupState } from '../../store/user/selectors'
 import { AsyncState } from '../../store/user/reducer'
-import { login, signup } from '../../store/user/actions'
+import { getMyself, login, signup } from '../../store/user/actions'
 import { push } from 'connected-react-router'
 
 const LoginPage = () => {
@@ -102,7 +102,10 @@ const LoginPage = () => {
                                 <Button
                                     variant="outlined"
                                     className={classes.outLinedButton}
-                                    onClick={() => dispatch(push('/'))}
+                                    onClick={() => {
+                                        dispatch(getMyself())
+                                        dispatch(push('/'))
+                                    }}
                                     fullWidth
                                 >
                                     Continue as Guest

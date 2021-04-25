@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import {
     Avatar,
     Button,
@@ -62,11 +62,37 @@ const useStyles = makeStyles((theme: Theme) =>
 interface Props {
     open: boolean
     onClose: () => void
+    isEdit?: boolean
+    hero?: Hero
+}
+
+const defaultValues = {
+    sprite: heroes[0],
+    name: '',
+    race: '',
+    description: '',
+    sex: 'male'
+}
+
+const getDefault = (hero?: Hero) => {
+    if (!hero) return defaultValues
+    try {
+        return ({
+            description: hero.description,
+            name: hero.name,
+            race: hero.race,
+            sex: hero.sex,
+            sprite: hero.sprite.split('/')[4].split('.')[0]
+        })
+    }
+    catch {
+        return defaultValues
+    }
 }
 
 const CharacterInfoDialog: React.FC<Props> = props => {
     const classes = useStyles()
-    const { open, onClose } = props
+    const { open, onClose, hero, isEdit = true } = props
 
     const methods = useForm()
     const { control, handleSubmit, watch } = methods
@@ -79,10 +105,14 @@ const CharacterInfoDialog: React.FC<Props> = props => {
         onClose()
     }
 
+    useEffect(() => {
+        methods.reset(getDefault(hero))
+    }, [hero, methods])
+
     return (
         <Dialog open={open} className={classes.root}>
             <FormProvider {...methods}>
-                <form onSubmit={handleSubmit(onSubmit)}>
+                <form>
                     <IconButton onClick={onClose} className={classes.closeButton}>
                         <CloseIcon />
                     </IconButton>
@@ -91,13 +121,12 @@ const CharacterInfoDialog: React.FC<Props> = props => {
                     </DialogTitle>
                     <DialogContent className={classes.content}>
                         <div className={classes.contentLeft}>
-                            <Avatar className={classes.avatarLarge} src={`/heroes/${watchSprite || heroes[0]}.png`}/>
+                            <Avatar className={classes.avatarLarge} src={`/heroes/${watchSprite}.png`}/>
                         </div>
                         <div className={classes.contentRight}>
                             <Controller
                                 name="name"
                                 control={control}
-                                defaultValue=""
                                 margin="dense"
                                 label="Name"
                                 fullWidth
@@ -107,7 +136,6 @@ const CharacterInfoDialog: React.FC<Props> = props => {
                             <FormControl className={classes.formControl}>
                                 <InputLabel id="gender-select-label">Appearance</InputLabel>
                                 <Controller
-                                    defaultValue={heroes[0]}
                                     control={control}
                                     name="sprite"
                                     as={
@@ -122,7 +150,6 @@ const CharacterInfoDialog: React.FC<Props> = props => {
                             <Controller
                                 name="race"
                                 control={control}
-                                defaultValue=""
                                 margin="dense"
                                 label="Race"
                                 fullWidth
@@ -131,7 +158,6 @@ const CharacterInfoDialog: React.FC<Props> = props => {
                             <Controller
                                 name="description"
                                 control={control}
-                                defaultValue=""
                                 margin="dense"
                                 label="Description"
                                 fullWidth
@@ -142,7 +168,6 @@ const CharacterInfoDialog: React.FC<Props> = props => {
                             <FormControl className={classes.formControl}>
                                 <InputLabel id="gender-select-label">Gender</InputLabel>
                                 <Controller
-                                    defaultValue="male"
                                     control={control}
                                     name="sex"
                                     as={
@@ -158,14 +183,16 @@ const CharacterInfoDialog: React.FC<Props> = props => {
                         </div>
                     </DialogContent>
                     <DialogActions>
-                        <Button
-                            type="submit"
-                            variant="contained"
-                            color="primary"
-                            autoFocus
-                        >
-                            Submit
-                        </Button>
+                        {isEdit &&
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                autoFocus
+                                onClick={handleSubmit(onSubmit)}
+                            >
+                                Submit
+                            </Button>
+                        }
                     </DialogActions>
                 </form>
             </FormProvider>

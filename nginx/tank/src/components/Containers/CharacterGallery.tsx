@@ -97,7 +97,7 @@ const CharacterGallery: React.FC<Props> = props => {
             {characters.map(character => (
                 <div className={classes.wrapper} key={character.id}>
                     <Card className={clsx(classes.tile, classes.characterTile)} onClick={() => onChoose(character)}>
-                        <Avatar className={classes.avatarLarge} src={`/heroes/${character.sprite}.png`}/>
+                        <Avatar className={classes.avatarLarge} src={character.sprite}/>
                         <span className={classes.name}>{character.name}</span>
                     </Card>
                 </div>

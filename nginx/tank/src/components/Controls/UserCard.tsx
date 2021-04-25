@@ -1,10 +1,13 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Avatar, Button, Card, Theme } from '@material-ui/core'
 import { createStyles, makeStyles } from '@material-ui/core/styles'
 import PersonIcon from '@material-ui/icons/Person'
 import { primary200, primary50 } from '../../styles/colors'
 import InviteDialog from '../Dialogs/InviteDialog'
 import CharacterInfoDialog from '../Dialogs/CharacterInfoDialog'
+import { getHeroes } from '../../store/hero/actions'
+import { useDispatch } from 'react-redux'
+import { Hero } from '../../models/hero'
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -55,11 +58,13 @@ const useStyles = makeStyles((theme: Theme) =>
 
 interface Props {
     code: string
+    hero: Hero
 }
 
 const UserCard: React.FC<Props> = props => {
     const classes = useStyles()
-    const { code } = props
+    const { code, hero } = props
+    const dispatch = useDispatch()
 
     const [open, setOpen] = useState(false)
 
@@ -73,6 +78,10 @@ const UserCard: React.FC<Props> = props => {
     const handleShowCharacter = () => {
         openCharacterCard()
     }
+
+    useEffect(() => {
+        dispatch(getHeroes())
+    }, [dispatch])
 
     return (
         <Card className={classes.me} raised>
@@ -88,7 +97,7 @@ const UserCard: React.FC<Props> = props => {
                 Invite
             </Button>
             <InviteDialog open={open} code={code} onClose={closeDialog}/>
-            <CharacterInfoDialog open={characterCardOpen} onClose={closeCharacterCard}/>
+            <CharacterInfoDialog open={characterCardOpen} onClose={closeCharacterCard} isEdit={false} hero={hero}/>
         </Card>
     )
 }
