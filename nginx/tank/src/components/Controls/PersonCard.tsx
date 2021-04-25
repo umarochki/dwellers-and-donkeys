@@ -31,15 +31,18 @@ const useStyles = makeStyles((theme: Theme) =>
 interface Props {
     user: string
     selected?: boolean
+    sprite?: string
+    onClick?: () => void
+    className?: string
 }
 
 const PersonCard: React.FC<Props> = props => {
     const classes = useStyles()
-    const { user, selected } = props
+    const { user, selected, sprite, onClick, className } = props
 
     return (
-        <Card raised={selected} className={classes.root}>
-            <Avatar className={clsx(classes.avatarLarge, classes.avatarDark)}/>
+        <Card raised={selected} className={clsx(classes.root, className)} onClick={onClick}>
+            <Avatar className={clsx(classes.avatarLarge, classes.avatarDark)} src={sprite}/>
             <span className={classes.name}>{user}</span>
         </Card>
     )

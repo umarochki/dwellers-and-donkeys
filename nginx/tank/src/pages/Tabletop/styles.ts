@@ -1,5 +1,5 @@
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
-import { primary400, primary50, primary600, primary700, primary800, primary900 } from '../../styles/colors'
+import { primary400, primary50, primary500, primary600, primary700, primary800, primary900 } from '../../styles/colors'
 
 const drawerWidth = 240
 
@@ -68,7 +68,7 @@ export default makeStyles((theme: Theme) =>
             position: 'fixed',
             left: 'calc(50% - 70px)',
             top: 10,
-            backgroundColor: primary600
+            backgroundColor: primary500
         },
         mapControl: {
             border: `1px solid ${primary900}`,

@@ -8,7 +8,7 @@ from .models import Session, Hero, HeroSession
 class HeroSerializer(serializers.ModelSerializer):
     class Meta:
         model = Hero
-        fields = ("id", "name", "race", "sex")
+        fields = ("id", "name", "race", "sex", "sprite", "description")
 
     def create(self, validated_data):
         user = self.context["user"]
@@ -32,9 +32,12 @@ class HeroSessionSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         res = super().to_representation(instance)
+        res["id"] = res["id"] + 10000
         for field in HeroSerializer.Meta.fields:
+            if field == "id":
+                continue
             res[field] = getattr(instance.base, field)
-        res["game_data"] = instance.game_data
+        res.update(instance.game_data)
         return res
 
 

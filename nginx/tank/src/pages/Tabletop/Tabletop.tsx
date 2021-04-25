@@ -30,8 +30,15 @@ import { getMaps } from '../../store/map/actions'
 import { Map } from '../../models/map'
 import { selectMaps } from '../../store/map/selectors'
 import TutorialDialog from '../../components/Dialogs/TutorialDialog/TutorialDialog'
+import ChooseCharacterDialog from '../../components/Dialogs/ChooseCharacterDialog'
+import { Hero } from '../../models/hero'
 
-// https://codesandbox.io/s/ykk2x8k7xj?file=/src/App/index.js
+export enum MyHeroType {
+    unknown,
+    set,
+    unset
+}
+
 interface ParamTypes {
     id: string
 }
@@ -57,7 +64,10 @@ const Tabletop = () => {
     const [open, setOpen] = useState(false)
     const [type, setType] = useState<MenuType>(MenuType.unselect)
     const [showControls, setShowControls] = useState(true)
-    const [tutorialOpen, setTutorialOpen] = useState(true)
+    const [tutorialOpen, setTutorialOpen] = useState(false)
+    const [chooseHeroDialogOpen, setChooseHeroDialogOpen] = useState(false)
+    const [myHero, setMyHero] = useState(MyHeroType.unknown)
+    const [hero, setHero] = useState<Hero | null>(null)
 
     const [selectedMaps, setSelectedMaps] = useState<string[]>((currentGameData && currentGameData.meta.maps) || [])
     const maps = useSelector(selectMaps) || []
@@ -203,9 +213,18 @@ const Tabletop = () => {
                 case 'refresh':
                     setUsers(currentGameData.meta.active_users)
                     setMessages(currentGameData.meta.chat)
+
+                    if (currentGameData.meta.my_hero === null) {
+                        setMyHero(MyHeroType.unset)
+                    }
+                    else {
+                        setMyHero(MyHeroType.set)
+                        setHero(currentGameData.meta.my_hero)
+                    }
+
                     closeSidebar()
 
-                    currentGameData.meta.map === 'Global'
+                    currentGameData.meta.map !== 'Global'
                         ? handleUpdateMap(currentGameData.meta.map, currentGameData)
                         : myGameBoard.setMap({ sprite: '../globalSymbols/WorldMap.png' }, () =>
                             myGameBoard.refresh({
@@ -247,6 +266,12 @@ const Tabletop = () => {
             window.removeEventListener('resize', detect)
         }
     }, [detect])
+
+    useEffect(() => {
+        if (myHero === MyHeroType.unset) {
+            setChooseHeroDialogOpen(true)
+        }
+    }, [myHero])
 
     if (orientation.device === 'mobile' && orientation.orientation === 'portrait') {
         return <FullscreenPage styles={{ color: primary50 }}>Please, rotate your device to landscape mode</FullscreenPage>
@@ -307,7 +332,7 @@ const Tabletop = () => {
                                     </div>
                                 </Grid>
                                 <Grid item xs={2} className={classes.controlPanel}>
-                                    <UserCard code={game ? game.invitation_code || '' : ''}/>
+                                    <UserCard code={game ? game.invitation_code || '' : ''} hero={hero}/>
                                 </Grid>
                                 <Grid item xs={5} className={classes.controlPanel}>
                                     <ChatPanel data={messages}/>
@@ -336,6 +361,7 @@ const Tabletop = () => {
                 }
                 <Hidden lgUp={true}>
                     <RightDrawer
+                        hero={hero}
                         messages={messages}
                         invitation_code={game ? game.invitation_code || '' : ''}
                         users={users}
@@ -343,6 +369,22 @@ const Tabletop = () => {
                     />
                 </Hidden>
                 <TutorialDialog open={tutorialOpen} onClose={() => setTutorialOpen(false)} />
+                <ChooseCharacterDialog
+                    open={chooseHeroDialogOpen}
+                    onChoose={(hero: Hero) => {
+                        setMyHero(MyHeroType.set)
+                        setHero(hero)
+                        ws.sendMessage('add', {
+                            type: 'hero',
+                            hero_id: hero.id,
+                            xy: [0, 0],
+                            sprite: hero.sprite,
+                            name: hero.name
+                        })
+                        setChooseHeroDialogOpen(false)
+                        setTutorialOpen(true)
+                    }}
+                />
             </div>
         </div>
     )

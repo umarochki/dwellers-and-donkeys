@@ -5,13 +5,15 @@ import { History } from 'history'
 import gameReducer, { GameState } from './game/reducer'
 import notificationReducer, { NotificationState } from './notifications/reducer'
 import mapReducer, { MapState } from './map/reducer'
+import heroReducer, { HeroState } from './hero/reducer'
 
 export interface RootState {
     router: RouterState
     auth: AuthState
     game: GameState
     notification: NotificationState
-    map: MapState
+    map: MapState,
+    hero: HeroState
 }
 
 const createRootReducer = (history: History) => combineReducers({
@@ -19,7 +21,8 @@ const createRootReducer = (history: History) => combineReducers({
     auth: authReducer,
     game: gameReducer,
     notification: notificationReducer,
-    map: mapReducer
+    map: mapReducer,
+    hero: heroReducer
 })
 
 export default createRootReducer

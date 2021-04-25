@@ -11,6 +11,7 @@ import { primary200, primary50, primary600, primary700, primary800, primary900 }
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos'
 import ChatPanel from '../ChatPanel'
 import AppsIcon from '@material-ui/icons/Apps'
+import { Hero } from '../../../models/hero'
 
 const drawerWidth = 300
 
@@ -89,11 +90,12 @@ interface Props {
     invitation_code: string
     users: ConnectedUser[]
     onSwitchGrid: () => void
+    hero: Hero
 }
 
 const RightDrawer: React.FC<Props> = props => {
     const classes = useStyles()
-    const { messages, users, invitation_code, onSwitchGrid } = props
+    const { messages, users, invitation_code, onSwitchGrid, hero } = props
 
     const [open, setOpen] = React.useState(true)
 
@@ -118,7 +120,7 @@ const RightDrawer: React.FC<Props> = props => {
                 <AppsIcon className={classes.switchGridIcon}/>
             </div>
             <div className={clsx(classes.drawerInner, !open && classes.drawerInnerHidden)}>
-                <UserCard code={invitation_code} />
+                <UserCard code={invitation_code} hero={hero} />
                 <ChatPanel data={messages}/>
                 <UserList users={users} />
             </div>
