@@ -2,7 +2,7 @@ import * as PIXI from 'pixi.js-legacy';
 
 export default class Drawer extends PIXI.Container {
 
-  constructor(wh, renderer, color='#ffff00', boldness=3) {
+  constructor(wh, renderer, color='#ff0000', boldness=3) {
     super();
 
     let [width, height] = wh;
