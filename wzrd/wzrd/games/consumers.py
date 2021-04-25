@@ -245,15 +245,22 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
                 "chat": game_session.chat,
                 "map": game_session.map,
                 "maps": list(_.omit(game_session.game_objects, "Global").keys()),
-                "my_hero": await self.get_herosession_by_user(game_session, user, serializer)
+                "my_hero": await self.get_herosession_by_user(game_session, user, serializer),
+                "is_gm": user.id == game_session.game_master,
             }
 
         elif action_type in ("map", "global_map"):
             message_type = "send_all"
             game_session.map = meta if action_type == "map" else "Global"
+
+            serializer = HeroSessionSerializer()
+            hero_sessions = await self.get_all_herosessions(game_session, serializer)
+            heroes = {
+                str(hero['id']): hero for hero in hero_sessions
+            }
             if action_type == "map":
                 json_data["meta"] = {
-                    "game_objects": {**game_session.current_game_objects, **game_session.dummy_heroes},
+                    "game_objects": {**game_session.current_game_objects, **heroes},
                     "map": meta
                 }
             else:

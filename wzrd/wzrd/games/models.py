@@ -43,12 +43,6 @@ class Session(models.Model):
             self.game_objects[self.map] = {}
         return self.game_objects[self.map]
 
-    @property
-    def dummy_heroes(self):
-        if "dummy_heroes" not in self.game_objects:
-            self.game_objects["dummy_heroes"] = {}
-        return self.game_objects["dummy_heroes"]
-
 
 class HeroSession(models.Model):
     base = models.ForeignKey(Hero, related_name="hero_sessions", related_query_name="hero_session", on_delete=models.CASCADE)
