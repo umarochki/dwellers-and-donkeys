@@ -7,6 +7,7 @@ export default class GameObject extends Container {
    * @constructor
    *
    * @param {object} [options] - The optional game object parameters.
+   * @param {object} [viewport] - The gameboard viewport.
    * @param {string} [sprite] - Object image source.
    * @param {number[]} [xy] - Object init coordinates: [x, y].
    * @param {number[]} [wh] - Object init size: [width, height].
@@ -15,6 +16,8 @@ export default class GameObject extends Container {
   constructor(options) {
     
     super();
+
+    this.viewport = options.viewport;
 
     this.sprite = new Sprite(options.texture);
     this.sprite.anchor.set(0.5);  // Center the sprite's anchor point
@@ -57,14 +60,6 @@ export default class GameObject extends Container {
       // events for drag start
       .on('mousedown',  this.onDragStart)
       .on('touchstart', this.onDragStart)
-      // events for drag end
-      .on('mouseup',         this.onDragEnd)
-      .on('mouseupoutside',  this.onDragEnd)
-      .on('touchend',        this.onDragEnd)
-      .on('touchendoutside', this.onDragEnd)
-      // events for drag move
-      .on('mousemove', this.onDragMove)
-      .on('touchmove', this.onDragMove);
   }
 
   onClick(e) {
@@ -73,15 +68,14 @@ export default class GameObject extends Container {
   };
   
   onSelect() {
-    
     this.eventManager.notify('click', {
       id: this.id
     })
 
-    if (this.parent.selectedObject)
-      this.parent.selectedObject.offSelect();
+    if (this.viewport.selectedObject)
+      this.viewport.selectedObject.offSelect();
 
-    this.parent.selectedObject = this;
+    this.viewport.selectedObject = this;
 
     const [width, height] = [this.sprite.width, this.sprite.height];
 
@@ -117,21 +111,30 @@ export default class GameObject extends Container {
   }
 
   offSelect() {
-    this.parent.selectedObject = null;
+    this.viewport.selectedObject = null;
     this.removeChild(this.border);
   }
 
   onDragStart(e) {
     this.updateOverlap();
 
-    this.parent.pause = true;
+    this.viewport.pause = true;
     this.dragging = true;
     
     this.start   = { x: this.x, y: this.y }
     this.current = { x: this.x, y: this.y }
     this.last = { x: e.data.global.x, y: e.data.global.y }
-
     this.timer = null;
+
+    this
+      // events for drag end 
+      .on('mouseup',         this.onDragEnd)
+      .on('mouseupoutside',  this.onDragEnd)
+      .on('touchend',        this.onDragEnd)
+      .on('touchendoutside', this.onDragEnd)
+      // events for drag move
+      .on('mousemove', this.onDragMove)
+      .on('touchmove', this.onDragMove);
 
     this.eventManager.notify('update_and_start', {
       id: this.id,
@@ -144,7 +147,7 @@ export default class GameObject extends Container {
     if (Math.abs(this.current.x - this.start.x) <= 2 && Math.abs(this.current.y - this.start.y) <= 2)
       this.onClick(e);
 
-    this.parent.pause = false;
+    this.viewport.pause = false;
     this.dragging = false;
 
     this.eventManager.notify('update_and_save', {
