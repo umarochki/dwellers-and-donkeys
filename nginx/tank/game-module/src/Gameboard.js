@@ -201,6 +201,9 @@ export default class Gameboard {
       if (this.viewport && this.viewport.selectedObject) this.viewport.selectedObject.offSelect();
     })
 
+    // Set viewport curcor style
+    this.viewport.cursor = 'move';
+
     this.setDummyMap();
 
     // Characters layer
