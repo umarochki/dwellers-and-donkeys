@@ -76,7 +76,7 @@ const AddMapDialog: React.FC<Props> = props => {
     }
 
     return (
-        <Dialog open={open} className={classes.closeButton}>
+        <Dialog open={open} classes={{ paper: classes.root }}>
             <IconButton onClick={onClose} className={classes.closeButton}>
                 <CloseIcon />
             </IconButton>

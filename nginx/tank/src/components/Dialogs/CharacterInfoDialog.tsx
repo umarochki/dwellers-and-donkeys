@@ -107,7 +107,7 @@ const CharacterInfoDialog: React.FC<Props> = props => {
 
     useEffect(() => {
         methods.reset(getDefault(hero))
-    }, [hero, methods])
+    }, [hero])
 
     return (
         <Dialog open={open} className={classes.root}>
