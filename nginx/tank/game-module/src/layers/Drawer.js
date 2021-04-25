@@ -1,0 +1,321 @@
+import * as PIXI from 'pixi.js-legacy';
+
+
+export default class Drawer extends PIXI.Container {
+
+  constructor(viewport, renderer, color='#ff0000', boldness=3) {
+    super();
+
+    this.mode = 'none';
+
+    this.viewport = viewport;
+    this.renderer = renderer;
+
+    this.color = this.convertFromHexToNumericColor(color);
+    this.boldness = boldness;
+
+    // Creating overlay for handling extra event listeners
+    this.overlay = new PIXI.Container();
+    this.addChild(this.overlay);
+    
+    // Interactive area that covers the whole gameboard world
+    let rect = new PIXI.Graphics();
+    rect.beginFill(0, 0.5);
+    rect.alpha = 0;
+    rect.drawRect(-this.viewport._worldWidth, -this.viewport._worldHeight, this.viewport._worldWidth * 2, this.viewport._worldHeight * 2);
+    rect.endFill();
+    this.overlay.cursor = 'auto';
+    this.overlay.addChild(rect);
+    
+    // Stores some auxiliary graphics in process of drawing
+    this.temp = new PIXI.Container();
+    this.overlay.addChild(this.temp);
+
+    // Drawing board
+    this.board = new PIXI.Container();
+    this.addChild(this.board);
+
+    // Bindings
+    this.pensilDown = this.pensilDown.bind(this);
+    this.pensilMove = this.pensilMove.bind(this);
+    this.pensilUp = this.pensilUp.bind(this);
+
+    this.eraserDown = this.eraserDown.bind(this);
+    this.eraserMove = this.eraserMove.bind(this);
+    this.eraserUp = this.eraserUp.bind(this);
+
+    this.polygonStartClick = this.polygonStartClick.bind(this);
+    this.polygonMiddleClick = this.polygonMiddleClick.bind(this);
+    this.polygonEndClick = this.polygonEndClick.bind(this);
+    this.polygonMove = this.polygonMove.bind(this);
+  }
+
+  transformToTexture(event) {
+    this.texture = this.renderer.generateTexture(this.board);
+    this.clear();
+    this.sprite = new PIXI.Sprite(this.texture);
+    this.sprite.x = this.board._localBounds.minX;
+    this.sprite.y = this.board._localBounds.minY;
+    this.board.addChild(this.sprite);
+  }
+
+  // --------=====x{ HANDLERS }x=====--------
+
+  pensilDown(event) {
+    event.stopPropagation();
+    this.marker = new PIXI.Graphics();
+    this.board.addChild(this.marker);
+    this.points = [];
+    this.overlay.on('mousemove', this.pensilMove);
+    this.overlay.on('mouseup', this.pensilUp);
+  }
+
+  pensilMove(event) {
+    const x = event.data.global.x
+    const y = event.data.global.y
+
+    var point = new PIXI.Point(
+      (x - this.viewport.x) / this.viewport.scale.x, 
+      (y - this.viewport.y) / this.viewport.scale.y
+    );
+
+    this.points.push(point);
+    this.marker.clear();
+    this.marker.lineStyle(this.boldness, this.color);
+    this.drawCustomLine(this.points);
+  }
+
+  pensilUp(event) {
+    this.overlay.off('mousemove', this.pensilMove);
+    this.overlay.off('mouseup', this.pensilUp);
+    this.points = [];
+  }
+
+  // ----------------------------------------
+
+  polygonStartClick(event) {
+    event.stopPropagation();
+    
+    const x = event.data.global.x
+    const y = event.data.global.y
+
+    var point = new PIXI.Point(
+      (x - this.viewport.x) / this.viewport.scale.x, 
+      (y - this.viewport.y) / this.viewport.scale.y
+    );
+
+    this.edges = new PIXI.Graphics();
+    this.overlay.addChild(this.edges);
+    
+    this.vertices = new PIXI.Container();
+    this.vertices.interactive = true;
+    this.vertices.cursor = 'pointer';
+    this.overlay.addChild(this.vertices);
+    
+    this.edge = new PIXI.Graphics();
+    this.edges.addChild(this.edge);
+
+    let texture = new PIXI.Graphics();
+    texture.beginFill(0xffffff);
+    texture.drawCircle(0,0,10)
+    texture.endFill();
+
+    this.vertex = new PIXI.Sprite(this.renderer.generateTexture(texture));
+    this.vertex.anchor.set(0.5);
+    this.vertex.position.copyFrom(point);
+    this.vertex.interactive = true;
+    this.vertex.cursor = 'pointer';
+
+    this.vertices.addChild(this.vertex)
+
+
+    this.points = [];
+    this.points.push(point);
+
+    this.overlay.on('mousemove', this.polygonMove);
+    this.vertex.on('click', this.polygonEndClick);
+
+    this.overlay.off('click', this.polygonStartClick);
+    this.overlay.on('click', this.polygonMiddleClick);
+  }
+
+  polygonMiddleClick(event) {
+    event.stopPropagation();
+    
+    const x = event.data.global.x
+    const y = event.data.global.y
+
+    var point = new PIXI.Point(
+      (x - this.viewport.x) / this.viewport.scale.x, 
+      (y - this.viewport.y) / this.viewport.scale.y
+    );
+
+    this.points.push(point);
+    
+    this.edge = new PIXI.Graphics();
+    this.edges.addChild(this.edge);
+  }
+
+  polygonEndClick(event) {
+    event.stopPropagation();
+
+    let polygon = new PIXI.Graphics();
+    this.board.addChild(polygon);
+    polygon.beginFill(0xffffff);
+    polygon.drawPolygon(this.points);
+    polygon.endFill();
+
+    this.overlay.removeChild(this.edges);
+    this.overlay.removeChild(this.vertices);
+
+    this.overlay.off('mousemove', this.polygonMove);
+    this.vertex.off('click', this.polygonEndClick);
+    this.overlay.off('click', this.polygonMiddleClick);
+
+    this.overlay.on('click', this.polygonStartClick);
+  }
+
+  polygonMove(event) {
+    event.stopPropagation();
+    const x = event.data.global.x;
+    const y = event.data.global.y;
+
+    var point = new PIXI.Point(
+      (x - this.viewport.x ) / this.viewport.scale.x, 
+      (y - this.viewport.y ) / this.viewport.scale.y
+    );
+
+    this.edge.clear();
+    this.edge.lineStyle(this.boldness, this.color);
+    this.edge.moveTo(this.points[this.points.length - 1].x, this.points[this.points.length - 1].y);
+    this.edge.lineTo(point.x, point.y);
+
+  }
+
+
+  // ----------------------------------------
+
+  eraserDown(event) {
+    event.stopPropagation();
+    this.brush = new PIXI.Graphics();
+    this.brush.beginFill(0xffffff);
+    this.brush.drawCircle(0, 0, 50);
+    this.brush.endFill();
+    this.overlay.on('mousemove', this.eraserMove);
+    this.overlay.on('mouseup', this.eraserUp);
+  }
+
+  eraserMove(event) {
+    const x = event.data.global.x;
+    const y = event.data.global.y;
+
+    if (!this.sprite) return;
+
+    var point = new PIXI.Point(
+      (x - this.viewport.x ) / this.viewport.scale.x - this.sprite.x, 
+      (y - this.viewport.y ) / this.viewport.scale.y - this.sprite.y
+    );
+
+    this.brush.position.copyFrom(point);
+    this.brush.blendMode = PIXI.BLEND_MODES.DST_OUT;
+    this.renderer.render(this.brush, this.texture, false, null, false);
+  }
+
+  eraserUp(event) {
+    this.overlay.off('mousemove', this.eraserMove);
+    this.overlay.off('mouseup', this.eraserUp);
+  }
+
+  // --------=====x{ METHODS }x=====--------
+
+  drawPolygon(points, create=false, color='#ff0000', boldness=3) {
+
+  }
+
+  drawLine(xy1, xy2, create=false, color='#ff0000', boldness=3) {
+
+  }
+
+  drawCustomLine(points, create=false, color='#ff0000', boldness=3) {
+    
+    var graphics;
+
+    if (create) {
+      graphics = new PIXI.Graphics();
+      graphics.lineStyle(boldness, color);
+    }
+    else
+      graphics = this.marker;
+
+    if (points.length < 3) {
+      var point = points[0];
+      graphics.beginFill(color);
+      graphics.arcTo(point.x, point.y, boldness / 2, 0, Math.PI * 2, !0);
+      graphics.endFill();      
+      return graphics;
+    }
+    
+    graphics.moveTo(points[0].x, points[0].y);
+    
+    for (var i = 1; i < points.length - 2; i++) {
+      var c = (points[i].x + points[i + 1].x) / 2;
+      var d = (points[i].y + points[i + 1].y) / 2;
+      
+      graphics.quadraticCurveTo(points[i].x, points[i].y, c, d);
+    }
+    
+    // For the last 2 points
+    graphics.quadraticCurveTo(
+      points[i].x,
+      points[i].y,
+      points[i + 1].x,
+      points[i + 1].y
+    );
+
+    return graphics;
+  }
+
+  clear() {
+    this.board.removeChildren();
+    this.temp.removeChildren();
+  }
+
+  convertFromHexToNumericColor(color) {
+    return parseInt(`0x${color.replace(/#/g, "")}`);
+  }
+
+
+  setMode(mode, drawing=true) {
+    
+    if (drawing) this.transformToTexture();
+
+    if (this.mode === mode) this.mode = 'none';
+    else this.mode = mode;
+
+    this.overlay.interactive = true;
+    this.overlay.removeAllListeners();
+    this.temp.removeChildren();
+
+    this.viewport.plugins.pause('drag');
+
+    switch (this.mode) {
+      case 'pensil':
+        this.overlay.on('mousedown', this.pensilDown);
+        break;
+
+      case 'polygon':
+        this.overlay.on('click', this.polygonStartClick);
+        break;
+
+      case 'eraser':
+        this.overlay.on('mousedown', this.eraserDown);
+        break;
+
+      case 'none':      
+      default:
+        this.viewport.plugins.resume('drag');
+        this.mode = 'none';
+        this.overlay.interactive = false;
+    }
+  }
+}

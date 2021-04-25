@@ -1,6 +1,6 @@
 import { Container, TilingSprite, Texture, Sprite } from 'pixi.js-legacy';
 
-export default class MapContainer extends Container {
+export default class Map extends Container {
 
     /**
      * @constructor
