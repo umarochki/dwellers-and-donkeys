@@ -3,6 +3,7 @@ channels
 channels_redis
 django==3.0.5
 djangorestframework
+django-google-auth
 six
 djongo
 nickname-generator
