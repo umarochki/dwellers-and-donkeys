@@ -2,7 +2,7 @@ import * as PIXI from 'pixi.js-legacy';
 
 export default class Drawer extends PIXI.Container {
 
-  constructor(wh, renderer, color='#ffffff', boldness=3) {
+  constructor(wh, renderer, color='#ff0000', boldness=3) {
     super();
 
     let [width, height] = wh;
@@ -17,6 +17,7 @@ export default class Drawer extends PIXI.Container {
     this.graphics.alpha = 0;
     this.graphics.drawRect(-width, -height, width * 2, height * 2);
     this.graphics.endFill();
+    this.graphics.cursor = 'auto';
     this.addChild(this.graphics);
 
     this.markers = new PIXI.Container();
@@ -134,6 +135,7 @@ export default class Drawer extends PIXI.Container {
   }
 
   clear() {
+    this.markers.cacheAsBitmap = false;
     for (var i = this.markers.children.length - 1; i > -1; i--) {  
       this.markers.removeChild(this.markers.children[i])
     };
