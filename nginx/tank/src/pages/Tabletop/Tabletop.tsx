@@ -214,12 +214,13 @@ const Tabletop = () => {
                     setUsers(currentGameData.meta.active_users)
                     setMessages(currentGameData.meta.chat)
 
-                    if (currentGameData.meta.my_hero === null) {
-                        setMyHero(MyHeroType.unset)
-                    }
-                    else {
-                        setMyHero(MyHeroType.set)
-                        setHero(currentGameData.meta.my_hero)
+                    if (!currentGameData.meta.is_gm) {
+                        if (currentGameData.meta.my_hero === null) {
+                            setMyHero(MyHeroType.unset)
+                        } else {
+                            setMyHero(MyHeroType.set)
+                            setHero(currentGameData.meta.my_hero)
+                        }
                     }
 
                     closeSidebar()
@@ -344,9 +345,9 @@ const Tabletop = () => {
                 <Hidden mdDown={true}>
                     <div className={classes.mapControls}>
                         <div className={classes.mapControl}><AppsIcon className={classes.mapControlIcon} onClick={() => boardRef.current && boardRef.current.switchGrid()}/></div>
-                        <div className={classes.mapControl}><CreateIcon className={classes.mapControlIcon}/></div>
-                        <div className={classes.mapControl}><DeleteIcon className={classes.mapControlIcon}/></div>
-                        <div className={classes.mapControl}><EraserIcon className={classes.mapControlIcon}/></div>
+                        <div className={classes.mapControl}><CreateIcon className={classes.mapControlIcon} onClick={() => boardRef.current && boardRef.current.drawer.drawMode()}/></div>
+                        <div className={classes.mapControl}><EraserIcon className={classes.mapControlIcon} onClick={() => boardRef.current && boardRef.current.drawer.eraseMode()}/></div>
+                        <div className={classes.mapControl}><DeleteIcon className={classes.mapControlIcon} onClick={() => boardRef.current && boardRef.current.drawer.clear()}/></div>
                     </div>
                 </Hidden>
                 {
