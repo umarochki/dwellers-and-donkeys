@@ -68,7 +68,6 @@ export default class GameObject extends Container {
   };
   
   onSelect() {
-    
     this.eventManager.notify('click', {
       id: this.id
     })
@@ -209,8 +208,6 @@ export default class GameObject extends Container {
 
       const [width, height] = [this.sprite.width, this.sprite.height];
       const [x, y] = [e.data.global.x, e.data.global.y]
-
-      console.log(this);
 
       this.current.x += (x - this.last.x) * 2 / this.parent.scale.x; 
       this.current.y += (y - this.last.y) * 2 / this.parent.scale.y;

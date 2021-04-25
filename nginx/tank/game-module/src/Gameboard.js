@@ -38,6 +38,7 @@ export default class Gameboard {
 
     options = Object.assign({
         forceCanvas: false,
+        antialias: true
     }, options);
 
     this.eventManager = new EventManager();
@@ -207,7 +208,7 @@ export default class Gameboard {
     this.viewport.addChild(this.characters);
 
     // Viewport layer
-    this.drawer = new Drawer([world.width, world.height]);
+    this.drawer = new Drawer([world.width, world.height], this.app.renderer);
     this.viewport.addChild(this.drawer);
   }
 
@@ -387,13 +388,6 @@ export default class Gameboard {
   switchGrid() {
     this.mapContainer.switchGrid();
     this.eventManager.notify('grid', { enabled: true });
-  }
-
-  draw(isEnabled = true) {
-    if (isEnabled) 
-      this.drawer.onDrawMode();
-    else
-      this.drawer.offDrawMode();
   }
 
   // If resource has already been loaded, not doing it again
