@@ -7,7 +7,7 @@ import { makeStyles } from '@material-ui/core/styles'
 import StartPageHeader from './StartPageHeader'
 import CreatedGameWorlds from './CreatedGameWorlds'
 import seaDark from '../../assets/Sea_dark.png'
-import { Menu, MenuItem } from '@material-ui/core'
+import { Avatar, Menu, MenuItem } from '@material-ui/core'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectCurrentUser, selectQuickStartState } from '../../store/user/selectors'
 import { logout } from '../../store/user/actions'
@@ -53,7 +53,7 @@ const StartPage = () => {
     const classes = useStyles()
     const user = useSelector(selectCurrentUser)
     const quickStartState = useSelector(selectQuickStartState)
-    const [anchorEl, setAnchorEl] = useState(null)
+    const [anchorEl, setAnchorEl] = useState<HTMLDivElement | null>(null)
     const dispatch = useDispatch()
 
     const [worldDialogOpen, setWorldDialogOpen] = React.useState(false)
@@ -63,9 +63,9 @@ const StartPage = () => {
     const gameHistory = useSelector(selectGameHistory)
     const gameHistoryGM = useSelector(selectGMGameHistory)
 
-    // const handleProfileClick = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
-    //     setAnchorEl(event.currentTarget)
-    // }, [])
+    const handleProfileClick = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
+        setAnchorEl(event.currentTarget)
+    }, [])
 
     const handleClose = useCallback(() => {
         setAnchorEl(null)
@@ -90,7 +90,7 @@ const StartPage = () => {
             <CssBaseline/>
             <AppBar position="relative">
                 <Toolbar className={classes.toolbarAvatar}>
-                    {/*{user && <Avatar onClick={handleProfileClick} className={classes.avatar}>?</Avatar>}*/}
+                    {user && <Avatar onClick={handleProfileClick} className={classes.avatar}>?</Avatar>}
                     <Menu
                         id="profile-menu"
                         anchorEl={anchorEl}
