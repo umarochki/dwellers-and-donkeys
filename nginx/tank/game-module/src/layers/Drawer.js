@@ -64,7 +64,7 @@ export default class Drawer extends PIXI.Container {
   pensilDown(event) {
     event.stopPropagation();
     this.marker = new PIXI.Graphics();
-    this.board.addChild(this.marker);
+    this.context.addChild(this.marker);
     this.points = [];
     this.overlay.on('mousemove', this.pensilMove);
     this.overlay.on('mouseup', this.pensilUp);
@@ -105,12 +105,12 @@ export default class Drawer extends PIXI.Container {
     );
 
     this.edges = new PIXI.Graphics();
-    this.overlay.addChild(this.edges);
+    this.temp.addChild(this.edges);
     
     this.vertices = new PIXI.Container();
     this.vertices.interactive = true;
     this.vertices.cursor = 'pointer';
-    this.overlay.addChild(this.vertices);
+    this.temp.addChild(this.vertices);
     
     this.edge = new PIXI.Graphics();
     this.edges.addChild(this.edge);
@@ -130,7 +130,7 @@ export default class Drawer extends PIXI.Container {
 
 
     this.points = [];
-    this.points.push(point);
+    this.points.push([point.x, point.y]);
 
     this.overlay.on('mousemove', this.polygonMove);
     this.vertex.on('click', this.polygonEndClick);
@@ -150,7 +150,7 @@ export default class Drawer extends PIXI.Container {
       (y - this.viewport.y) / this.viewport.scale.y
     );
 
-    this.points.push(point);
+    this.points.push([point.x, point.y]);
     
     this.edge = new PIXI.Graphics();
     this.edges.addChild(this.edge);
@@ -160,18 +160,21 @@ export default class Drawer extends PIXI.Container {
     event.stopPropagation();
 
     let polygon = new PIXI.Graphics();
-    this.board.addChild(polygon);
+    polygon.points = this.points;
+    
+    // Draw on board or pass it to the outer context
+    this.context.addChild(polygon);
+    
     polygon.beginFill(0xffffff);
     polygon.drawPolygon(this.points);
     polygon.endFill();
 
-    this.overlay.removeChild(this.edges);
-    this.overlay.removeChild(this.vertices);
+    this.temp.removeChild(this.edges);
+    this.temp.removeChild(this.vertices);
 
     this.overlay.off('mousemove', this.polygonMove);
     this.vertex.off('click', this.polygonEndClick);
     this.overlay.off('click', this.polygonMiddleClick);
-
     this.overlay.on('click', this.polygonStartClick);
   }
 
@@ -187,7 +190,7 @@ export default class Drawer extends PIXI.Container {
 
     this.edge.clear();
     this.edge.lineStyle(this.boldness, this.color);
-    this.edge.moveTo(this.points[this.points.length - 1].x, this.points[this.points.length - 1].y);
+    this.edge.moveTo(this.points[this.points.length - 1][0], this.points[this.points.length - 1][1]);
     this.edge.lineTo(point.x, point.y);
 
   }
@@ -227,14 +230,6 @@ export default class Drawer extends PIXI.Container {
   }
 
   // --------=====x{ METHODS }x=====--------
-
-  drawPolygon(points, create=false, color='#ff0000', boldness=3) {
-
-  }
-
-  drawLine(xy1, xy2, create=false, color='#ff0000', boldness=3) {
-
-  }
 
   drawCustomLine(points, create=false, color='#ff0000', boldness=3) {
     
@@ -285,9 +280,11 @@ export default class Drawer extends PIXI.Container {
   }
 
 
-  setMode(mode, drawing=true) {
+  setMode(mode, texture=true, context=this.board) {
     
-    if (drawing) this.transformToTexture();
+    if (texture) this.transformToTexture();
+
+    this.context = context;
 
     if (this.mode === mode) this.mode = 'none';
     else this.mode = mode;

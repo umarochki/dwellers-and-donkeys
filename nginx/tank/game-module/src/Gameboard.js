@@ -218,12 +218,14 @@ export default class Gameboard {
     this.characters = new PIXI.Container();
     this.viewport.addChild(this.characters);
 
-    // Vision polygon manager
-    this.visionRegion = new VisionRegion(this.drawer, this.viewport, this.app.renderer);
-    this.viewport.addChild(this.visionRegion);
-
     // Drawing border & manager
     this.drawer = new Drawer(this.viewport, this.app.renderer);
+
+    // Vision polygon manager
+    this.visionRegion = new VisionRegion(this.drawer, this.app.renderer);
+    
+
+    this.viewport.addChild(this.visionRegion);
     this.viewport.addChild(this.drawer);
     
   }
@@ -256,9 +258,9 @@ export default class Gameboard {
 
       // Add new map
       this.viewport.addChildAt(this.mapContainer, 0);
+      this.viewport.moveCenter(image.width / 2, image.height / 2);
 
-      this.viewport.screenWidth = this.width;
-      this.viewport.screenHeight = this.height;
+      this.visionRegion.redrawBorders(image.width, image.height);
 
       typeof callback == "function" && callback();
       
@@ -324,6 +326,8 @@ export default class Gameboard {
     if (options.map) sprites.push(options.map);
 
     this._safeLoad(sprites, () => {
+
+      if (options.type === 'hero') options.visionRegion = this.visionRegion;
 
       const obj = this.createObject(options);
       this.characters.addChild(obj);

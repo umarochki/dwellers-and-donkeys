@@ -12,10 +12,10 @@ export default class Map extends Container {
         this.img = img;
         this.name = name;
 
-        img.anchor.set(0.5)
+        //img.anchor.set(0.5)
 
-        img.x = parent.screenWidth / 2;
-        img.y = parent.screenHeight / 2;
+        //img.x = parent.screenWidth / 2;
+        //img.y = parent.screenHeight / 2;
 
         this.addChild(img);
     }
@@ -30,8 +30,7 @@ export default class Map extends Container {
 
         this.tilingSprite = new TilingSprite(this.grid, this.width, this.height);
 
-        this.tilingSprite.position.x = this.img.x - this.img.width / 2;  //this.parent.x;
-        this.tilingSprite.position.y = this.img.y - this.img.height / 2;  //this.parent.y;
+        
 
         this.addChild(this.tilingSprite);                
     }
