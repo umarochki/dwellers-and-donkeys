@@ -381,7 +381,7 @@ export default class Gameboard {
   }
 
   clear(options, callback) {
-    for (var i = this.characters.children.length - 1; i >= 1; i--) {  
+    for (var i = this.characters.children.length - 1; i > -1; i--) {  
       this.characters.removeChild(this.characters.children[i])
     };
 
