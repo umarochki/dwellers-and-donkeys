@@ -1,5 +1,5 @@
 import * as PIXI from 'pixi.js-legacy';
-import { Viewport } from 'pixi-viewport'
+import { Viewport } from 'pixi-viewport';
 import { SVG } from 'pixi-svg';
 
 //import { PixiPlugin } from "gsap/PixiPlugin";
@@ -11,7 +11,8 @@ import EventManager from './EventManager';
 import Drawer from './Drawer';
 
 import createElementSVG from './utils/createElementSVG';
-import DUMMY_MAP_RAW from './assets/dummy-map'
+import drawDashedPolygon from './utils/drawDashedPolygon';
+import DUMMY_MAP_RAW from './assets/dummy-map';
 
 // PIXI.settings.FAIL_IF_MAJOR_PERFORMANCE_CAVEAT = false;
 
@@ -37,6 +38,7 @@ export default class Gameboard {
 
     options = Object.assign({
         forceCanvas: false,
+        antialias: true
     }, options);
 
     this.eventManager = new EventManager();
@@ -167,7 +169,8 @@ export default class Gameboard {
         screenHeight: this.height,
         worldWidth: world.width,
         worldHeight: world.height,
-
+        stopPropagation: true,
+        preventDefault: true,
         interaction: this.app.renderer.plugins.interaction,
 
         // To prevent interaction with overlay DOM's
@@ -193,17 +196,28 @@ export default class Gameboard {
       bottom: world.width 
     })
 
+    // Unselect object by clicking anywhere
+    this.viewport.on('clicked', () => {
+      if (this.viewport && this.viewport.selectedObject) this.viewport.selectedObject.offSelect();
+    })
+
+    // Set viewport curcor style
+    this.viewport.cursor = 'move';
+
     this.setDummyMap();
 
-    this.drawer = new Drawer('#000', 1, this.app, this.viewport, this.app.renderer, this.app.loader.resources.grid.texture)
+    // Characters layer
+    this.characters = new PIXI.Container();
+    this.viewport.addChild(this.characters);
 
+    // Viewport layer
+    this.drawer = new Drawer([world.width, world.height], this.app.renderer);
+    this.viewport.addChild(this.drawer);
   }
 
   setDummyMap(callback) {
       var dummy = new SVG(createElementSVG(DUMMY_MAP_RAW));
       this.viewport.addChild(dummy);
-
-      console.log(dummy)
 
       dummy.scale.set(0.5)
       dummy.x = this.width / 2 - dummy.width / 2;
@@ -217,8 +231,6 @@ export default class Gameboard {
 
       // Draw map image as a background
       const image = new PIXI.Sprite(this.app.loader.resources[options.sprite].texture);
-
-      console.log(image);
 
       this.mapContainer = new MapContainer(
         this.app.loader.resources.grid.texture, 
@@ -274,6 +286,7 @@ export default class Gameboard {
 
     return new GameObjectFactory({
       ...options,
+      viewport: this.viewport,
       eventManager: this.eventManager, 
       texture: this.app.loader.resources[options.sprite].texture,
       width: 0, // TODO:
@@ -294,41 +307,50 @@ export default class Gameboard {
     this._safeLoad([options.sprite], () => {
 
       const obj = this.createObject(options);
-      this.viewport.addChild(obj);
+      this.characters.addChild(obj);
+
+      if (options.type == 'marker') obj.onSelect();
 
       typeof callback == "function" && callback();
     });
   }
 
-  updateObjectPosition(options, callback) {
+  
+  updateObject(options, method='default', callback) {
 
-    var obj = this.viewport.children.find(x => x.id === options.id)
-
-    if (!obj) {
-      console.warn('Cannot find an element with id: ', options.id);
-      return;
-    }
-
-    obj.updatePosition(options.xy[0], options.xy[1]);
-    typeof callback == "function" && callback();
-  }
-
-  updateObjectOverlap(options, callback) {
-
-    var obj = this.viewport.children.find(x => x.id === options.id)
+    var obj = this.characters.children.find(x => x.id === options.id)
 
     if (!obj) {
       console.warn('Cannot find an element with id: ', options.id);
       return;
     }
 
-    obj.updateOverlap();
+    switch (method) {
+      case 'size':
+        if (options.wh) obj.updateSize(options.wh[0], options.wh[1]);
+        break;
+      
+      case 'position':
+        if (options.xy) obj.updatePosition(options.xy[0], options.xy[1]);
+        break;
+      
+      case 'overlap':
+        obj.updateOverlap();
+        break;
+      
+      default:
+        if (options.wh) obj.updateSize(options.wh[0], options.wh[1]);
+        if (options.xy) obj.updatePosition(options.xy[0], options.xy[1]);
+        break;
+    }
+
     typeof callback == "function" && callback();
   }
+
 
   deleteObject(options, callback) {
 
-    var obj = this.viewport.children.find(x => x.id === options.id)
+    var obj = this.characters.children.find(x => x.id === options.id)
 
     if (!obj) {
       console.warn('Cannot find an element with id: ', options.id);
@@ -351,7 +373,7 @@ export default class Gameboard {
     this._safeLoad(resources, () => {
       for (let key in options.game_objects) {
         var obj = this.createObject(options.game_objects[key])
-        this.viewport.addChild(obj);
+        this.characters.addChild(obj);
       }
 
       typeof callback == "function" && callback()
@@ -359,8 +381,8 @@ export default class Gameboard {
   }
 
   clear(options, callback) {
-    for (var i = this.viewport.children.length - 1; i >= 1; i--) {  
-      this.viewport.removeChild(this.viewport.children[i])
+    for (var i = this.characters.children.length - 1; i >= 1; i--) {  
+      this.characters.removeChild(this.characters.children[i])
     };
 
     typeof callback == "function" && callback(); 
@@ -369,16 +391,6 @@ export default class Gameboard {
   switchGrid() {
     this.mapContainer.switchGrid();
     this.eventManager.notify('grid', { enabled: true });
-  }
-
-  draw(isEnabled = true) {
-    if (isEnabled) 
-    {
-      this.viewport.addChild(this.drawer);
-    }
-    else {
-      //TODO: deactivate?
-    }
   }
 
   // If resource has already been loaded, not doing it again

@@ -104,6 +104,7 @@ const useStyles = makeStyles((theme: Theme) =>
             border: '1px solid #212C3D'
         },
         rollContainer: {
+            userSelect: 'none',
             position: 'relative'
         },
         chatContent: {
@@ -244,7 +245,7 @@ const ChatPanel: React.FC<Props> = props => {
                     </Hidden>
                     <Grid container item xs={12} justify="space-between">
                         <div className={classes.rollContainer}><Dice type={4} className={clsx(classes.roll, isDisabled(0) && classes.rollDisabled)} onClick={addDice('4', 0)}/><span className={classes.rollType}>4</span></div>
-                        <div className={classes.rollContainer}> <Dice type={6} className={clsx(classes.roll, isDisabled(1) && classes.rollDisabled)} onClick={addDice('6', 1)}/><span className={classes.rollType}>6</span></div>
+                        <div className={classes.rollContainer}><Dice type={6} className={clsx(classes.roll, isDisabled(1) && classes.rollDisabled)} onClick={addDice('6', 1)}/><span className={classes.rollType}>6</span></div>
                         <div className={classes.rollContainer}><Dice type={8} className={clsx(classes.roll, isDisabled(2) && classes.rollDisabled)} onClick={addDice('8', 2)}/><span className={classes.rollType}>8</span></div>
                     </Grid>
                     <Grid container item xs={12} justify="space-between">

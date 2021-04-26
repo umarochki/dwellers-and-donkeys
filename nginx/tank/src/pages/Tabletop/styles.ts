@@ -1,5 +1,5 @@
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
-import { primary400, primary700 } from '../../styles/colors'
+import { primary400, primary50, primary500, primary600, primary700, primary800, primary900 } from '../../styles/colors'
 
 const drawerWidth = 240
 
@@ -56,9 +56,34 @@ export default makeStyles((theme: Theme) =>
             overflow: 'hidden'
         },
         controls: {
+            position: 'relative',
             height: '30%',
             backgroundColor: '#334055',
-            display: 'flex'
+            display: 'flex',
+            transition: 'bottom .5s cubic-bezier(0.820, 0.085, 0.395, 0.895)',
+            bottom: 0
+        },
+        mapControls: {
+            display: 'flex',
+            position: 'fixed',
+            left: 'calc(50% - 70px)',
+            top: 10,
+            backgroundColor: primary500
+        },
+        mapControl: {
+            border: `1px solid ${primary900}`,
+            padding: '5px 10px 2px',
+            transition: '.3s ease-in-out',
+            cursor: 'pointer',
+            '&:hover': {
+                backgroundColor: primary700
+            }
+        },
+        mapControlIcon: {
+
+        },
+        hideControls: {
+            bottom: 'calc(-30% - 16px)'
         },
         people: {
             display: 'flex',
@@ -96,19 +121,10 @@ export default makeStyles((theme: Theme) =>
             textAlign: 'center',
             position: 'fixed',
         },
-        switchGridBtn: {
-            right: 25,
-            top: 25,
-            transition: 'all 0.1s ease-in-out',
-            '&:hover': {
-                boxShadow: '0 6px 14px 0 #1c1c1c',
-                transform: 'scale(1.05)'
-            }
-        },
         deleteBtn: {
             right: 25,
-            top: 115,
-            opacity: 0.4,
+            top: 25,
+            opacity: 0.6,
             [theme.breakpoints.down('md')]: {
                 top: 'auto',
                 bottom: 25,
@@ -123,6 +139,32 @@ export default makeStyles((theme: Theme) =>
             width: '1em',
             height: '1.35em',
             fontSize: '3.3rem'
+        },
+        drawerBtn: {
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            position: 'absolute',
+            borderRadius: '10px 10px 0 0',
+            top: -35,
+            width: 60,
+            height: 35,
+            border: `solid 2px ${primary600}`,
+            borderBottom: 'none'
+        },
+        closeButton: {
+            backgroundColor: primary800
+        },
+        closeIcon: {
+            transform: 'rotate(270deg)',
+            marginTop: 0,
+            marginBottom: 10,
+            transition: 'transform .5s ease',
+            color: primary50
+        },
+        closeIconClosed: {
+            transform: 'rotate(90deg)',
+            marginTop: 20
         }
     })
 )

@@ -22,5 +22,4 @@ WORKDIR /usr/share/nginx/html
 RUN rm -rf ./*
 
 COPY --from=tank_builder /app/build .
-
 ENTRYPOINT ["nginx", "-g", "daemon off;"]

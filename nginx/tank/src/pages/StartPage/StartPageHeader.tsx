@@ -5,7 +5,6 @@ import Grid from '@material-ui/core/Grid'
 import Button from '@material-ui/core/Button'
 import InvitationCodeDialog from './InvitationCodeDialog'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
-import CreateWorldDialog from '../../components/Dialogs/CreateWorldDialog'
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -17,21 +16,16 @@ const useStyles = makeStyles((theme: Theme) =>
 
 interface Props {
     className: string
+    openWorldDialog: () => void
 }
 
 const StartPageHeader: React.FC<Props> = props => {
-    const { className } = props
+    const { className, openWorldDialog } = props
     const classes = useStyles()
-    // const history = useHistory()
-    // const handleNewGame = useCallback(() => history.push('new-game'), [history])
 
     const [open, setOpen] = React.useState(false)
     const openInvitationCodeDialog = useCallback(() => setOpen(true), [])
     const closeInvitationCodeDialog = useCallback(() => setOpen(false), [])
-
-    const [worldDialogOpen, setWorldDialogOpen] = React.useState(false)
-    const openWorldDialog = useCallback(() => setWorldDialogOpen(true), [])
-    const closeWorldDialog = useCallback(() => setWorldDialogOpen(false), [])
 
     return (
         <div className={className}>
@@ -57,7 +51,6 @@ const StartPageHeader: React.FC<Props> = props => {
                     </Grid>
                 </div>
             </Container>
-            <CreateWorldDialog open={worldDialogOpen} onClose={closeWorldDialog}/>
             <InvitationCodeDialog open={open} close={closeInvitationCodeDialog}/>
         </div>
     )

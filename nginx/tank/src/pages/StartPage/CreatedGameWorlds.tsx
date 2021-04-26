@@ -1,36 +1,40 @@
 import React from 'react'
-// import { useHistory } from 'react-router-dom'
-// import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
-// import { CardItem } from '../../components/Containers/CardList'
-// import image from '../../assets/cat.jpg'
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
+import CardList from '../../components/Containers/CardList'
+import { Container } from '@material-ui/core'
+import { Game } from '../../models/game'
 
-// const useStyles = makeStyles((theme: Theme) =>
-//     createStyles({
-//         cardGrid: {
-//             paddingTop: theme.spacing(8),
-//             paddingBottom: theme.spacing(8),
-//         }
-//     })
-// )
+const useStyles = makeStyles((theme: Theme) =>
+    createStyles({
+        cardGrid: {
+            paddingTop: theme.spacing(8),
+            paddingBottom: theme.spacing(8),
+        }
+    })
+)
 
-interface Props {}
+interface Props {
+    openWorldDialog: () => void
+    title: string
+    games: Game[]
+}
 
-// const cards: CardItem[] = [
-//     { title: 'Шахты', date: '20.01.20', image: image },
-//     { title: 'Шахты', date: '20.01.20', image: image },
-// ]
+const CreatedGameWorlds: React.FC<Props> = props => {
+    const { openWorldDialog, title, games } = props
+    const classes = useStyles()
 
-const CreatedGameWorlds: React.FC<Props> = () => {
-    // const classes = useStyles()
-    // const history = useHistory()
-    // const handleNewGameWorld = useCallback(() => history.push('tabletop'), [history])
+    const cards = games.map(g => ({
+        id: g.id || 0,
+        title: g.name || '',
+        description: g.description || '',
+        invitation_code: g.invitation_code || ''
+    }))
 
-    return null
-    // return (
-    // <Container className={classes.cardGrid} maxWidth="md">
-    //     <CardList headerText={'Created game worlds:'} cards={cards} onAddClick={handleNewGameWorld}/>
-    // </Container>
-    // )
+    return (
+        <Container className={classes.cardGrid} maxWidth="md">
+            <CardList headerText={title} cards={cards} onAddClick={openWorldDialog}/>
+        </Container>
+    )
 }
 
 export default CreatedGameWorlds
