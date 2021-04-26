@@ -2,23 +2,25 @@ import * as PIXI from 'pixi.js-legacy';
 import { Viewport } from 'pixi-viewport';
 import { SVG } from 'pixi-svg';
 
-//import { PixiPlugin } from "gsap/PixiPlugin";
-//import { gsap } from "gsap";
-
-import MapContainer from './Container';
-import GameObjectFactory from './GameObjectFactory';
 import EventManager from './EventManager';
-import Drawer from './Drawer';
 
+// ----- Layers
+import Map from './layers/Map';
+import VisionRegion from './layers/VisionRegion';
+import Drawer from './layers/Drawer';
+
+// ----- Objects
+import GameObjectFactory from './objects/GameObjectFactory';
+
+// ----- Utils
 import createElementSVG from './utils/createElementSVG';
 import drawDashedPolygon from './utils/drawDashedPolygon';
+import removeChildren from './utils/removeChildren';
+
+// ----- Assets
 import DUMMY_MAP_RAW from './assets/dummy-map';
 
 // PIXI.settings.FAIL_IF_MAJOR_PERFORMANCE_CAVEAT = false;
-
-// Register GreenSock plugin
-//gsap.registerPlugin(PixiPlugin);
-//PixiPlugin.registerPIXI(PIXI);
 
 export default class Gameboard {
   /*
@@ -42,6 +44,11 @@ export default class Gameboard {
     }, options);
 
     this.eventManager = new EventManager();
+
+    // Gameboard has multiple interaction modes: viewport, drawing, creating polygons.
+    // Action variable allows you to switch between these states.
+    // TODO:
+    // this.action = 'view';
 
     // A DOM-element that is currently dragged.
     // Can become a drawn object if dropped on the game map.
@@ -206,13 +213,21 @@ export default class Gameboard {
 
     this.setDummyMap();
 
+
     // Characters layer
     this.characters = new PIXI.Container();
     this.viewport.addChild(this.characters);
 
-    // Viewport layer
-    this.drawer = new Drawer([world.width, world.height], this.app.renderer);
+    // Drawing border & manager
+    this.drawer = new Drawer(this.viewport, this.app.renderer);
+
+    // Vision polygon manager
+    this.visionRegion = new VisionRegion(this.drawer, this.app.renderer);
+    
+
+    this.viewport.addChild(this.visionRegion);
     this.viewport.addChild(this.drawer);
+    
   }
 
   setDummyMap(callback) {
@@ -232,7 +247,7 @@ export default class Gameboard {
       // Draw map image as a background
       const image = new PIXI.Sprite(this.app.loader.resources[options.sprite].texture);
 
-      this.mapContainer = new MapContainer(
+      this.mapContainer = new Map(
         this.app.loader.resources.grid.texture, 
         this.viewport, 
         image
@@ -243,9 +258,9 @@ export default class Gameboard {
 
       // Add new map
       this.viewport.addChildAt(this.mapContainer, 0);
+      this.viewport.moveCenter(image.width / 2, image.height / 2);
 
-      this.viewport.screenWidth = this.width;
-      this.viewport.screenHeight = this.height;
+      this.visionRegion.redrawBorders(image.width, image.height);
 
       typeof callback == "function" && callback();
       
@@ -304,7 +319,15 @@ export default class Gameboard {
    */
   addObject(options, callback) {
 
-    this._safeLoad([options.sprite], () => {
+    // Preload all sprites that can be passed as parameters
+    var sprites = [];
+
+    if (options.sprite) sprites.push(options.sprite);
+    if (options.map) sprites.push(options.map);
+
+    this._safeLoad(sprites, () => {
+
+      if (options.type === 'hero') options.visionRegion = this.visionRegion;
 
       const obj = this.createObject(options);
       this.characters.addChild(obj);

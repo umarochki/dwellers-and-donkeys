@@ -60,6 +60,14 @@ export default class GameObject extends Container {
       // events for drag start
       .on('mousedown',  this.onDragStart)
       .on('touchstart', this.onDragStart)
+      // events for drag end 
+      .on('mouseup',         this.onDragEnd)
+      .on('mouseupoutside',  this.onDragEnd)
+      .on('touchend',        this.onDragEnd)
+      .on('touchendoutside', this.onDragEnd)
+      // events for drag move
+      .on('mousemove', this.onDragMove)
+      .on('touchmove', this.onDragMove);
   }
 
   onClick(e) {
@@ -76,6 +84,7 @@ export default class GameObject extends Container {
       this.viewport.selectedObject.offSelect();
 
     this.viewport.selectedObject = this;
+    this.selected = true;
 
     const [width, height] = [this.sprite.width, this.sprite.height];
 
@@ -113,6 +122,7 @@ export default class GameObject extends Container {
   offSelect() {
     this.viewport.selectedObject = null;
     this.removeChild(this.border);
+    this.selected = false;
   }
 
   onDragStart(e) {
@@ -126,15 +136,7 @@ export default class GameObject extends Container {
     this.last = { x: e.data.global.x, y: e.data.global.y }
     this.timer = null;
 
-    this
-      // events for drag end 
-      .on('mouseup',         this.onDragEnd)
-      .on('mouseupoutside',  this.onDragEnd)
-      .on('touchend',        this.onDragEnd)
-      .on('touchendoutside', this.onDragEnd)
-      // events for drag move
-      .on('mousemove', this.onDragMove)
-      .on('touchmove', this.onDragMove);
+    
 
     this.eventManager.notify('update_and_start', {
       id: this.id,
