@@ -63,15 +63,14 @@ export const getMyself = () => {
         userService.me()
             .then(user => {
                 dispatch(success(user))
-            }, error => {
-                dispatch(failure(error))
-                dispatch(quickstart())
+                dispatch(push('/'))
+            }, () => {
+                dispatch(push('/login'))
             })
     }
 
     function request() { return { type: userConstants.MYSELF_REQUEST_STARTED } }
     function success(user: User) { return { type: userConstants.MYSELF_REQUEST_FINISHED, payload: user } }
-    function failure(error: Error) { return { type: userConstants.MYSELF_REQUEST_ERROR, payload: error } }
 }
 
 export const quickstart = () => {
@@ -89,4 +88,15 @@ export const quickstart = () => {
 
     function request() { return { type: userConstants.QUICK_START_REQUEST_STARTED } }
     function success() { return { type: userConstants.QUICK_START_REQUEST_FINISHED } }
+}
+
+export const googleAuth = () => {
+    return (dispatch: Dispatch) => {
+        userService.googleAuth()
+            .then(({ codeUrl }) => {
+                window.location.href = codeUrl
+            }, error => {
+                dispatch(showErrorNotification(error.message))
+            })
+    }
 }

@@ -1,5 +1,5 @@
 import API from './index'
-import { User } from '../models/user'
+import { GoogleAuthResponse, User } from '../models/user'
 
 export interface LoginRequest {
     username: string
@@ -27,6 +27,10 @@ const userService = {
             .then(response => response.data),
     quickStart: (): Promise<void> =>
         API.get('/auth/quickstart')
+            .then(response => response.data),
+    googleAuth: (): Promise<GoogleAuthResponse> =>
+        API.get('/auth/google/code_url')
+            .then(response => response.data)
 }
 
 export default userService

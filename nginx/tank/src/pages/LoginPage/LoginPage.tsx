@@ -5,8 +5,9 @@ import clsx from 'clsx'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectLoginState, selectSignupState } from '../../store/user/selectors'
 import { AsyncState } from '../../store/user/reducer'
-import { getMyself, login, signup } from '../../store/user/actions'
+import { getMyself, googleAuth, login, signup } from '../../store/user/actions'
 import { push } from 'connected-react-router'
+import google from '../../assets/google.svg'
 
 const LoginPage = () => {
     const classes = useStyles()
@@ -21,6 +22,10 @@ const LoginPage = () => {
     const [loginValue, setLoginValue] = useState('')
     const [emailValue, setEmailValue] = useState('')
     const [passwordValue, setPasswordValue] = useState('')
+
+    const handleGoogleSignUp = () => {
+        dispatch(googleAuth())
+    }
 
     useEffect(() => {
         if (signupState === AsyncState.inProcess || loginState === AsyncState.inProcess) {
@@ -200,21 +205,22 @@ const LoginPage = () => {
                                     Continue as Guest
                                 </Button>
                             </div>
-                            {/*<div className={clsx(classes.formDividerContainer, classes.marginBottom)}>*/}
-                            {/*    <div className={classes.formDivider} />*/}
-                            {/*    <Typography className={classes.formDividerWord}>or</Typography>*/}
-                            {/*    <div className={classes.formDivider} />*/}
-                            {/*</div>*/}
-                            {/*<Button*/}
-                            {/*    size="large"*/}
-                            {/*    className={clsx(*/}
-                            {/*        classes.googleButton,*/}
-                            {/*        classes.googleButtonCreating,*/}
-                            {/*    )}*/}
-                            {/*>*/}
-                            {/*    <img src={google} alt="google" className={classes.googleIcon} />*/}
-                            {/*    &nbsp;Sign in with Google*/}
-                            {/*</Button>*/}
+                            <div className={clsx(classes.formDividerContainer, classes.marginBottom)}>
+                                <div className={classes.formDivider} />
+                                <Typography className={classes.formDividerWord}>or</Typography>
+                                <div className={classes.formDivider} />
+                            </div>
+                            <Button
+                                className={clsx(
+                                    classes.googleButton,
+                                    classes.googleButtonCreating
+                                )}
+                                onClick={handleGoogleSignUp}
+                                fullWidth
+                            >
+                                <img src={google} alt="google" className={classes.googleIcon} />
+                                &nbsp;Sign in with Google
+                            </Button>
                         </>
                     )}
                 </form>
