@@ -116,9 +116,15 @@ export default class Drawer extends PIXI.Container {
     this.edges.addChild(this.edge);
 
     let texture = new PIXI.Graphics();
-    texture.beginFill(0xffffff);
-    texture.drawCircle(0,0,10)
+    texture.beginFill(0xffffff, 0.5);
+    texture.drawCircle(0, 0, 10)
     texture.endFill();
+
+    let center = new PIXI.Graphics();
+    center.beginFill(0xffffff);
+    center.drawCircle(0, 0, 5)
+    center.endFill();
+    texture.addChild(center);
 
     this.vertex = new PIXI.Sprite(this.renderer.generateTexture(texture));
     this.vertex.anchor.set(0.5);
@@ -162,12 +168,16 @@ export default class Drawer extends PIXI.Container {
     let polygon = new PIXI.Graphics();
     polygon.points = this.points;
     
+    let arr = [];
+    for (let row of this.points) for (let e of row) arr.push(e);
+
+    
+    polygon.beginFill(0x43536B);
+    polygon.drawPolygon(arr);
+    polygon.endFill();
+
     // Draw on board or pass it to the outer context
     this.context.addChild(polygon);
-    
-    polygon.beginFill(0xffffff);
-    polygon.drawPolygon(this.points);
-    polygon.endFill();
 
     this.temp.removeChild(this.edges);
     this.temp.removeChild(this.vertices);
@@ -189,7 +199,7 @@ export default class Drawer extends PIXI.Container {
     );
 
     this.edge.clear();
-    this.edge.lineStyle(this.boldness, this.color);
+    this.edge.lineStyle(this.boldness, 0xffffff, 0.5);
     this.edge.moveTo(this.points[this.points.length - 1][0], this.points[this.points.length - 1][1]);
     this.edge.lineTo(point.x, point.y);
 

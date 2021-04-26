@@ -10,9 +10,7 @@ export default class VisionRegion extends PIXI.Container {
     this.renderer = renderer;
     this.mode = 'none';
 
-    this.context = new PIXI.Container();
-    this.addChild(this.context);
-
+    
     this.overlay = new PIXI.Container();
     this.addChild(this.overlay);
 
@@ -20,8 +18,9 @@ export default class VisionRegion extends PIXI.Container {
     this.segments = [];
 
     this.polygon = new PIXI.Graphics();
-    //this.addChild(this.polygon);
-    //this.polygon.blendMode = PIXI.BLEND_MODES.DST_OUT;
+    
+    this.context = new PIXI.Container();
+    this.addChild(this.context);
 
 
     this.contextToSegments = this.contextToSegments.bind(this);
@@ -32,15 +31,10 @@ export default class VisionRegion extends PIXI.Container {
     this.border = [[-1, -1], [width + 1, -1], [width + 1, height + 1], [-1, height + 1]];
     this.context.removeChildren();
     
-    this.rect = new PIXI.Graphics();
-    this.rect.beginFill(0, 0.8);
-    this.rect.drawRect(0, 0, width, height);
-    this.rect.endFill();
-
     this.texture = PIXI.RenderTexture.create(width, height);
     
     this.sprite = new PIXI.Sprite(this.texture);
-    this.sprite.alpha = 0.8;
+    this.sprite.alpha = 0;
     this.sprite.blendMode = PIXI.BLEND_MODES.DST_IN;
     this.overlay.addChild(this.sprite);
   }
@@ -62,17 +56,23 @@ export default class VisionRegion extends PIXI.Container {
     segments = this._breakIntersections(segments);
     
     this.segments = segments;
+
+    console.log(this.context);
   }
 
   getRegion(position) {
 
     if (this._inPolygon(position, this.border)) {
       var visibility = this.compute(position, this.segments);
+
+      if (visibility.length === 0) return;
+
       this.polygon.clear();
       this.polygon.beginFill(0xffffff);
       this.polygon.drawPolygon(visibility);
       this.polygon.endFill();
 
+      this.sprite.alpha = 1;
       this.renderer.render(this.polygon, this.texture, true, null, false);
     }
     else {

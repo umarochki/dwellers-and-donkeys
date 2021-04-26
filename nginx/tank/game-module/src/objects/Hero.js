@@ -17,4 +17,9 @@ export default class Hero extends GameObject {
        super.onSelect();
        this.visionRegion.getRegion([this.x, this.y]);
    }
+
+   onDragMove(e) {
+      super.onDragMove(e);
+      this.visionRegion.getRegion([this.x, this.y]);
+  }
 }
