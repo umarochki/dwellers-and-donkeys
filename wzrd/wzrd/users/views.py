@@ -117,8 +117,6 @@ class GoogleAuthenticationExtended(View):
 
         user, _ = create_user(name, last_name, email)
         auth_token = auth_manager.add_token(user)
-        logging.fatal(user)
-        logging.fatal(auth_token)
         response = HttpResponse(status=302)
         response['Location'] = "/"
         response.set_cookie("auth_token", auth_token)
