@@ -26,6 +26,9 @@ SECRET_KEY = ')k6z8b7)$ubtw@@pv(@-$5ia#(g3am2jzh1^-gqa^6zua2y7da'
 DEBUG = True
 
 ALLOWED_HOSTS = [
+    "www.dwellersanddonkeys.ml",
+    "dwellersanddonkeys.ml",
+    "207.154.226.69",
     "localhost",
     "nginx",
     "wzrd",

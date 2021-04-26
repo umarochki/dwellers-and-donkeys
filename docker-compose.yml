@@ -32,7 +32,7 @@ services:
       - ./wzrd/wzrd:/app/wzrd
       - ./_/media:/app/media
     environment:
-      APP_HOST: localhost
+      APP_HOST: "localhost"
     depends_on:
       - mongo
       - redis
