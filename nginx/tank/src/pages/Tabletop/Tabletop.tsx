@@ -32,6 +32,7 @@ import { selectMaps } from '../../store/map/selectors'
 import TutorialDialog from '../../components/Dialogs/TutorialDialog/TutorialDialog'
 import ChooseCharacterDialog from '../../components/Dialogs/ChooseCharacterDialog'
 import { Hero } from '../../models/hero'
+import SignalCellular4BarIcon from '@material-ui/icons/SignalCellular4Bar'
 
 export enum MyHeroType {
     unknown,
@@ -346,8 +347,9 @@ const Tabletop = () => {
                 <Hidden mdDown={true}>
                     <div className={classes.mapControls}>
                         <div className={classes.mapControl}><AppsIcon className={classes.mapControlIcon} onClick={() => boardRef.current && boardRef.current.switchGrid()}/></div>
-                        <div className={classes.mapControl}><CreateIcon className={classes.mapControlIcon} onClick={() => boardRef.current && boardRef.current.drawer.drawMode()}/></div>
-                        <div className={classes.mapControl}><EraserIcon className={classes.mapControlIcon} onClick={() => boardRef.current && boardRef.current.drawer.eraseMode()}/></div>
+                        <div className={classes.mapControl}><CreateIcon className={classes.mapControlIcon} onClick={() => boardRef.current && boardRef.current.drawer.setMode('pencil')}/></div>
+                        <div className={classes.mapControl}><EraserIcon className={classes.mapControlIcon} onClick={() => boardRef.current && boardRef.current.drawer.setMode('eraser')}/></div>
+                        <div className={classes.mapControl}><SignalCellular4BarIcon className={classes.mapControlIcon} onClick={() => boardRef.current && boardRef.current.drawer.setMode('polygon')}/></div>
                         <div className={classes.mapControl}><DeleteIcon className={classes.mapControlIcon} onClick={() => boardRef.current && boardRef.current.drawer.clear()}/></div>
                     </div>
                 </Hidden>
