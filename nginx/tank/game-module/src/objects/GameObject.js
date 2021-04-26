@@ -161,7 +161,10 @@ export default class GameObject extends Container {
 
   onDragEnd(e) {
     // CHECK X Y
-    if (Math.abs(this.current.x - this.start.x) <= 2 && Math.abs(this.current.y - this.start.y) <= 2)
+    if (this.current && 
+        this.start && 
+        Math.abs(this.current.x - this.start.x) <= 2 && 
+        Math.abs(this.current.y - this.start.y) <= 2)
       this.onClick(e);
 
     this.viewport.pause = false;

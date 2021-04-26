@@ -37,9 +37,9 @@ export default class Drawer extends PIXI.Container {
     this.addChild(this.board);
 
     // Bindings
-    this.pensilDown = this.pensilDown.bind(this);
-    this.pensilMove = this.pensilMove.bind(this);
-    this.pensilUp = this.pensilUp.bind(this);
+    this.pencilDown = this.pencilDown.bind(this);
+    this.pencilMove = this.pencilMove.bind(this);
+    this.pencilUp = this.pencilUp.bind(this);
 
     this.eraserDown = this.eraserDown.bind(this);
     this.eraserMove = this.eraserMove.bind(this);
@@ -62,16 +62,16 @@ export default class Drawer extends PIXI.Container {
 
   // --------=====x{ HANDLERS }x=====--------
 
-  pensilDown(event) {
+  pencilDown(event) {
     event.stopPropagation();
     this.marker = new PIXI.Graphics();
     this.context.addChild(this.marker);
     this.points = [];
-    this.overlay.on('mousemove', this.pensilMove);
-    this.overlay.on('mouseup', this.pensilUp);
+    this.overlay.on('mousemove', this.pencilMove);
+    this.overlay.on('mouseup', this.pencilUp);
   }
 
-  pensilMove(event) {
+  pencilMove(event) {
     const x = event.data.global.x
     const y = event.data.global.y
 
@@ -86,9 +86,9 @@ export default class Drawer extends PIXI.Container {
     this.drawCustomLine(this.points);
   }
 
-  pensilUp(event) {
-    this.overlay.off('mousemove', this.pensilMove);
-    this.overlay.off('mouseup', this.pensilUp);
+  pencilUp(event) {
+    this.overlay.off('mousemove', this.pencilMove);
+    this.overlay.off('mouseup', this.pencilUp);
     this.points = [];
   }
 
@@ -311,8 +311,8 @@ export default class Drawer extends PIXI.Container {
     this.viewport.plugins.pause('drag');
 
     switch (this.mode) {
-      case 'pensil':
-        this.overlay.on('mousedown', this.pensilDown);
+      case 'pencil':
+        this.overlay.on('mousedown', this.pencilDown);
         break;
 
       case 'polygon':
