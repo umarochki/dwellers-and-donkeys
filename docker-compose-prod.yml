@@ -21,6 +21,8 @@ services:
     volumes:
       - ./wzrd/wzrd:/app/wzrd
       - ./_/media:/app/media
+    environment:
+      APP_HOST: 207.154.226.69
     depends_on:
       - mongo
       - redis

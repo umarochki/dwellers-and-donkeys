@@ -49,7 +49,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'google_auth',
     'rest_framework',
+
     'wzrd.users',
     'wzrd.games',
     'wzrd.media',
@@ -108,9 +110,6 @@ DATABASES = {
 
 AUTH_USER_MODEL = 'users.User'
 
-# Password validation
-# https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -126,9 +125,12 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
-# Internationalization
-# https://docs.djangoproject.com/en/3.0/topics/i18n/
+APP_HOST = os.environ.get("APP_HOST", "localhost")
+GOOGLE_AUTH_CLIENT_ID = '948818855343-5gg3695b245nhqa7ri4tbfv5487lragi.apps.googleusercontent.com'
+GOOGLE_AUTH_CLIENT_SECRET = 'ja6BIpoqAawoa2e8A4xbq0cb'
+GOOGLE_AUTH_AUTHORIZED_DOMAINS = "gmail.com"
+GOOGLE_AUTH_SCOPE = "email profile"
+GOOGLE_AUTH_REDIRECT_URL = f"http://{APP_HOST}/api/v1/auth/google/authorize"
 
 LANGUAGE_CODE = 'en-us'
 

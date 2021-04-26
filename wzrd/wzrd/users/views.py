@@ -4,12 +4,14 @@ import pydash as _
 from nickname_generator import generate
 
 from django.views import View
-from rest_framework import status, viewsets
+from rest_framework import viewsets
 from rest_framework.decorators import action
 from django.contrib.auth import authenticate
 from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 
-from wzrd.utils import generate_key
+from google_auth.views import (
+    flow, make_flow_with_redirect_uri, authorized_domains, create_user, ExchangeCode
+)
 
 from .models import User
 from .redis import auth_manager
@@ -97,3 +99,28 @@ class UserViewSet(viewsets.ModelViewSet, IsAuthorisedMixin):
     @action(detail=False, methods=['GET'])
     def me(self, request):
         return JsonResponse(auth_manager.get_user_info(self.auth_token), status=200)
+
+
+class GoogleAuthenticationExtended(View):
+    def get(self, request):
+        auth_code = request.GET.get('code')
+        redirect_uri = request.GET.get('redirect_uri')
+        l_flow = make_flow_with_redirect_uri(redirect_uri) if redirect_uri else flow
+        credentials = l_flow.step2_exchange(auth_code)
+        email = credentials.id_token.get('email', '')
+        domain = email.split('@')[1]
+        name = credentials.id_token.get('given_name', '')
+        last_name = credentials.id_token.get('family_name', '')
+
+        if domain not in authorized_domains:
+            return HttpResponse('domain unauthorized: {}'.format(domain), status=401)
+
+        user, _ = create_user(name, last_name, email)
+        auth_token = auth_manager.add_token(user)
+        logging.fatal(user)
+        logging.fatal(auth_token)
+        response = HttpResponse(status=302)
+        response['Location'] = "/"
+        response.set_cookie("auth_token", auth_token)
+        return response
+
