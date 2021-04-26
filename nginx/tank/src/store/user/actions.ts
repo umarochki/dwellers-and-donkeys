@@ -80,6 +80,7 @@ export const quickstart = () => {
         userService.quickStart()
             .then(() => {
                 dispatch(success())
+                dispatch(push('/'))
             }, error => {
                 dispatch(showErrorNotification(error.message))
                 dispatch(push(NonAuthRoutes.login))

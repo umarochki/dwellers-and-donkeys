@@ -5,8 +5,7 @@ import clsx from 'clsx'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectLoginState, selectSignupState } from '../../store/user/selectors'
 import { AsyncState } from '../../store/user/reducer'
-import { getMyself, googleAuth, login, signup } from '../../store/user/actions'
-import { push } from 'connected-react-router'
+import { googleAuth, login, signup } from '../../store/user/actions'
 import google from '../../assets/google.svg'
 
 const LoginPage = () => {
@@ -108,8 +107,7 @@ const LoginPage = () => {
                                     variant="outlined"
                                     className={classes.outLinedButton}
                                     onClick={() => {
-                                        dispatch(getMyself())
-                                        dispatch(push('/'))
+                                        dispatch(quickstart())
                                     }}
                                     fullWidth
                                 >
@@ -199,7 +197,9 @@ const LoginPage = () => {
                                 <Button
                                     variant="outlined"
                                     className={classes.outLinedButton}
-                                    onClick={() => dispatch(push('/'))}
+                                    onClick={() => {
+                                        dispatch(quickstart())
+                                    }}
                                     fullWidth
                                 >
                                     Continue as Guest
