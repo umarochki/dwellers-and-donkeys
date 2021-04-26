@@ -54,6 +54,8 @@ export default class GameObject extends Container {
     this.onResizeMove = this.onResizeMove.bind(this);
     this.onResizeEnd = this.onResizeEnd.bind(this);   
 
+    this.onKeyDown = this.onKeyDown.bind(this);
+
     this.animate = this.animate.bind(this); 
 
     this
@@ -74,6 +76,16 @@ export default class GameObject extends Container {
     e.stopPropagation();
     this.onSelect();
   };
+
+  onKeyDown(key) {
+    if (key.keyCode === 46) {
+
+      this.parent.removeChild(this);
+      this.eventManager.notify('delete', {
+        id: this.id
+      })
+    }
+  }
   
   onSelect() {
     this.eventManager.notify('click', {
@@ -117,12 +129,15 @@ export default class GameObject extends Container {
       // events for drag move
       .on('mousemove', this.onResizeMove)
       .on('touchmove', this.onResizeMove);
+
+    window.addEventListener('keydown', this.onKeyDown);
   }
 
   offSelect() {
     this.viewport.selectedObject = null;
     this.removeChild(this.border);
     this.selected = false;
+    window.removeEventListener('keydown', this.onKeyDown, false);
   }
 
   onDragStart(e) {
