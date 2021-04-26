@@ -16,7 +16,7 @@ export default class GameObjectFactory {
         break;
 
       default:
-        return new Hero(options)
+        return new GameObject(options)
         break;
     }
   }

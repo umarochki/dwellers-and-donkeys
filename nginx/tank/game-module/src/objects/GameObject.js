@@ -84,6 +84,7 @@ export default class GameObject extends Container {
       this.viewport.selectedObject.offSelect();
 
     this.viewport.selectedObject = this;
+    this.selected = true;
 
     const [width, height] = [this.sprite.width, this.sprite.height];
 
@@ -121,6 +122,7 @@ export default class GameObject extends Container {
   offSelect() {
     this.viewport.selectedObject = null;
     this.removeChild(this.border);
+    this.selected = false;
   }
 
   onDragStart(e) {

@@ -10,7 +10,6 @@ export default class VisionRegion extends PIXI.Container {
     this.renderer = renderer;
     this.mode = 'none';
 
-    
     this.overlay = new PIXI.Container();
     this.addChild(this.overlay);
 
@@ -76,9 +75,14 @@ export default class VisionRegion extends PIXI.Container {
       this.renderer.render(this.polygon, this.texture, true, null, false);
     }
     else {
-      console.warn('Out of polygon!');
+      //console.warn('Out of polygon!');
     }
    
+  }
+
+  clear() {
+    this.sprite.alpha = 0;
+    this.polygon.clear();
   }
 
   setMode(mode) {

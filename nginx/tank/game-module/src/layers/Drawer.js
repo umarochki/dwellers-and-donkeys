@@ -33,6 +33,7 @@ export default class Drawer extends PIXI.Container {
 
     // Drawing board
     this.board = new PIXI.Container();
+    this.board.isDrawer = true;
     this.addChild(this.board);
 
     // Bindings
@@ -171,8 +172,12 @@ export default class Drawer extends PIXI.Container {
     let arr = [];
     for (let row of this.points) for (let e of row) arr.push(e);
 
+
+    if (this.context.isDrawer)
+      polygon.beginFill(0xff0000);
+    else
+      polygon.beginFill(0x43536B);
     
-    polygon.beginFill(0x43536B);
     polygon.drawPolygon(arr);
     polygon.endFill();
 
