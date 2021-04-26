@@ -4,11 +4,11 @@
 
 Веб-приложения для игры в Dungeons & Dragons
 
-![Preview](https://raw.githubusercontent.com/ludenio/CS21Team4/main/.github/images/tabletop.png)
+![Preview](https://raw.githubusercontent.com/umarochki/dwellers-and-donkeys/main/.github/images/tabletop.png)
 
 Так мы выглядим на больших экранах.
 
-![Preview](https://raw.githubusercontent.com/ludenio/CS21Team4/main/.github/images/tabletop-mini.png)
+![Preview](https://raw.githubusercontent.com/umarochki/dwellers-and-donkeys/main/.github/images/tabletop-mini.png)
 
 Так мы выглядим на экранах поменьше.
 
