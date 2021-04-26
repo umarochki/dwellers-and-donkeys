@@ -16,6 +16,7 @@ RUN yarn build
 
 FROM nginx:alpine
 COPY conf/prod.conf /etc/nginx/conf.d/default.conf
+COPY conf/redirect.conf /etc/nginx/conf.d/redirect.conf
 
 WORKDIR /usr/share/nginx/html
 
