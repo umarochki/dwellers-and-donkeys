@@ -9,3 +9,7 @@ export interface ConnectedUser {
     id: string
     username: string
 }
+
+export interface GoogleAuthResponse {
+    codeUrl: string
+}

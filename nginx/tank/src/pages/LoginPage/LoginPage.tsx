@@ -5,7 +5,7 @@ import clsx from 'clsx'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectLoginState, selectSignupState } from '../../store/user/selectors'
 import { AsyncState } from '../../store/user/reducer'
-import { getMyself, login, signup } from '../../store/user/actions'
+import { getMyself, googleAuth, login, signup } from '../../store/user/actions'
 import { push } from 'connected-react-router'
 import google from '../../assets/google.svg'
 
@@ -23,8 +23,9 @@ const LoginPage = () => {
     const [emailValue, setEmailValue] = useState('')
     const [passwordValue, setPasswordValue] = useState('')
 
-    // TODO
-    const handleGoogleSignUp = () => {}
+    const handleGoogleSignUp = () => {
+        dispatch(googleAuth())
+    }
 
     useEffect(() => {
         if (signupState === AsyncState.inProcess || loginState === AsyncState.inProcess) {
