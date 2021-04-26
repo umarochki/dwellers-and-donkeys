@@ -31,6 +31,8 @@ services:
     volumes:
       - ./wzrd/wzrd:/app/wzrd
       - ./_/media:/app/media
+    environment:
+      APP_HOST: localhost
     depends_on:
       - mongo
       - redis
@@ -41,6 +43,8 @@ services:
     container_name: umr_mongo
     image: mongo:latest
     restart: always
+    ports:
+      - 27017:27017
     networks:
      - inner
     volumes:

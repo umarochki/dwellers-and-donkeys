@@ -16,7 +16,6 @@ router.register(r"heroes", games_views.HeroViewSet, "hero")
 router.register(r"media", media_views.MediaViewSet, "media")
 router.register(r"maps", media_views.AvailableMapViewSet, "media")
 
-
 urlpatterns = [
     url("^admin/", admin.site.urls),
     url(f"^{API_PREFIX}", include([
@@ -26,7 +25,9 @@ urlpatterns = [
         url("auth/signup", users_views.UserViewSet.as_view({"post": "signup"}), name="signup"),
         url("auth/logout", users_views.UserViewSet.as_view({"get": "logout", "post": "logout"}), name="logout"),
         url("auth/quickstart", users_views.UserViewSet.as_view({"get": "quickstart", "post": "quickstart"}), name="quickstart"),
-
+        url("auth/google/", include('google_auth.urls'), name="google_auth"),
+        url("auth/google/authorize", users_views.GoogleAuthenticationExtended.as_view(), name="authenticate"),
+        url("auth/google_auth", users_views.UserViewSet.as_view({"get": "google_auth"}), name="google_auth"),
         url("heroes/active", games_views.HeroViewSet.as_view({"get": "active"}), name="active"),
     ])),
 ]
