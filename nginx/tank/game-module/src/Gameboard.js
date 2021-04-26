@@ -299,6 +299,8 @@ export default class Gameboard {
 
   createObject(options) {
 
+    if (options.type === 'hero') options.visionRegion = this.visionRegion;
+
     return new GameObjectFactory({
       ...options,
       viewport: this.viewport,
@@ -326,8 +328,6 @@ export default class Gameboard {
     if (options.map) sprites.push(options.map);
 
     this._safeLoad(sprites, () => {
-
-      if (options.type === 'hero') options.visionRegion = this.visionRegion;
 
       const obj = this.createObject(options);
       this.characters.addChild(obj);
