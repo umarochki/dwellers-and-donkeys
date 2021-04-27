@@ -210,8 +210,8 @@ export default class Drawer extends PIXI.Container {
                 .off('touchmove', this.polygonMove)
                 .off('click', this.polygonMiddleClick)
                 .off('touchstart', this.polygonMiddleClick)
-                .off('click', this.polygonStartClick)
-                .off('touchstart', this.polygonStartClick);
+                .on('click', this.polygonStartClick)
+                .on('touchstart', this.polygonStartClick);
 
 
     this.vertex.off('click', this.polygonEndClick)
