@@ -116,6 +116,8 @@ export default class Gameboard {
 
     // Add drop behavior on PIXI application
     appView.addEventListener('drop', (e) => this.onDrop(e) );
+    //appView.addEventListener('touchend', (e) => this.onDrop(e) );
+    //appView.addEventListener('touchleave', (e) => this.onDrop(e) );
     
     // Listen for window resize events
     window.addEventListener('resize', (e) => this.onResize(e));
@@ -290,8 +292,8 @@ export default class Gameboard {
     this.eventManager.notify('add', {
       type: this.draggedDOM.getAttribute('data-type') || 'none',
       sprite: this.draggedDOM.src, 
-      xy: [(e.layerX - this.viewport.x) / this.viewport.scale.x, 
-           (e.layerY - this.viewport.y) / this.viewport.scale.y]
+      xy: [(e.offsetX - this.viewport.x) / this.viewport.scale.x, 
+           (e.offsetY - this.viewport.y) / this.viewport.scale.y]
     })
 
     this.draggedDOM = undefined;
