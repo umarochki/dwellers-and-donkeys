@@ -13,6 +13,7 @@ import AddCard from '../Cards/AddCard'
 import AddMapDialog from '../Dialogs/AddMapDialog'
 import { useSelector } from 'react-redux'
 import { selectMaps } from '../../store/map/selectors'
+import Draggable from 'react-draggable'
 
 const drawerWidth = 300
 
@@ -243,7 +244,9 @@ const LeftDrawer: React.FC<Props> = props => {
                         {markersList.map((marker: string) => (
                             <Tooltip classes={classesTooltip} TransitionComponent={Zoom} title={marker} key={marker}>
                                 <GridListTile cols={1} className={classes.tile}>
-                                    <ImageLoader src={`/markers/${marker}.png`} draggable marker/>
+                                    <Draggable>
+                                        <ImageLoader src={`/markers/${marker}.png`} marker draggable/>
+                                    </Draggable>
                                 </GridListTile>
                             </Tooltip>
                         ))}
@@ -255,7 +258,9 @@ const LeftDrawer: React.FC<Props> = props => {
                         {heroes.map((hero: string) => (
                             <Tooltip classes={classesTooltip} TransitionComponent={Zoom} title={hero} key={hero}>
                                 <GridListTile cols={1} className={classes.tile}>
-                                    <ImageLoader src={`/heroes/${hero}.png`} draggable/>
+                                    <Draggable>
+                                        <ImageLoader src={`/heroes/${hero}.png`} draggable/>
+                                    </Draggable>
                                 </GridListTile>
                             </Tooltip>
                         ))}
@@ -290,7 +295,9 @@ const LeftDrawer: React.FC<Props> = props => {
                         {globalSymbols.map((globalSymbol: string) => (
                             <Tooltip classes={classesTooltip} TransitionComponent={Zoom} title={globalSymbol} key={globalSymbol}>
                                 <GridListTile cols={1} className={classes.tile}>
-                                    <ImageLoader src={`/globalSymbols/${globalSymbol}.png`} draggable marker/>
+                                    <Draggable>
+                                        <ImageLoader src={`/globalSymbols/${globalSymbol}.png`} marker draggable/>
+                                    </Draggable>
                                 </GridListTile>
                             </Tooltip>
                         ))}

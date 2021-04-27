@@ -153,6 +153,7 @@ const Tabletop = () => {
                 width: divRef.current.clientWidth,
                 height: divRef.current.clientHeight,
                 transparent: true,
+                resizeTo: divRef.current
                 //backgroundColor: 0xfff000
                 // TODO: isGameMaster: {boolean}
             })
