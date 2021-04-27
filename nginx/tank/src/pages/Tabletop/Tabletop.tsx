@@ -346,11 +346,11 @@ const Tabletop = () => {
                 </main>
                 <Hidden mdDown={true}>
                     <div className={classes.mapControls}>
-                        <div className={classes.mapControl}><AppsIcon className={classes.mapControlIcon} onClick={() => boardRef.current && boardRef.current.switchGrid()}/></div>
-                        <div className={classes.mapControl}><CreateIcon className={classes.mapControlIcon} onClick={() => boardRef.current && boardRef.current.drawer.setMode('pencil')}/></div>
-                        <div className={classes.mapControl}><EraserIcon className={classes.mapControlIcon} onClick={() => boardRef.current && boardRef.current.drawer.setMode('eraser')}/></div>
-                        <div className={classes.mapControl}><SignalCellular4BarIcon className={classes.mapControlIcon} onClick={() => boardRef.current && boardRef.current.drawer.setMode('polygon')}/></div>
-                        <div className={classes.mapControl}><DeleteIcon className={classes.mapControlIcon} onClick={() => boardRef.current && boardRef.current.drawer.clear()}/></div>
+                        <div className={classes.mapControl} onClick={() => boardRef.current && boardRef.current.switchGrid()}><AppsIcon className={classes.mapControlIcon}/></div>
+                        <div className={classes.mapControl} onClick={() => boardRef.current && boardRef.current.drawer.setMode('pencil')}><CreateIcon className={classes.mapControlIcon}/></div>
+                        <div className={classes.mapControl} onClick={() => boardRef.current && boardRef.current.drawer.setMode('eraser')}><EraserIcon className={classes.mapControlIcon}/></div>
+                        <div className={classes.mapControl} onClick={() => boardRef.current && boardRef.current.drawer.setMode('polygon')}><SignalCellular4BarIcon className={classes.mapControlIcon}/></div>
+                        <div className={classes.mapControl} onClick={() => boardRef.current && boardRef.current.drawer.clear()}><DeleteIcon className={classes.mapControlIcon}/></div>
                     </div>
                 </Hidden>
                 {
