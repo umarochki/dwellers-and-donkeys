@@ -244,9 +244,7 @@ const LeftDrawer: React.FC<Props> = props => {
                         {markersList.map((marker: string) => (
                             <Tooltip classes={classesTooltip} TransitionComponent={Zoom} title={marker} key={marker}>
                                 <GridListTile cols={1} className={classes.tile}>
-                                    <Draggable>
-                                        <ImageLoader src={`/markers/${marker}.png`} marker draggable/>
-                                    </Draggable>
+                                    <ImageLoader src={`/markers/${marker}.png`} marker draggable/>
                                 </GridListTile>
                             </Tooltip>
                         ))}
@@ -258,9 +256,7 @@ const LeftDrawer: React.FC<Props> = props => {
                         {heroes.map((hero: string) => (
                             <Tooltip classes={classesTooltip} TransitionComponent={Zoom} title={hero} key={hero}>
                                 <GridListTile cols={1} className={classes.tile}>
-                                    <Draggable>
-                                        <ImageLoader src={`/heroes/${hero}.png`} draggable/>
-                                    </Draggable>
+                                    <ImageLoader src={`/heroes/${hero}.png`} draggable/>
                                 </GridListTile>
                             </Tooltip>
                         ))}
