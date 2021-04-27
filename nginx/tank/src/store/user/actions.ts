@@ -63,7 +63,6 @@ export const getMyself = () => {
         userService.me()
             .then(user => {
                 dispatch(success(user))
-                dispatch(push('/'))
             }, () => {
                 dispatch(push('/login'))
             })
