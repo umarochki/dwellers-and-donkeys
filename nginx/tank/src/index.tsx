@@ -5,6 +5,13 @@ import App from './components/App/App'
 import reportWebVitals from './reportWebVitals'
 import { Provider } from 'react-redux'
 import configureStore from './store'
+import { polyfill } from 'mobile-drag-drop'
+import { scrollBehaviourDragImageTranslateOverride } from 'mobile-drag-drop/scroll-behaviour'
+
+polyfill({
+    // use this to make use of the scroll behaviour
+    dragImageTranslateOverride: scrollBehaviourDragImageTranslateOverride
+})
 
 const store = configureStore()
 // setupInterceptors(store)
