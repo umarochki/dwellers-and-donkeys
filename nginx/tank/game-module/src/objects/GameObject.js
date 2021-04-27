@@ -159,6 +159,7 @@ export default class GameObject extends Container {
     })
   }
 
+  
   onDragEnd(e) {
     // CHECK X Y
     if (this.current && 
@@ -209,9 +210,6 @@ export default class GameObject extends Container {
 
     this.resizing = true;
     this.data = e.data;
-    this.current = { x: this.sprite.width, y: this.sprite.height }
-    this.start = { x: this.sprite.width, y: this.sprite.height }
-    this.last = { x: e.data.global.x, y: e.data.global.y }
     this.timer = null;
   }
 
@@ -229,13 +227,16 @@ export default class GameObject extends Container {
       const [width, height] = [this.sprite.width, this.sprite.height];
       const [x, y] = [e.data.global.x, e.data.global.y]
 
-      this.current.x += (x - this.last.x) * 2 / this.parent.scale.x; 
-      this.current.y += (y - this.last.y) * 2 / this.parent.scale.y;
+      let point = {
+        x: (x - this.viewport.x - this.x) * 2 / this.viewport.scale.x,
+        y: (y - this.viewport.y - this.y) * 2 / this.viewport.scale.y
+      }
 
-      this.last = { x, y };
+      if (point.x < 10) point.x = 10; 
+      if (point.y < 10) point.y = 10;
 
-      this.sprite.width = this.current.x;
-      this.sprite.height = this.current.y;
+      this.sprite.width = point.x;
+      this.sprite.height = point.y;
 
       this.calculateBorder();
       this.calculateAngle();
