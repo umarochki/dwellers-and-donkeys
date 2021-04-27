@@ -34,7 +34,7 @@ interface LoadedType {
 }
 const _loaded: LoadedType = {}
 
-interface Props {
+interface Props extends React.HTMLProps<HTMLImageElement> {
     src: string
     onClick?: () => void
     draggable?: boolean
@@ -43,7 +43,7 @@ interface Props {
 }
 
 const ImageLoader: React.FC<Props> = props => {
-    const { src, onClick, draggable, className, marker } = props
+    const { src, onClick, draggable, className, marker, ...imgProps } = props
     const classes = useStyles()
 
     const [loaded, setLoaded] = useState(_loaded[src])
@@ -58,7 +58,9 @@ const ImageLoader: React.FC<Props> = props => {
         : classes.imgLoading
 
     return (
+        // @ts-ignore
         <img
+            {...imgProps}
             src={src}
             onClick={onClick}
             className={clsx(classes.image, className, classNameState)}
