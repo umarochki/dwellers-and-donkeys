@@ -64,8 +64,6 @@ export default class Drawer extends PIXI.Container {
 
   pencilDown(event) {
 
-    console.log(event);
-
     event.stopPropagation();
     this.marker = new PIXI.Graphics();
     this.context.addChild(this.marker);
