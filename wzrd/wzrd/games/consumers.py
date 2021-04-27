@@ -32,7 +32,7 @@ async def get_hero_session(hero_session_id):
 
 
 class GameSessionConsumer(AsyncJsonWebsocketConsumer):
-    UPDATE_FIELDS = ("xy", "sprite")
+    UPDATE_FIELDS = ("xy", "wh", "sprite")
     ACTION_TYPES = ("add", "delete", "update", "update_and_save", "update_and_start",
                     "map", "global_map", "refresh", "clear", "active_users", "roll",
                     "chat", "add_hero",)
