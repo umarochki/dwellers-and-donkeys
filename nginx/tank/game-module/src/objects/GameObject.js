@@ -210,6 +210,9 @@ export default class GameObject extends Container {
 
     this.resizing = true;
     this.data = e.data;
+    this.current = { x: this.sprite.width, y: this.sprite.height }
+    this.start = { x: this.sprite.width, y: this.sprite.height }
+    this.last = { x: e.data.global.x, y: e.data.global.y }
     this.timer = null;
   }
 
@@ -228,12 +231,23 @@ export default class GameObject extends Container {
       const [x, y] = [e.data.global.x, e.data.global.y]
 
       let point = {
-        x: (x - this.viewport.x - this.x) * 2 / this.viewport.scale.x,
-        y: (y - this.viewport.y - this.y) * 2 / this.viewport.scale.y
+        x: this.sprite.width  + (x - this.last.x) * 2 / this.parent.scale.x,
+        y: this.sprite.height + (y - this.last.y) * 2 / this.parent.scale.y
       }
 
-      if (point.x < 10) point.x = 10; 
-      if (point.y < 10) point.y = 10;
+      //let point2 = {
+      //  x: (x - this.viewport.x - this.x) * 2 / this.viewport.scale.x,
+      //  y: (y - this.viewport.y - this.y) * 2 / this.viewport.scale.y
+      //}
+
+      console.log(x, this.viewport.x, this.x, point2.x)
+
+      if (point.x < 10 || (point.y < 10)) return;
+
+      this.current.x = point.x; 
+      this.current.y = point.y;
+
+      this.last = { x, y };
 
       this.sprite.width = point.x;
       this.sprite.height = point.y;
