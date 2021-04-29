@@ -207,18 +207,12 @@ export default class GameObject extends Container {
 
   onResizeStart(e) {
     e.stopPropagation();
-
     this.resizing = true;
-    this.data = e.data;
-    this.current = { x: this.sprite.width, y: this.sprite.height }
-    this.start = { x: this.sprite.width, y: this.sprite.height }
-    this.last = { x: e.data.global.x, y: e.data.global.y }
     this.timer = null;
   }
 
   onResizeEnd(e) {
      e.stopPropagation();
-
     this.resizing = false;
     this.data = null;
   }
@@ -231,23 +225,22 @@ export default class GameObject extends Container {
       const [x, y] = [e.data.global.x, e.data.global.y]
 
       let point = {
-        x: this.sprite.width  + (x - this.last.x) * 2 / this.parent.scale.x,
-        y: this.sprite.height + (y - this.last.y) * 2 / this.parent.scale.y
+        x: (x  / this.viewport.scale.x - (this.x - this.viewport.corner.x)) * 2,
+        y: (y  / this.viewport.scale.y - (this.y - this.viewport.corner.y)) * 2
       }
 
-      //let point2 = {
-      //  x: (x - this.viewport.x - this.x) * 2 / this.viewport.scale.x,
-      //  y: (y - this.viewport.y - this.y) * 2 / this.viewport.scale.y
-      //}
+      /*
+      this.eventManager.notify('debug_info', {
+        info: [ 
+          { name: 'mouse',  value:  [x / this.viewport.scale.x, y / this.viewport.scale.y] },
+          { name: 'object', value:  [this.x - this.viewport.corner.x, this.y + this.viewport.corner.y] },
+          { name: 'size', value: [point.x, point.y] }
+        ]
+      })
+      */
 
-      console.log(x, this.viewport.x, this.x, point2.x)
-
-      if (point.x < 10 || (point.y < 10)) return;
-
-      this.current.x = point.x; 
-      this.current.y = point.y;
-
-      this.last = { x, y };
+      if (point.x < 10) point.x = 10;
+      if (point.y < 10) point.y = 10;
 
       this.sprite.width = point.x;
       this.sprite.height = point.y;

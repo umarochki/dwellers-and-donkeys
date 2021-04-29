@@ -83,7 +83,13 @@ export default class VisionRegion extends PIXI.Container {
   clear() {
     this.sprite.alpha = 0;
     this.polygon.clear();
+    this.context.removeChildren();
   }
+
+  hide() {
+    this.polygon.clear();
+  }
+
 
   setMode(mode) {
     

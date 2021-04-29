@@ -20,7 +20,7 @@ export default class Hero extends GameObject {
 
   offSelect() {
     super.offSelect();
-    this.visionRegion.clear();
+    this.visionRegion.hide();
   }
 
   onDragMove(e) {
