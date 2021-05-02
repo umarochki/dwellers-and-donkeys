@@ -10,6 +10,9 @@ import { selectConnectGameState } from '../../store/game/selectors'
 import { connectGameWithRedirect, deleteGame } from '../../store/game/actions'
 import { AsyncState } from '../../store/user/reducer'
 import ConfirmDialog from '../Dialogs/ConfirmDialog'
+import { getUrl } from '../../helpers/authHeader'
+import { copyTextToClipboard } from '../../helpers/clipBoard'
+import { showSuccessNotification } from '../../store/notifications/actions'
 
 const useStyles = makeStyles(() =>
     createStyles({
@@ -30,6 +33,9 @@ const useStyles = makeStyles(() =>
             paddingBottom: 0,
             paddingTop: 12,
             height: 62
+        },
+        cardActions: {
+            paddingTop: 16
         },
         subtitle: {
             color: '#E9EEFB',
@@ -114,18 +120,26 @@ const CardList: React.FC<Props> = props => {
                                         {card.description}
                                     </Typography>
                                 </CardContent>
+                                <CardActions className={classes.cardActions}>
+                                    <Button color="primary" variant="contained" disabled={isLoading} onClick={() => handleConnect(card.invitation_code)}>
+                                        Play
+                                    </Button>
+                                    <Button color="primary" disabled={isLoading} onClick={() => {
+                                        setIdToDelete(card.id)
+                                        setConfirmOpen(true)
+                                    }}>
+                                        Delete
+                                    </Button>
+                                    <Button color="primary" disabled={isLoading} style={{ marginLeft: 'auto' }} onClick={() => {
+                                        const url = `${getUrl()}/tabletop/${card.invitation_code}`
+                                        copyTextToClipboard(url, () => {
+                                            dispatch(showSuccessNotification('Copied'))
+                                        })
+                                    }}>
+                                        Invite
+                                    </Button>
+                                </CardActions>
                             </CardActionArea>
-                            <CardActions>
-                                <Button color="primary" variant="contained" disabled={isLoading} onClick={() => handleConnect(card.invitation_code)}>
-                                    Play
-                                </Button>
-                                <Button color="primary" disabled={isLoading} onClick={() => {
-                                    setIdToDelete(card.id)
-                                    setConfirmOpen(true)
-                                }}>
-                                    Delete
-                                </Button>
-                            </CardActions>
                         </Card>
                     </Grid>
                 ))}
