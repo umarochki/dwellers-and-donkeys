@@ -7,10 +7,12 @@ export interface GameState {
     createGameState: AsyncState
     getGameHistoryState: AsyncState
     getGMGameHistoryState: AsyncState
+    getPublicGamesState: AsyncState
     error: Error | null
     currentGame: Game | null
     games: Game[]
     gamesGM: Game[]
+    publicGames: Game[]
     currentGameData: SocketMessage | null
     connectGameState: AsyncState
 }
@@ -19,10 +21,12 @@ const INITIAL_STATE: GameState = {
     createGameState: AsyncState.unknown,
     getGameHistoryState: AsyncState.unknown,
     getGMGameHistoryState: AsyncState.unknown,
+    getPublicGamesState: AsyncState.unknown,
     error: null,
     currentGame: null,
     games: [],
     gamesGM: [],
+    publicGames: [],
     currentGameData: null,
     connectGameState: AsyncState.unknown,
 }
@@ -60,6 +64,16 @@ const gameReducer: Reducer<GameState> = (state = INITIAL_STATE, action) => {
             }
         case gameConstants.GET_GM_GAME_HISTORY_REQUEST_ERROR:
             return { ...state, getGMGameHistoryState: AsyncState.error }
+        case gameConstants.GET_PUBLIC_GAMES_REQUEST_STARTED:
+            return { ...state, getPublicGamesState: AsyncState.inProcess }
+        case gameConstants.GET_PUBLIC_GAMES_REQUEST_FINISHED:
+            return {
+                ...state,
+                getPublicGamesState: AsyncState.success,
+                publicGames: action.payload.filter((game: Game) => !game.is_private)
+            }
+        case gameConstants.GET_PUBLIC_GAMES_REQUEST_ERROR:
+            return { ...state, getPublicGamesState: AsyncState.error, publicGames: [] }
         case gameConstants.UPDATE_GAME_DATA:
             return { ...state, currentGameData: action.payload }
         case gameConstants.CONNECT_GAME_STARTED:
@@ -85,6 +99,14 @@ const gameReducer: Reducer<GameState> = (state = INITIAL_STATE, action) => {
                 currentGameData: null,
                 connected: false,
                 connectGameState: AsyncState.error
+            }
+        case gameConstants.DELETE_GAME_REQUEST_FINISHED:
+            const id = action.payload
+            return {
+                ...state,
+                games: state.games.filter((game: Game) => game.id !== id),
+                gamesGM: state.gamesGM.filter((game: Game) => game.id !== id),
+                publicGames: state.publicGames.filter((game: Game) => game.id !== id)
             }
         default:
             return state

@@ -7,13 +7,14 @@ import AddCard from '../Cards/AddCard'
 import clsx from 'clsx'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectConnectGameState } from '../../store/game/selectors'
-import { connectGameWithRedirect } from '../../store/game/actions'
+import { connectGameWithRedirect, deleteGame } from '../../store/game/actions'
 import { AsyncState } from '../../store/user/reducer'
+import ConfirmDialog from '../Dialogs/ConfirmDialog'
 
 const useStyles = makeStyles(() =>
     createStyles({
         card: {
-            height: 277,
+            minHeight: 277,
             display: 'flex',
             flexDirection: 'column',
         },
@@ -42,7 +43,8 @@ const useStyles = makeStyles(() =>
             whiteSpace: 'nowrap'
         },
         addCard: {
-            width: '100%'
+            width: '100%',
+            height: '100%'
         }
     })
 )
@@ -69,9 +71,16 @@ const CardList: React.FC<Props> = props => {
     const connected = useSelector(selectConnectGameState)
     const [isLoading, setIsLoading] = useState(false)
 
+    const [idToDelete, setIdToDelete] = useState(0)
+    const [confirmOpen, setConfirmOpen] = useState(false)
+
     const handleConnect = useCallback((invitation_code: string) => {
         setIsLoading(true)
         dispatch(connectGameWithRedirect(invitation_code))
+    }, [dispatch])
+
+    const handleDelete = useCallback((id: number) => {
+        dispatch(deleteGame(id))
     }, [dispatch])
 
     useEffect(() => {
@@ -105,18 +114,28 @@ const CardList: React.FC<Props> = props => {
                                         {card.description}
                                     </Typography>
                                 </CardContent>
-                                <CardActions>
-                                    <Grid container justify="flex-end">
-                                        <Button color="primary" variant="contained" disabled={isLoading} onClick={() => handleConnect(card.invitation_code)}>
-                                            Play
-                                        </Button>
-                                    </Grid>
-                                </CardActions>
                             </CardActionArea>
+                            <CardActions>
+                                <Button color="primary" variant="contained" disabled={isLoading} onClick={() => handleConnect(card.invitation_code)}>
+                                    Play
+                                </Button>
+                                <Button color="primary" disabled={isLoading} onClick={() => {
+                                    setIdToDelete(card.id)
+                                    setConfirmOpen(true)
+                                }}>
+                                    Delete
+                                </Button>
+                            </CardActions>
                         </Card>
                     </Grid>
                 ))}
             </Grid>
+            <ConfirmDialog
+                title="Are you sure you want to delete the game?"
+                open={confirmOpen}
+                setOpen={setConfirmOpen}
+                onConfirm={() => handleDelete(idToDelete)}
+            />
         </>
     )
 }

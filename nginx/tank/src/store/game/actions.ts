@@ -102,3 +102,34 @@ export const getGMGameHistory = () => {
     function success(games: Game[]) { return { type: gameConstants.GET_GM_GAME_HISTORY_REQUEST_FINISHED, payload: games } }
     function failure(error: Error) { return { type: gameConstants.GET_GM_GAME_HISTORY_REQUEST_ERROR, error } }
 }
+
+export const getPublicGames = () => {
+    return (dispatch: Dispatch) => {
+        dispatch(request())
+
+        gameService.getGames()
+            .then((games: Game[]) => {
+                dispatch(success(games))
+            }, error => {
+                dispatch(failure(error))
+                dispatch(showErrorNotification('Failed to get public games'))
+            })
+    }
+
+    function request() { return { type: gameConstants.GET_PUBLIC_GAMES_REQUEST_STARTED } }
+    function success(games: Game[]) { return { type: gameConstants.GET_PUBLIC_GAMES_REQUEST_FINISHED, payload: games } }
+    function failure(error: Error) { return { type: gameConstants.GET_PUBLIC_GAMES_REQUEST_ERROR, error } }
+}
+
+export const deleteGame = (id: number) => {
+    return (dispatch: Dispatch) => {
+        gameService.deleteGame(id)
+            .then(() => {
+                dispatch(success(id))
+            }, () => {
+                dispatch(showErrorNotification('Failed to delete game'))
+            })
+    }
+
+    function success(id: number) { return { type: gameConstants.DELETE_GAME_REQUEST_FINISHED, payload: id } }
+}

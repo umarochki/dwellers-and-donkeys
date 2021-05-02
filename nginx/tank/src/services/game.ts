@@ -8,7 +8,7 @@ export interface GameRequest {
 
 const gameService = {
     create: (gameRequest: GameRequest): Promise<Game> =>
-        API.post(`/games`, gameRequest)
+        API.post('/games', gameRequest)
             .then(response => response.data),
     getGames: (): Promise<Game[]> =>
         API.get('/games')
@@ -18,7 +18,9 @@ const gameService = {
             .then(response => response.data),
     getGMGameHistory: (): Promise<Game[]> =>
         API.get('/games/gm')
-            .then(response => response.data)
+            .then(response => response.data),
+    deleteGame: (id: number): Promise<void> =>
+        API.delete(`/games/${id}`)
 }
 
 export default gameService

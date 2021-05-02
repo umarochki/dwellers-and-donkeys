@@ -15,8 +15,8 @@ import { AsyncState } from '../../store/user/reducer'
 import ImageLoader from '../../components/Containers/ImageLoader'
 import CreateWorldDialog from '../../components/Dialogs/CreateWorldDialog'
 import FullscreenLoader from '../../components/Containers/FullscreenLoader/FullscreenLoader'
-import { getGameHistory, getGMGameHistory } from '../../store/game/actions'
-import { selectGameHistory, selectGMGameHistory } from '../../store/game/selectors'
+import { getGameHistory, getGMGameHistory, getPublicGames } from '../../store/game/actions'
+import { selectGameHistory, selectGMGameHistory, selectPublicGames } from '../../store/game/selectors'
 
 function Copyright() {
     return (
@@ -62,6 +62,7 @@ const StartPage = () => {
 
     const gameHistory = useSelector(selectGameHistory)
     const gameHistoryGM = useSelector(selectGMGameHistory)
+    const gamesPublic = useSelector(selectPublicGames)
 
     const handleProfileClick = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
         setAnchorEl(event.currentTarget)
@@ -79,6 +80,7 @@ const StartPage = () => {
     useEffect(() => {
         dispatch(getGameHistory())
         dispatch(getGMGameHistory())
+        dispatch(getPublicGames())
     }, [dispatch])
 
     if (!user && quickStartState !== AsyncState.success) {
@@ -109,6 +111,7 @@ const StartPage = () => {
                 <StartPageHeader className={classes.content} openWorldDialog={openWorldDialog}/>
                 <CreatedGameWorlds title="Created games (as Game Master):" games={gameHistoryGM} openWorldDialog={openWorldDialog}/>
                 <CreatedGameWorlds title="Game history (as Player):" games={gameHistory} openWorldDialog={openWorldDialog}/>
+                <CreatedGameWorlds title="Public games:" games={gamesPublic} openWorldDialog={openWorldDialog}/>
                 <ImageLoader src={seaDark} className={classes.seaDark}/>
                 {/*<CreatedCharacters />*/}
             </main>
