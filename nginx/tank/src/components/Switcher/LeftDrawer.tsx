@@ -13,7 +13,6 @@ import AddCard from '../Cards/AddCard'
 import AddMapDialog from '../Dialogs/AddMapDialog'
 import { useSelector } from 'react-redux'
 import { selectMaps } from '../../store/map/selectors'
-import Draggable from 'react-draggable'
 
 const drawerWidth = 300
 
@@ -291,9 +290,7 @@ const LeftDrawer: React.FC<Props> = props => {
                         {globalSymbols.map((globalSymbol: string) => (
                             <Tooltip classes={classesTooltip} TransitionComponent={Zoom} title={globalSymbol} key={globalSymbol}>
                                 <GridListTile cols={1} className={classes.tile}>
-                                    <Draggable>
-                                        <ImageLoader src={`/globalSymbols/${globalSymbol}.png`} marker draggable/>
-                                    </Draggable>
+                                    <ImageLoader src={`/globalSymbols/${globalSymbol}.png`} marker draggable/>
                                 </GridListTile>
                             </Tooltip>
                         ))}

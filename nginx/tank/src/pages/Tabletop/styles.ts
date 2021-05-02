@@ -44,6 +44,9 @@ export default makeStyles((theme: Theme) =>
             },
         },
         content: {
+            width: '100%',
+            height: '100%',
+            overflow: 'hidden',
             flexGrow: 1,
             padding: theme.spacing(2),
             display: 'flex',
@@ -51,17 +54,22 @@ export default makeStyles((theme: Theme) =>
             paddingLeft: '10px'
         },
         map: {
+            width: '100%',
+            height: '100%',
             flexGrow: 1,
             marginBottom: '12px',
             overflow: 'hidden'
         },
         controls: {
-            position: 'relative',
+            position: 'absolute',
+            width: 'calc(100% - 86px)',
+            bottom: 16,
+            // position: 'relative',
             height: '30%',
             backgroundColor: '#334055',
             display: 'flex',
             transition: 'bottom .5s cubic-bezier(0.820, 0.085, 0.395, 0.895)',
-            bottom: 0
+            // bottom: 0
         },
         mapControls: {
             display: 'flex',
@@ -151,6 +159,9 @@ export default makeStyles((theme: Theme) =>
             height: 35,
             border: `solid 2px ${primary600}`,
             borderBottom: 'none'
+        },
+        drawerBtnClosed: {
+            top: -52
         },
         closeButton: {
             backgroundColor: primary800

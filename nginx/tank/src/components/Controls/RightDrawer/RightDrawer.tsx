@@ -28,7 +28,7 @@ const useStyles = makeStyles((theme: Theme) =>
             opacity: 0
         },
         drawerPaper: {
-            position: 'relative',
+            position: 'absolute',
             height: '100%',
             width: drawerWidth,
             transition: theme.transitions.create('width', {
