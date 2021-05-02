@@ -63,12 +63,19 @@ export default class Drawer extends PIXI.Container {
   // --------=====x{ HANDLERS }x=====--------
 
   pencilDown(event) {
+
     event.stopPropagation();
     this.marker = new PIXI.Graphics();
     this.context.addChild(this.marker);
     this.points = [];
-    this.overlay.on('mousemove', this.pencilMove);
-    this.overlay.on('mouseup', this.pencilUp);
+    
+
+    this.overlay.on('mousemove', this.pencilMove)
+                .on('touchmove', this.pencilMove)
+                .on('mouseup', this.pencilUp)
+                .on('mouseupoutside',  this.pencilUp)
+                .on('touchend',        this.pencilUp)
+                .on('touchendoutside', this.pencilUp)
   }
 
   pencilMove(event) {
@@ -87,8 +94,13 @@ export default class Drawer extends PIXI.Container {
   }
 
   pencilUp(event) {
-    this.overlay.off('mousemove', this.pencilMove);
-    this.overlay.off('mouseup', this.pencilUp);
+    this.overlay.off('mousemove', this.pencilMove)
+                .off('touchmove', this.pencilMove)
+                .off('mouseup', this.pencilUp)
+                .off('mouseupoutside',  this.pencilUp)
+                .off('touchend',        this.pencilUp)
+                .off('touchendoutside', this.pencilUp)
+    
     this.points = [];
   }
 
@@ -135,15 +147,18 @@ export default class Drawer extends PIXI.Container {
 
     this.vertices.addChild(this.vertex)
 
-
     this.points = [];
     this.points.push([point.x, point.y]);
 
-    this.overlay.on('mousemove', this.polygonMove);
-    this.vertex.on('click', this.polygonEndClick);
+    this.overlay.on('mousemove', this.polygonMove)
+                .on('touchmove', this.polygonMove)
+                .on('click', this.polygonMiddleClick)
+                .on('touchstart', this.polygonMiddleClick)
+                .off('click', this.polygonStartClick)
+                .off('touchstart', this.polygonStartClick);
 
-    this.overlay.off('click', this.polygonStartClick);
-    this.overlay.on('click', this.polygonMiddleClick);
+    this.vertex.on('click', this.polygonEndClick)
+               .on('touchstart', this.polygonEndClick);
   }
 
   polygonMiddleClick(event) {
@@ -156,6 +171,10 @@ export default class Drawer extends PIXI.Container {
       (x - this.viewport.x) / this.viewport.scale.x, 
       (y - this.viewport.y) / this.viewport.scale.y
     );
+
+    this.edge.lineStyle(this.boldness, 0xffffff, 0.5);
+    this.edge.moveTo(this.points[this.points.length - 1][0], this.points[this.points.length - 1][1]);
+    this.edge.lineTo(point.x, point.y);
 
     this.points.push([point.x, point.y]);
     
@@ -187,10 +206,17 @@ export default class Drawer extends PIXI.Container {
     this.temp.removeChild(this.edges);
     this.temp.removeChild(this.vertices);
 
-    this.overlay.off('mousemove', this.polygonMove);
-    this.vertex.off('click', this.polygonEndClick);
-    this.overlay.off('click', this.polygonMiddleClick);
-    this.overlay.on('click', this.polygonStartClick);
+    this.overlay.off('mousemove', this.polygonMove)
+                .off('touchmove', this.polygonMove)
+                .off('click', this.polygonMiddleClick)
+                .off('touchstart', this.polygonMiddleClick)
+                .on('click', this.polygonStartClick)
+                .on('touchstart', this.polygonStartClick);
+
+
+    this.vertex.off('click', this.polygonEndClick)
+               .off('touchstart', this.polygonEndClick);
+
   }
 
   polygonMove(event) {
@@ -219,8 +245,13 @@ export default class Drawer extends PIXI.Container {
     this.brush.beginFill(0xffffff);
     this.brush.drawCircle(0, 0, 50);
     this.brush.endFill();
-    this.overlay.on('mousemove', this.eraserMove);
-    this.overlay.on('mouseup', this.eraserUp);
+    this.overlay.on('mousemove', this.eraserMove)
+                .on('touchmove', this.eraserMove);
+
+    this.overlay.on('mouseup', this.eraserUp)
+                .on('mouseupoutside',  this.eraserUp)
+                .on('touchend',        this.eraserUp)
+                .on('touchendoutside', this.eraserUp);
   }
 
   eraserMove(event) {
@@ -240,8 +271,13 @@ export default class Drawer extends PIXI.Container {
   }
 
   eraserUp(event) {
-    this.overlay.off('mousemove', this.eraserMove);
-    this.overlay.off('mouseup', this.eraserUp);
+    this.overlay.off('mousemove', this.eraserMove)
+                .off('touchmove', this.eraserMove);
+
+    this.overlay.off('mouseup', this.eraserUp)
+                .off('mouseupoutside',  this.eraserUp)
+                .off('touchend',        this.eraserUp)
+                .off('touchendoutside', this.eraserUp);
   }
 
   // --------=====x{ METHODS }x=====--------
@@ -312,15 +348,18 @@ export default class Drawer extends PIXI.Container {
 
     switch (this.mode) {
       case 'pencil':
-        this.overlay.on('mousedown', this.pencilDown);
+        this.overlay.on('mousedown', this.pencilDown)
+                    .on('touchstart', this.pencilDown);
         break;
 
       case 'polygon':
-        this.overlay.on('click', this.polygonStartClick);
+        this.overlay.on('click', this.polygonStartClick)
+                    .on('touchstart', this.polygonStartClick);
         break;
 
       case 'eraser':
-        this.overlay.on('mousedown', this.eraserDown);
+        this.overlay.on('mousedown', this.eraserDown)
+                    .on('touchstart', this.eraserDown);
         break;
 
       case 'none':      

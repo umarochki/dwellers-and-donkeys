@@ -153,6 +153,7 @@ const Tabletop = () => {
                 width: divRef.current.clientWidth,
                 height: divRef.current.clientHeight,
                 transparent: true,
+                resizeTo: divRef.current
                 //backgroundColor: 0xfff000
                 // TODO: isGameMaster: {boolean}
             })
@@ -325,7 +326,7 @@ const Tabletop = () => {
                     />
                     <Hidden mdDown={true}>
                         <div className={clsx(classes.controls, !showControls && classes.hideControls)}>
-                            <div className={clsx(classes.closeButton, classes.drawerBtn)} onClick={() => setShowControls(isOpen => !isOpen)}>
+                            <div className={clsx(classes.closeButton, classes.drawerBtn, !showControls && classes.drawerBtnClosed)} onClick={() => setShowControls(isOpen => !isOpen)}>
                                 <ArrowBackIosIcon className={clsx(classes.closeIcon, !showControls && classes.closeIconClosed)} />
                             </div>
                             <Grid container>

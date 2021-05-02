@@ -243,7 +243,7 @@ const LeftDrawer: React.FC<Props> = props => {
                         {markersList.map((marker: string) => (
                             <Tooltip classes={classesTooltip} TransitionComponent={Zoom} title={marker} key={marker}>
                                 <GridListTile cols={1} className={classes.tile}>
-                                    <ImageLoader src={`/markers/${marker}.png`} draggable marker/>
+                                    <ImageLoader src={`/markers/${marker}.png`} marker draggable/>
                                 </GridListTile>
                             </Tooltip>
                         ))}
@@ -290,7 +290,7 @@ const LeftDrawer: React.FC<Props> = props => {
                         {globalSymbols.map((globalSymbol: string) => (
                             <Tooltip classes={classesTooltip} TransitionComponent={Zoom} title={globalSymbol} key={globalSymbol}>
                                 <GridListTile cols={1} className={classes.tile}>
-                                    <ImageLoader src={`/globalSymbols/${globalSymbol}.png`} draggable marker/>
+                                    <ImageLoader src={`/globalSymbols/${globalSymbol}.png`} marker draggable/>
                                 </GridListTile>
                             </Tooltip>
                         ))}
