@@ -16,7 +16,7 @@ export const createGame = (name: string, description: string) => {
                 dispatch(push(`${AuthRoutes.tabletop}/${game.invitation_code}`))
             }, error => {
                 dispatch(failure(error))
-                dispatch(showErrorNotification(error.message))
+                dispatch(showErrorNotification('Failed to create game'))
             })
     }
 
@@ -76,7 +76,7 @@ export const getGameHistory = () => {
                 dispatch(success(games))
             }, error => {
                 dispatch(failure(error))
-                dispatch(showErrorNotification(error.message))
+                dispatch(showErrorNotification('Failed to get game history'))
             })
     }
 
@@ -94,7 +94,7 @@ export const getGMGameHistory = () => {
                 dispatch(success(games))
             }, error => {
                 dispatch(failure(error))
-                dispatch(showErrorNotification(error.message))
+                dispatch(showErrorNotification('Failed to get GM game history'))
             })
     }
 

@@ -14,7 +14,7 @@ export const getMaps = (game_id: string, callback?: (maps: Map[]) => void) => {
                 callback && callback(maps)
             }, error => {
                 dispatch(failure(error))
-                dispatch(showErrorNotification(error.message))
+                dispatch(showErrorNotification('Failed to get maps'))
             })
     }
 

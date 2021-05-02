@@ -17,7 +17,7 @@ export const login = (username: string, password: string) => {
                 dispatch(getMyself())
             }, error => {
                 dispatch(failure(error))
-                dispatch(showErrorNotification(error.message))
+                dispatch(showErrorNotification('Failed to login'))
             })
     }
 
@@ -47,7 +47,7 @@ export const signup = (username: string, email: string, password: string) => {
                 dispatch(getMyself())
             }, error => {
                 dispatch(failure(error))
-                dispatch(showErrorNotification(error.main))
+                dispatch(showErrorNotification('Failed to sign up'))
             })
     }
 
@@ -80,8 +80,8 @@ export const quickstart = () => {
             .then(() => {
                 dispatch(success())
                 dispatch(push('/'))
-            }, error => {
-                dispatch(showErrorNotification(error.message))
+            }, () => {
+                dispatch(showErrorNotification('Failed to quick start'))
                 dispatch(push(NonAuthRoutes.login))
             })
     }
@@ -95,8 +95,8 @@ export const googleAuth = () => {
         userService.googleAuth()
             .then(({ codeUrl }) => {
                 window.location.href = codeUrl
-            }, error => {
-                dispatch(showErrorNotification(error.message))
+            }, () => {
+                dispatch(showErrorNotification('Failed to auth'))
             })
     }
 }

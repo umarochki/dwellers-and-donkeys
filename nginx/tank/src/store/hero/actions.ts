@@ -13,7 +13,7 @@ export const getHeroes = () => {
                 dispatch(success(heroes))
             }, error => {
                 dispatch(failure(error))
-                dispatch(showErrorNotification(error.message))
+                dispatch(showErrorNotification('Failed to get heroes'))
             })
     }
 
@@ -31,7 +31,7 @@ export const addHero = (hero: Hero) => {
                 dispatch(success(hero))
             }, error => {
                 dispatch(failure(error))
-                dispatch(showErrorNotification(error.message))
+                dispatch(showErrorNotification('Failed to save hero'))
             })
     }
 
