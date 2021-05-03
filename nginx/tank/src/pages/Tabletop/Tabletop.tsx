@@ -33,6 +33,8 @@ import TutorialDialog from '../../components/Dialogs/TutorialDialog/TutorialDial
 import ChooseCharacterDialog from '../../components/Dialogs/ChooseCharacterDialog'
 import { Hero } from '../../models/hero'
 import SignalCellular4BarIcon from '@material-ui/icons/SignalCellular4Bar'
+import MapControlWithPopover from '../../components/Controls/MapControlWithPopover'
+import MapControlSettings from '../../components/Controls/MapControlSettings'
 
 export enum MyHeroType {
     unknown,
@@ -348,9 +350,19 @@ const Tabletop = () => {
                 <Hidden mdDown={true}>
                     <div className={classes.mapControls}>
                         <div className={classes.mapControl} onClick={() => boardRef.current && boardRef.current.switchGrid()}><AppsIcon className={classes.mapControlIcon}/></div>
-                        <div className={classes.mapControl} onClick={() => boardRef.current && boardRef.current.drawer.setMode('pencil')}><CreateIcon className={classes.mapControlIcon}/></div>
+                        <MapControlWithPopover
+                            id="pencil"
+                            icon={<div className={classes.mapControl}><CreateIcon className={classes.mapControlIcon}/></div>}
+                            controls={<MapControlSettings/>}
+                            onClick={() => boardRef.current && boardRef.current.drawer.setMode('pencil')}
+                        />
                         <div className={classes.mapControl} onClick={() => boardRef.current && boardRef.current.drawer.setMode('eraser')}><EraserIcon className={classes.mapControlIcon}/></div>
-                        <div className={classes.mapControl} onClick={() => boardRef.current && boardRef.current.drawer.setMode('polygon')}><SignalCellular4BarIcon className={classes.mapControlIcon}/></div>
+                        <MapControlWithPopover
+                            id="polygon"
+                            icon={<div className={classes.mapControl}><SignalCellular4BarIcon className={classes.mapControlIcon}/></div>}
+                            controls={<MapControlSettings/>}
+                            onClick={() => boardRef.current && boardRef.current.drawer.setMode('polygon')}
+                        />
                         <div className={classes.mapControl} onClick={() => boardRef.current && boardRef.current.drawer.clear()}><DeleteIcon className={classes.mapControlIcon}/></div>
                     </div>
                 </Hidden>
