@@ -4,6 +4,7 @@ import { Game } from '../models/game'
 export interface GameRequest {
     name: string
     description: string
+    is_private: boolean
 }
 
 const gameService = {

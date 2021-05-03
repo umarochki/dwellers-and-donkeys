@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { ChangeEvent, useState } from 'react'
 import {
     Button,
     CircularProgress,
@@ -12,6 +12,9 @@ import { useForm } from 'react-hook-form'
 // import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import { createGame } from '../../store/game/actions'
 import { useDispatch } from 'react-redux'
+import Checkbox from '@material-ui/core/Checkbox'
+import FormControlLabel from '@material-ui/core/FormControlLabel'
+import FormGroup from '@material-ui/core/FormGroup'
 
 // const useStyles = makeStyles((theme: Theme) =>
 //     createStyles({
@@ -39,6 +42,7 @@ const CreateWorldDialog: React.FC<Props> = props => {
 
     const [nameValue, setNameValue] = useState('')
     const [descValue, setDescValue] = useState('')
+    const [isPrivate, setIsPrivate] = useState(true)
 
     return (
         <Dialog open={open} onClose={onClose} aria-labelledby="form-dialog-title">
@@ -67,6 +71,19 @@ const CreateWorldDialog: React.FC<Props> = props => {
                         onChange={e => setDescValue(e.target.value)}
                         fullWidth
                     />
+                    <FormGroup>
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    color="primary"
+                                    name="is_private"
+                                    checked={isPrivate}
+                                    onChange={(e: ChangeEvent<HTMLInputElement>) => setIsPrivate(e.target.checked)}
+                                />
+                            }
+                            label="Private"
+                        />
+                    </FormGroup>
                 </DialogContent>
                 <DialogActions>
                     {isLoading
@@ -80,7 +97,7 @@ const CreateWorldDialog: React.FC<Props> = props => {
                                 disabled={nameValue.length === 0}
                                 onClick={() => {
                                     setIsLoading(true)
-                                    dispatch(createGame(nameValue, descValue))
+                                    dispatch(createGame(nameValue, descValue, isPrivate))
                                 }}>
                                 Create
                             </Button>

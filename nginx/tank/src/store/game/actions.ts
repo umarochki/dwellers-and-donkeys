@@ -6,11 +6,11 @@ import { push } from 'connected-react-router'
 import { AuthRoutes } from '../../routes'
 import { Game } from '../../models/game'
 
-export const createGame = (name: string, description: string) => {
+export const createGame = (name: string, description: string, is_private: boolean) => {
     return (dispatch: Dispatch) => {
         dispatch(request())
 
-        gameService.create({ name, description })
+        gameService.create({ name, description, is_private })
             .then((game: Game) => {
                 dispatch(success(game))
                 dispatch(push(`${AuthRoutes.tabletop}/${game.invitation_code}`))
