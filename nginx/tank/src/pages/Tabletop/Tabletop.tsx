@@ -382,7 +382,7 @@ const Tabletop = () => {
                         ws.sendMessage('add', {
                             type: 'hero',
                             hero_id: hero.id,
-                            xy: [0, 0],
+                            xy: myGameBoard ? [myGameBoard.mapContainer.width / 2, myGameBoard.mapContainer.height / 2] : [0, 0],
                             sprite: hero.sprite,
                             name: hero.name
                         })
