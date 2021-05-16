@@ -1,9 +1,9 @@
 import React from 'react'
-import { GameDataMessage } from '../../../models/game'
 import { createStyles, makeStyles } from '@material-ui/core/styles'
 import { Theme } from '@material-ui/core'
 import RollResult from './RollResult'
 import { MessageContent } from './MessageContent'
+import { ChatMessagePayload, ChatMessageType } from '../../../models/chat'
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -35,10 +35,10 @@ const useStyles = makeStyles((theme: Theme) =>
 
 
 interface MessageProps {
-    message: GameDataMessage
+    message: ChatMessagePayload
 }
 
-const ChatMessage: React.FC<MessageProps> = props => {
+const ChatMessageContainer: React.FC<MessageProps> = props => {
     const classes = useStyles()
     const { message } = props
 
@@ -48,7 +48,7 @@ const ChatMessage: React.FC<MessageProps> = props => {
 
     const time = `${h > 9 ? h : '0' + h}:${min > 9 ? min : '0' + min}`
 
-    if (message.type === 'roll') {
+    if (message.type === ChatMessageType.Roll) {
         return (
             <div className={classes.chatMessage}>
                 <div className={classes.messageHeader}>
@@ -73,4 +73,4 @@ const ChatMessage: React.FC<MessageProps> = props => {
     )
 }
 
-export default ChatMessage
+export default ChatMessageContainer

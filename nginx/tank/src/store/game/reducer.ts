@@ -1,7 +1,8 @@
 import * as gameConstants from './constants'
 import { Reducer } from 'redux'
 import { AsyncState } from '../user/reducer'
-import { Game, SocketMessage } from '../../models/game'
+import { Game } from '../../models/game'
+import { SocketMessage } from '../../models/socket'
 
 export interface GameState {
     createGameState: AsyncState

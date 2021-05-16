@@ -7,11 +7,11 @@ import { WebSocketContext } from '../Contexts/WebSocketContext'
 import { useSelector } from 'react-redux'
 import { selectConnectGameState } from '../../store/game/selectors'
 import { AsyncState } from '../../store/user/reducer'
-import { GameDataMessage } from '../../models/game'
-import ChatMessage from './ChatPanel/ChatMessage'
+import ChatMessageContainer from './ChatPanel/ChatMessageContainer'
 import MiniDiceWithCount, { DiceWithCount } from './ChatPanel/MiniDiceWithCount'
 import Dice from '../common/Dice'
 import clsx from 'clsx'
+import { ChatMessagePayload } from '../../models/chat'
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -135,7 +135,7 @@ enum InputType {
 }
 
 interface Props {
-    data: GameDataMessage[]
+    data: ChatMessagePayload[]
 }
 
 const ChatPanel: React.FC<Props> = props => {
@@ -223,7 +223,7 @@ const ChatPanel: React.FC<Props> = props => {
             <Card className={classes.content}>
                 <div className={classes.chat}>
                     <div className={classes.chatContent}>
-                        {data.map(item => <ChatMessage key={item.time} message={item}/>)}
+                        {data.map(item => <ChatMessageContainer key={item.time} message={item}/>)}
                         <div ref={messagesEnd} style={{ height: 1 }}/>
                     </div>
                     <div className={classes.chatInput}>

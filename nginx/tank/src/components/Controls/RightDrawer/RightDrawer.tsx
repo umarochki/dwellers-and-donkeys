@@ -4,7 +4,6 @@ import Drawer from '@material-ui/core/Drawer'
 import UserCard from '../UserCard'
 import { createStyles, makeStyles } from '@material-ui/core/styles'
 import { Theme } from '@material-ui/core'
-import { GameDataMessage } from '../../../models/game'
 import { ConnectedUser } from '../../../models/user'
 import UserList from './UserList'
 import { primary200, primary50, primary600, primary700, primary800, primary900 } from '../../../styles/colors'
@@ -12,6 +11,7 @@ import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos'
 import ChatPanel from '../ChatPanel'
 import AppsIcon from '@material-ui/icons/Apps'
 import { Hero } from '../../../models/hero'
+import { ChatMessagePayload } from '../../../models/chat'
 
 const drawerWidth = 300
 
@@ -86,7 +86,7 @@ const useStyles = makeStyles((theme: Theme) =>
 )
 
 interface Props {
-    messages: GameDataMessage[]
+    messages: ChatMessagePayload[]
     invitation_code: string
     users: ConnectedUser[]
     onSwitchGrid: () => void

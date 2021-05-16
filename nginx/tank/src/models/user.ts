@@ -6,7 +6,7 @@ export interface User {
 }
 
 export interface ConnectedUser {
-    id: string
+    id: number
     username: string
 }
 

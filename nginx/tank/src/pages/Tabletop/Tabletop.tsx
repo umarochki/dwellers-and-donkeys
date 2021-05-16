@@ -12,7 +12,8 @@ import { AsyncState } from '../../store/user/reducer'
 import FullscreenLoader from '../../components/Containers/FullscreenLoader/FullscreenLoader'
 import { push } from 'connected-react-router'
 import { connectGame, disconnectGame } from '../../store/game/actions'
-import { GameDataMessage, SocketMessage } from '../../models/game'
+import { SocketMessage } from '../../models/socket'
+import { ChatMessagePayload } from '../../models/chat'
 import { ConnectedUser } from '../../models/user'
 import useStyles from './styles'
 import { useParams } from 'react-router-dom'
@@ -58,7 +59,7 @@ const Tabletop = () => {
     const connectGameState = useSelector(selectConnectGameState)
 
     const [myGameBoard, setMyGameBoard] = useState<any>(null)
-    const [messages, setMessages] = useState<GameDataMessage[]>([])
+    const [messages, setMessages] = useState<ChatMessagePayload[]>([])
     const [users, setUsers] = useState<ConnectedUser[]>([])
     const [isGlobal, setIsGlobal] = useState<boolean | null>(null)
     const [isSwiping, setSwiping] = useState(false)
