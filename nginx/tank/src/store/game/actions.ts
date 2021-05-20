@@ -6,7 +6,7 @@ import { push } from 'connected-react-router'
 import { AuthRoutes } from '../../routes'
 import { Game } from '../../models/game'
 
-export const createGame = (name: string, description: string, is_private: boolean) => {
+export const createGame = (name: string, description: string, is_private: boolean, map: string = '') => {
     return (dispatch: Dispatch) => {
         dispatch(request())
 
