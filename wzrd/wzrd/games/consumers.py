@@ -104,7 +104,7 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
         game_session = await get_game_session(self.session_name)
 
         if not game_session:
-            ogging.warning(f"WebSocket GAMESESSION  {self.session_name} not found")
+            logging.warning(f"WebSocket GAMESESSION  {self.session_name} not found")
             return self.close(code=4400)
         await self.add_session_to_user(user, game_session)
 

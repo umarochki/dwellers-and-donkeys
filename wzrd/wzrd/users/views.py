@@ -105,10 +105,13 @@ class GoogleAuthenticationExtended(View):
     def get(self, request):
         auth_code = request.GET.get('code')
         redirect_uri = request.GET.get('redirect_uri')
+
         l_flow = make_flow_with_redirect_uri(redirect_uri) if redirect_uri else flow
         credentials = l_flow.step2_exchange(auth_code)
+
         email = credentials.id_token.get('email', '')
         domain = email.split('@')[1]
+
         name = credentials.id_token.get('given_name', '')
         last_name = credentials.id_token.get('family_name', '')
 
