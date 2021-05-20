@@ -36,6 +36,7 @@ class Session(models.Model):
     chat = djongo_models.JSONField(blank=True, default=list)
     invitation_code = models.TextField(blank=True, default="XXXXXX")
     is_private = models.BooleanField(blank=True, default=False)
+    preview = models.TextField(blank=True, null=True)
 
     @property
     def current_game_objects(self):
