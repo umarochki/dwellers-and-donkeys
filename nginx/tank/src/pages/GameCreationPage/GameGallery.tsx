@@ -2,6 +2,7 @@ import React from 'react'
 import { GridList, GridListTile, GridListTileBar } from '@material-ui/core'
 import { makeStyles, Theme } from '@material-ui/core/styles'
 import { Map } from '../../models/map'
+import ImageLoader from '../../components/Containers/ImageLoader'
 
 const useStyles = makeStyles((theme: Theme) => ({
     root: {
@@ -32,6 +33,9 @@ const useStyles = makeStyles((theme: Theme) => ({
             color:'#FFF'
         }
     },
+    img: {
+        height: '100%'
+    }
 }))
 
 interface Props {
@@ -47,7 +51,7 @@ const GameGallery: React.FC<Props> = props => {
         <GridList cellHeight={250} spacing={5}>
             {maps.map(tile => (
                 <GridListTile key={tile.hash} onClick={() => onChoose(tile.hash)} className={classes.tile}>
-                    <img src={tile.file} alt={tile.name} />
+                    <ImageLoader src={tile.file} className={classes.img} />
                     <GridListTileBar
                         title={tile.name}
                         titlePosition="top"
