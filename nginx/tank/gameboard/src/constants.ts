@@ -1,0 +1,8 @@
+let FLAGS = {
+    SELECTABLE: 1,
+    RESIZABLE: 2,
+    RESTRICTED_VISIBILITY: 3,
+    IS_DRAWER: 3
+}
+
+export { FLAGS }
