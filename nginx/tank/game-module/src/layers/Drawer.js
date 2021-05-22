@@ -90,7 +90,7 @@ export default class Drawer extends PIXI.Container {
     this.points.push(point);
     this.marker.clear();
     this.marker.lineStyle(this.boldness, this.color);
-    this.drawCustomLine(this.points);
+    this.drawCustomLine(this.marker, this.points);
   }
 
   pencilUp(event) {
@@ -282,17 +282,23 @@ export default class Drawer extends PIXI.Container {
 
   // --------=====x{ METHODS }x=====--------
 
-  drawCustomLine(points, create=false, color='#ff0000', boldness=3) {
-    
-    var graphics;
+  drawPolygon(graphics, points) {
+      points.push(points[0]);
+      if (typeof points[0] == 'number') points.push(points[1]);
 
-    if (create) {
-      graphics = new PIXI.Graphics();
-      graphics.lineStyle(boldness, color);
-    }
-    else
-      graphics = this.marker;
+      graphics.drawPolygon(points);
+  }
 
+  drawPolygonWithHoles(graphics, outer, holes) {
+    graphics.currentPath = null;
+    this.drawPolygon(graphics, outer);
+    graphics.beginHole();
+    for (let i=0;i<holes.length;i++)
+        this.drawPolygon(graphics, holes[i]);
+    graphics.endHole();
+  }
+
+  drawCustomLine(graphics, points, color='#ff0000', boldness=3) {
     if (points.length < 3) {
       var point = points[0];
       graphics.beginFill(color);
@@ -317,8 +323,6 @@ export default class Drawer extends PIXI.Container {
       points[i + 1].x,
       points[i + 1].y
     );
-
-    return graphics;
   }
 
   clear() {
