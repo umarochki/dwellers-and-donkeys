@@ -13,6 +13,8 @@ import AddCard from '../Cards/AddCard'
 import AddMapDialog from '../Dialogs/AddMapDialog'
 import { useSelector } from 'react-redux'
 import { selectMaps } from '../../store/map/selectors'
+import { Game } from '../../models/game'
+import MapCard from '../Containers/MapCard'
 
 const drawerWidth = 300
 
@@ -76,6 +78,10 @@ const useStyles = makeStyles((theme: Theme) => ({
     },
     gridList: {
         padding: '0 5px'
+    },
+    mapCard: {
+        maxWidth: 280,
+        margin: '5px 10px'
     }
 }))
 
@@ -164,6 +170,7 @@ interface Props {
     type: MenuType
     setType: (v: MenuType) => void
     selectedMaps: string[]
+    game?: Game
 }
 
 interface MapMapType {
@@ -174,11 +181,10 @@ interface MapMapType {
 }
 
 const LeftDrawer: React.FC<Props> = props => {
-    const { onOpen, onMapChange, onOpenGlobalCard, global, open, setOpen, type, setType, selectedMaps } = props
+    const { onOpen, onMapChange, onOpenGlobalCard, global, open, setOpen, type, setType, selectedMaps, game } = props
     const classes = useStyles()
     const classesTooltip = useTooltipStyles()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    const mapsList = useSelector(selectMaps) || []
+    const mapsList = useSelector(selectMaps)
 
     const mapsToAdd = useMemo(() => {
         return mapsList.filter(m => !selectedMaps.find(map => m.hash === map))
@@ -295,6 +301,12 @@ const LeftDrawer: React.FC<Props> = props => {
                             </Tooltip>
                         ))}
                     </GridList>
+                )
+
+            case MenuType.info:
+                if (!game) return null
+                return (
+                    <MapCard card={game} className={classes.mapCard} />
                 )
         }
     }

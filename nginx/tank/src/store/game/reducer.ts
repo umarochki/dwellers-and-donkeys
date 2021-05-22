@@ -10,7 +10,8 @@ export interface GameState {
     getGMGameHistoryState: AsyncState
     getPublicGamesState: AsyncState
     error: Error | null
-    currentGame: Game | null
+    currentGame?: Game
+    allGames: Game[]
     games: Game[]
     gamesGM: Game[]
     publicGames: Game[]
@@ -24,7 +25,7 @@ const INITIAL_STATE: GameState = {
     getGMGameHistoryState: AsyncState.unknown,
     getPublicGamesState: AsyncState.unknown,
     error: null,
-    currentGame: null,
+    allGames: [],
     games: [],
     gamesGM: [],
     publicGames: [],
@@ -45,6 +46,12 @@ const gameReducer: Reducer<GameState> = (state = INITIAL_STATE, action) => {
             }
         case gameConstants.CREATE_GAME_REQUEST_ERROR:
             return { ...state, createGameState: AsyncState.error }
+        case gameConstants.GET_ALL_GAMES_REQUEST_STARTED:
+            return { ...state, allGames: [] }
+        case gameConstants.GET_ALL_GAMES_REQUEST_FINISHED:
+            return { ...state, allGames: action.payload }
+        case gameConstants.GET_ALL_GAMES_REQUEST_ERROR:
+            return { ...state, allGames: [] }
         case gameConstants.GET_GAME_HISTORY_REQUEST_STARTED:
             return { ...state, getGameHistoryState: AsyncState.inProcess }
         case gameConstants.GET_GAME_HISTORY_REQUEST_FINISHED:
@@ -80,7 +87,7 @@ const gameReducer: Reducer<GameState> = (state = INITIAL_STATE, action) => {
         case gameConstants.CONNECT_GAME_STARTED:
             return {
                 ...state,
-                currentGame: { invitation_code: action.payload },
+                currentGame: state.allGames.find(g => g.invitation_code === action.payload),
                 connectGameState: AsyncState.inProcess
             }
         case gameConstants.CONNECT_GAME_FINISHED:
@@ -88,7 +95,7 @@ const gameReducer: Reducer<GameState> = (state = INITIAL_STATE, action) => {
         case gameConstants.DISCONNECT_GAME:
             return {
                 ...state,
-                currentGame: null,
+                currentGame: undefined,
                 currentGameData: null,
                 connected: false,
                 connectGameState: AsyncState.unknown
@@ -96,7 +103,7 @@ const gameReducer: Reducer<GameState> = (state = INITIAL_STATE, action) => {
         case gameConstants.CONNECT_GAME_ERROR:
             return {
                 ...state,
-                currentGame: null,
+                currentGame: undefined,
                 currentGameData: null,
                 connected: false,
                 connectGameState: AsyncState.error

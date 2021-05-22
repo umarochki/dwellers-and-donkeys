@@ -58,7 +58,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 interface Props {
     code: string
-    hero: Hero
+    hero?: Hero
 }
 
 const UserCard: React.FC<Props> = props => {

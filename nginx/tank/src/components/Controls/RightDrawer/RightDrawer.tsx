@@ -90,7 +90,7 @@ interface Props {
     invitation_code: string
     users: ConnectedUser[]
     onSwitchGrid: () => void
-    hero: Hero
+    hero?: Hero
 }
 
 const RightDrawer: React.FC<Props> = props => {

@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import LeftDrawer from '../../components/Switcher/LeftDrawer'
 import { Grid, Hidden } from '@material-ui/core'
 import UserCard from '../../components/Controls/UserCard'
@@ -7,11 +7,16 @@ import ChatPanel from '../../components/Controls/ChatPanel'
 import Gameboard from 'game-module/src/Gameboard'
 import { WebSocketContext } from '../../components/Contexts/WebSocketContext'
 import { useDispatch, useSelector } from 'react-redux'
-import { selectConnectGameState, selectCurrentGame, selectCurrentGameData } from '../../store/game/selectors'
+import {
+    selectConnectGameState,
+    selectCurrentGame,
+    selectCurrentGameData,
+    selectAllGames
+} from '../../store/game/selectors'
 import { AsyncState } from '../../store/user/reducer'
 import FullscreenLoader from '../../components/Containers/FullscreenLoader/FullscreenLoader'
 import { push } from 'connected-react-router'
-import { connectGame, disconnectGame } from '../../store/game/actions'
+import { connectGame, disconnectGame, getAllGames } from '../../store/game/actions'
 import { SocketMessage } from '../../models/socket'
 import { ChatMessagePayload } from '../../models/chat'
 import { ConnectedUser } from '../../models/user'
@@ -55,6 +60,9 @@ const Tabletop = () => {
     const currentGameData = useSelector(selectCurrentGameData)
     const connectGameState = useSelector(selectConnectGameState)
 
+    const allGames = useSelector(selectAllGames)
+    const currentGame = useMemo(() => game ? allGames.find(g => g.invitation_code === game.invitation_code) : undefined, [allGames, game])
+
     const [myGameBoard, setMyGameBoard] = useState<any>(null)
     const [messages, setMessages] = useState<ChatMessagePayload[]>([])
     const [users, setUsers] = useState<ConnectedUser[]>([])
@@ -66,7 +74,7 @@ const Tabletop = () => {
     const [tutorialOpen, setTutorialOpen] = useState(false)
     const [chooseHeroDialogOpen, setChooseHeroDialogOpen] = useState(false)
     const [myHero, setMyHero] = useState(MyHeroType.unknown)
-    const [hero, setHero] = useState<Hero | null>(null)
+    const [hero, setHero] = useState<Hero | undefined>(undefined)
 
     const [selectedMaps, setSelectedMaps] = useState<string[]>((currentGameData && currentGameData.meta.maps) || [])
     const maps = useSelector(selectMaps)
@@ -143,6 +151,10 @@ const Tabletop = () => {
             dispatch(disconnectGame())
         }
     }, [dispatch, id])
+
+    useEffect(() => {
+        dispatch(getAllGames())
+    }, [dispatch])
 
     useEffect(() => {
         if (!myGameBoard && connectGameState === AsyncState.success && game && game.invitation_code && divRef && divRef.current && ws.socket) {
@@ -304,6 +316,7 @@ const Tabletop = () => {
                     type={type}
                     setType={setType}
                     selectedMaps={selectedMaps}
+                    game={currentGame}
                 />
                 <main className={classes.content}>
                     <div

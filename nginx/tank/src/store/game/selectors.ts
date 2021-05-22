@@ -4,6 +4,7 @@ export const selectCurrentGame = (state: RootState) => state.game.currentGame
 export const selectGames = (state: RootState) => state.game.games
 export const selectCurrentGameData = (state: RootState) => state.game.currentGameData
 export const selectConnectGameState = (state: RootState) => state.game.connectGameState
+export const selectAllGames = (state: RootState) => state.game.allGames
 export const selectGetGameHistoryState = (state: RootState) => state.game.getGameHistoryState
 export const selectGameHistory = (state: RootState) => state.game.games
 export const selectGetGMGameHistoryState = (state: RootState) => state.game.getGMGameHistoryState

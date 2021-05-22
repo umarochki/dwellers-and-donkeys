@@ -21,9 +21,9 @@ interface Props {
 }
 
 const cards: CardItem[] = [
-    { title: 'Орк', date: '20.01.20', image: 'https://source.unsplash.com/random' },
-    { title: 'Гномик', date: '20.01.20', image: 'https://source.unsplash.com/random' },
-    { title: 'Гномик', date: '20.01.20', image: 'https://source.unsplash.com/random' },
+    { name: 'Орк', date: '20.01.20', image: 'https://source.unsplash.com/random' },
+    { name: 'Гномик', date: '20.01.20', image: 'https://source.unsplash.com/random' },
+    { name: 'Гномик', date: '20.01.20', image: 'https://source.unsplash.com/random' },
 ]
 
 const CreatedCharacters: React.FC<Props> = () => {
