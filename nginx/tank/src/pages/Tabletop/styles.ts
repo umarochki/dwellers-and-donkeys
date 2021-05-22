@@ -1,5 +1,5 @@
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
-import { primary400, primary50, primary500, primary600, primary700, primary800, primary900 } from '../../styles/colors'
+import { primary400, primary50, primary600, primary700, primary800 } from '../../styles/colors'
 
 const drawerWidth = 240
 
@@ -64,31 +64,10 @@ export default makeStyles((theme: Theme) =>
             position: 'absolute',
             width: 'calc(100% - 86px)',
             bottom: 16,
-            // position: 'relative',
             height: '30%',
             backgroundColor: '#334055',
             display: 'flex',
-            transition: 'bottom .5s cubic-bezier(0.820, 0.085, 0.395, 0.895)',
-            // bottom: 0
-        },
-        mapControls: {
-            display: 'flex',
-            position: 'fixed',
-            left: 'calc(50% - 70px)',
-            top: 10,
-            backgroundColor: primary500
-        },
-        mapControl: {
-            border: `1px solid ${primary900}`,
-            padding: '5px 10px 2px',
-            transition: '.3s ease-in-out',
-            cursor: 'pointer',
-            '&:hover': {
-                backgroundColor: primary700
-            }
-        },
-        mapControlIcon: {
-
+            transition: 'bottom .5s cubic-bezier(0.820, 0.085, 0.395, 0.895)'
         },
         hideControls: {
             bottom: 'calc(-30% - 16px)'

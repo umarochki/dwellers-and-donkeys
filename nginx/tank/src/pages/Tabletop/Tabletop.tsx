@@ -18,22 +18,19 @@ import { ConnectedUser } from '../../models/user'
 import useStyles from './styles'
 import { useParams } from 'react-router-dom'
 import { MenuType } from '../../components/Switcher/Switcher'
-import AppsIcon from '@material-ui/icons/Apps'
 import clsx from 'clsx'
 import RightDrawer from '../../components/Controls/RightDrawer/RightDrawer'
 import FullscreenPage from '../../components/Containers/FullscreenPage'
 import { primary50 } from '../../styles/colors'
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos'
-import CreateIcon from '@material-ui/icons/Create'
 import DeleteIcon from '@material-ui/icons/Delete'
-import { ReactComponent as EraserIcon } from '../../assets/eraser.svg'
 import { getMaps } from '../../store/map/actions'
 import { Map } from '../../models/map'
 import { selectMaps } from '../../store/map/selectors'
 import TutorialDialog from '../../components/Dialogs/TutorialDialog/TutorialDialog'
 import ChooseCharacterDialog from '../../components/Dialogs/ChooseCharacterDialog'
 import { Hero } from '../../models/hero'
-import SignalCellular4BarIcon from '@material-ui/icons/SignalCellular4Bar'
+import MapControls from '../../components/Controls/Map/MapControls'
 
 export enum MyHeroType {
     unknown,
@@ -72,7 +69,7 @@ const Tabletop = () => {
     const [hero, setHero] = useState<Hero | null>(null)
 
     const [selectedMaps, setSelectedMaps] = useState<string[]>((currentGameData && currentGameData.meta.maps) || [])
-    const maps = useSelector(selectMaps) || []
+    const maps = useSelector(selectMaps)
 
     const [idToDelete, setIdToDelete] = useState<null | number>(null)
     const isDltBtnHovered = useRef<boolean>(false)
@@ -347,13 +344,7 @@ const Tabletop = () => {
                     </Hidden>
                 </main>
                 <Hidden mdDown={true}>
-                    <div className={classes.mapControls}>
-                        <div className={classes.mapControl} onClick={() => boardRef.current && boardRef.current.switchGrid()}><AppsIcon className={classes.mapControlIcon}/></div>
-                        <div className={classes.mapControl} onClick={() => boardRef.current && boardRef.current.drawer.setMode('pencil')}><CreateIcon className={classes.mapControlIcon}/></div>
-                        <div className={classes.mapControl} onClick={() => boardRef.current && boardRef.current.drawer.setMode('eraser')}><EraserIcon className={classes.mapControlIcon}/></div>
-                        <div className={classes.mapControl} onClick={() => boardRef.current && boardRef.current.drawer.setMode('polygon')}><SignalCellular4BarIcon className={classes.mapControlIcon}/></div>
-                        <div className={classes.mapControl} onClick={() => boardRef.current && boardRef.current.drawer.clear()}><DeleteIcon className={classes.mapControlIcon}/></div>
-                    </div>
+                    <MapControls boardRef={boardRef} />
                 </Hidden>
                 {
                     idToDelete &&
