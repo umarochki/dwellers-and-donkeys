@@ -12,7 +12,7 @@ import { getUrl } from '../../helpers/authHeader'
 import { copyTextToClipboard } from '../../helpers/clipBoard'
 import { showSuccessNotification } from '../../store/notifications/actions'
 import MapCard from './MapCard'
-import { Game } from '../../models/game';
+import { Game } from '../../models/game'
 
 const useStyles = makeStyles(() =>
     createStyles({

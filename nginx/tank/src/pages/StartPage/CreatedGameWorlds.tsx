@@ -23,16 +23,9 @@ const CreatedGameWorlds: React.FC<Props> = props => {
     const { openWorldDialog, title, games } = props
     const classes = useStyles()
 
-    const cards = games.map(g => ({
-        id: g.id || 0,
-        title: g.name || '',
-        description: g.description || '',
-        invitation_code: g.invitation_code || ''
-    }))
-
     return (
         <Container className={classes.cardGrid} maxWidth="md">
-            <CardList headerText={title} cards={cards} onAddClick={openWorldDialog}/>
+            <CardList headerText={title} cards={games} onAddClick={openWorldDialog}/>
         </Container>
     )
 }

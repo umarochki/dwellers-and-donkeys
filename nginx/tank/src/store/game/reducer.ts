@@ -6,9 +6,7 @@ import { SocketMessage } from '../../models/socket'
 
 export interface GameState {
     createGameState: AsyncState
-    getGameHistoryState: AsyncState
-    getGMGameHistoryState: AsyncState
-    getPublicGamesState: AsyncState
+    getAllGamesState: AsyncState
     error: Error | null
     currentGame?: Game
     allGames: Game[]
@@ -21,9 +19,7 @@ export interface GameState {
 
 const INITIAL_STATE: GameState = {
     createGameState: AsyncState.unknown,
-    getGameHistoryState: AsyncState.unknown,
-    getGMGameHistoryState: AsyncState.unknown,
-    getPublicGamesState: AsyncState.unknown,
+    getAllGamesState: AsyncState.unknown,
     error: null,
     allGames: [],
     games: [],
@@ -47,11 +43,11 @@ const gameReducer: Reducer<GameState> = (state = INITIAL_STATE, action) => {
         case gameConstants.CREATE_GAME_REQUEST_ERROR:
             return { ...state, createGameState: AsyncState.error }
         case gameConstants.GET_ALL_GAMES_REQUEST_STARTED:
-            return { ...state, allGames: [] }
+            return { ...state, allGames: [], getAllGamesState: AsyncState.inProcess }
         case gameConstants.GET_ALL_GAMES_REQUEST_FINISHED:
-            return { ...state, allGames: action.payload }
+            return { ...state, allGames: action.payload, getAllGamesState: AsyncState.success }
         case gameConstants.GET_ALL_GAMES_REQUEST_ERROR:
-            return { ...state, allGames: [] }
+            return { ...state, allGames: [], getAllGamesState: AsyncState.error }
         case gameConstants.GET_GAME_HISTORY_REQUEST_STARTED:
             return { ...state, getGameHistoryState: AsyncState.inProcess }
         case gameConstants.GET_GAME_HISTORY_REQUEST_FINISHED:

@@ -1,17 +1,15 @@
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import LeftDrawer from '../../components/Switcher/LeftDrawer'
-import { Grid, Hidden } from '@material-ui/core'
-import UserCard from '../../components/Controls/UserCard'
-import PersonCard from '../../components/Controls/PersonCard'
-import ChatPanel from '../../components/Controls/ChatPanel'
+import { Hidden } from '@material-ui/core'
 import Gameboard from 'game-module/src/Gameboard'
 import { WebSocketContext } from '../../components/Contexts/WebSocketContext'
 import { useDispatch, useSelector } from 'react-redux'
 import {
+    selectAllGames,
     selectConnectGameState,
     selectCurrentGame,
     selectCurrentGameData,
-    selectAllGames
+    selectGetAllGamesState
 } from '../../store/game/selectors'
 import { AsyncState } from '../../store/user/reducer'
 import FullscreenLoader from '../../components/Containers/FullscreenLoader/FullscreenLoader'
@@ -27,7 +25,6 @@ import clsx from 'clsx'
 import RightDrawer from '../../components/Controls/RightDrawer/RightDrawer'
 import FullscreenPage from '../../components/Containers/FullscreenPage'
 import { primary50 } from '../../styles/colors'
-import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos'
 import DeleteIcon from '@material-ui/icons/Delete'
 import { getMaps } from '../../store/map/actions'
 import { Map } from '../../models/map'
@@ -36,6 +33,7 @@ import TutorialDialog from '../../components/Dialogs/TutorialDialog/TutorialDial
 import ChooseCharacterDialog from '../../components/Dialogs/ChooseCharacterDialog'
 import { Hero } from '../../models/hero'
 import MapControls from '../../components/Controls/Map/MapControls'
+import BottomControlPanel from '../../components/Controls/Bottom/BottomControlPanel'
 
 export enum MyHeroType {
     unknown,
@@ -61,6 +59,7 @@ const Tabletop = () => {
     const connectGameState = useSelector(selectConnectGameState)
 
     const allGames = useSelector(selectAllGames)
+    const getAllGamesState = useSelector(selectGetAllGamesState)
     const currentGame = useMemo(() => game ? allGames.find(g => g.invitation_code === game.invitation_code) : undefined, [allGames, game])
 
     const [myGameBoard, setMyGameBoard] = useState<any>(null)
@@ -297,7 +296,7 @@ const Tabletop = () => {
 
     if (connectGameState === AsyncState.error || connectGameState === AsyncState.unknown) {
         if (!game || game.invitation_code !== id) {
-            dispatch(connectGame(id))
+            if (getAllGamesState === AsyncState.success) dispatch(connectGame(id))
             return <FullscreenLoader/>
         }
         dispatch(push('/'))
@@ -336,24 +335,14 @@ const Tabletop = () => {
                         }}
                     />
                     <Hidden mdDown={true}>
-                        <div className={clsx(classes.controls, !showControls && classes.hideControls)}>
-                            <div className={clsx(classes.closeButton, classes.drawerBtn, !showControls && classes.drawerBtnClosed)} onClick={() => setShowControls(isOpen => !isOpen)}>
-                                <ArrowBackIosIcon className={clsx(classes.closeIcon, !showControls && classes.closeIconClosed)} />
-                            </div>
-                            <Grid container>
-                                <Grid item xs={5} className={classes.controlPanel}>
-                                    <div className={classes.people}>
-                                        {users.map(user => <PersonCard user={user.username} key={user.username}/>)}
-                                    </div>
-                                </Grid>
-                                <Grid item xs={2} className={classes.controlPanel}>
-                                    <UserCard code={game ? game.invitation_code || '' : ''} hero={hero}/>
-                                </Grid>
-                                <Grid item xs={5} className={classes.controlPanel}>
-                                    <ChatPanel data={messages}/>
-                                </Grid>
-                            </Grid>
-                        </div>
+                        <BottomControlPanel
+                            showControls={showControls}
+                            onToggle={() => setShowControls(isOpen => !isOpen)}
+                            game={game}
+                            users={users}
+                            messages={messages}
+                            hero={hero}
+                        />
                     </Hidden>
                 </main>
                 <Hidden mdDown={true}>
