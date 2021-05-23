@@ -1,7 +1,6 @@
 import { Container } from '@material-ui/core'
 import React, { useCallback } from 'react'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
-import CardList, { CardItem } from '../../components/Containers/CardList'
 import CreateCharacterDialog from '../../components/Dialogs/CreateCharacterDialog'
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -17,22 +16,11 @@ const useStyles = makeStyles((theme: Theme) =>
     })
 )
 
-interface Props {
-}
-
-const cards: CardItem[] = [
-    { name: 'Орк', date: '20.01.20', image: 'https://source.unsplash.com/random' },
-    { name: 'Гномик', date: '20.01.20', image: 'https://source.unsplash.com/random' },
-    { name: 'Гномик', date: '20.01.20', image: 'https://source.unsplash.com/random' },
-]
+interface Props {}
 
 const CreatedCharacters: React.FC<Props> = () => {
     const classes = useStyles()
     const [open, setOpen] = React.useState(false)
-
-    const handleAddCharacter = useCallback(() => {
-        setOpen(true)
-    }, [])
 
     const handleClose = useCallback(() => {
         setOpen(false)
@@ -41,7 +29,7 @@ const CreatedCharacters: React.FC<Props> = () => {
     return (
         <div className={classes.root}>
             <Container className={classes.cardGrid} maxWidth="md">
-                <CardList headerText={'Created characters:'} cards={cards} onAddClick={handleAddCharacter}/>
+                {/*<CardList headerText={'Created characters:'} cards={cards} onAddClick={handleAddCharacter}/>*/}
             </Container>
             <CreateCharacterDialog open={open} onClose={handleClose}/>
         </div>

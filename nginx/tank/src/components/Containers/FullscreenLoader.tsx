@@ -1,7 +1,7 @@
 import React from 'react'
 import { CircularProgress } from '@material-ui/core'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
-import FullscreenPage from '../FullscreenPage'
+import FullscreenPage from './FullscreenPage'
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     loader: {

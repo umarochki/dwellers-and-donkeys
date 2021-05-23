@@ -12,7 +12,7 @@ import {
     selectGetAllGamesState
 } from '../../store/game/selectors'
 import { AsyncState } from '../../store/user/reducer'
-import FullscreenLoader from '../../components/Containers/FullscreenLoader/FullscreenLoader'
+import FullscreenLoader from '../../components/Containers/FullscreenLoader'
 import { push } from 'connected-react-router'
 import { connectGame, disconnectGame, getAllGames } from '../../store/game/actions'
 import { SocketMessage } from '../../models/socket'
@@ -286,6 +286,12 @@ const Tabletop = () => {
         }
     }, [myHero])
 
+    useEffect(() => {
+        if (connectGameState === AsyncState.error || connectGameState === AsyncState.unknown) {
+            getAllGamesState === AsyncState.success && dispatch(connectGame(id))
+        }
+    }, [dispatch, getAllGamesState, connectGameState, id])
+
     if (orientation.device === 'mobile' && orientation.orientation === 'portrait') {
         return <FullscreenPage styles={{ color: primary50 }}>Please, rotate your device to landscape mode</FullscreenPage>
     }
@@ -296,7 +302,6 @@ const Tabletop = () => {
 
     if (connectGameState === AsyncState.error || connectGameState === AsyncState.unknown) {
         if (!game || game.invitation_code !== id) {
-            if (getAllGamesState === AsyncState.success) dispatch(connectGame(id))
             return <FullscreenLoader/>
         }
         dispatch(push('/'))

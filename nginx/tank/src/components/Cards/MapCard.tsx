@@ -2,7 +2,7 @@ import React, { ReactNode } from 'react'
 import { Card, CardActionArea, CardActions, CardContent, CardMedia, Typography } from '@material-ui/core'
 import { createStyles, makeStyles } from '@material-ui/core/styles'
 import { primary200 } from '../../styles/colors'
-import defaultImage from './default.png'
+import defaultImage from '../../assets/default.png'
 import { Game } from '../../models/game'
 import clsx from 'clsx'
 

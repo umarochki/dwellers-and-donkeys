@@ -6,7 +6,7 @@ import clsx from 'clsx'
 import Switcher, { MenuType } from './Switcher'
 // @ts-ignore
 import LazyLoad from 'react-lazy-load'
-import ImageLoader from '../Containers/ImageLoader'
+import ImageLoader from '../common/ImageLoader'
 import { primary200, primary900 } from '../../styles/colors'
 import Zoom from '@material-ui/core/Zoom'
 import AddCard from '../Cards/AddCard'
@@ -14,7 +14,8 @@ import AddMapDialog from '../Dialogs/AddMapDialog'
 import { useSelector } from 'react-redux'
 import { selectMaps } from '../../store/map/selectors'
 import { Game } from '../../models/game'
-import MapCard from '../Containers/MapCard'
+import MapCard from '../Cards/MapCard'
+import { globalSymbols, heroes, markersList } from './icons'
 
 const drawerWidth = 300
 
@@ -98,67 +99,6 @@ const useTooltipStyles = makeStyles(() =>
         },
     })
 )
-
-export const markersList = [
-    'Bonfire',
-    'Castle',
-    'Tavern',
-    'Tree',
-]
-
-export const heroes = [
-    'Ant',
-    'Cat Smart',
-    'Girl Strong',
-    'Plant',
-    'Snake03',
-    'Troll',
-    'Boy Cunning', 'Cat Strong', 'Goblin', 'Plant02', 'Snake04', 'Troll02',
-    'Boy Smart', 'Dragon', 'Knight', 'Skeleton', 'Snake05', 'Wizard',
-    'Boy Strong', 'Girl Cunning', 'Mummy', 'Snake', 'Spider', 'Wolf',
-    'Cat Cunning', 'Girl Smart', 'Musician', 'Snake02', 'Thief'
-]
-
-export const globalSymbols = [
-    'Bones1',
-    'Bones2',
-    'Bones3',
-    'Chest',
-    'City',
-    'Dot',
-    'Dungeon1',
-    'Dungeon2',
-    'Dungeon3',
-    'Finsh',
-    'Fire',
-    'Flag',
-    'Grass1',
-    'Grass2',
-    'Grass3',
-    'Grass4',
-    'Grass5',
-    'Grass6',
-    'Hill1',
-    'Hill2',
-    'Hill3',
-    'Lake1',
-    'Lake2',
-    'Lake3',
-    'Mountain1',
-    'Mountain2',
-    'Mountain3',
-    'Mountain4',
-    'Mountain5',
-    'Start',
-    'Swamp1',
-    'Swamp2',
-    'Tower1',
-    'Tower2',
-    'Tree1',
-    'Tree2',
-    'Tree3',
-    'Tree4'
-]
 
 interface Props {
     onOpen: Function

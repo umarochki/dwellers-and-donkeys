@@ -2,12 +2,12 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { Avatar, Button, Card, Theme } from '@material-ui/core'
 import { createStyles, makeStyles } from '@material-ui/core/styles'
 import PersonIcon from '@material-ui/icons/Person'
-import { primary200, primary50 } from '../../styles/colors'
-import InviteDialog from '../Dialogs/InviteDialog'
-import CharacterInfoDialog from '../Dialogs/CharacterInfoDialog'
-import { getHeroes } from '../../store/hero/actions'
+import { primary200, primary50 } from '../../../styles/colors'
+import InviteDialog from '../../Dialogs/InviteDialog'
+import CharacterInfoDialog from '../../Dialogs/CharacterInfoDialog'
+import { getHeroes } from '../../../store/hero/actions'
 import { useDispatch } from 'react-redux'
-import { Hero } from '../../models/hero'
+import { Hero } from '../../../models/hero'
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({

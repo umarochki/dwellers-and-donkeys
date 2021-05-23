@@ -1,6 +1,6 @@
 import React from 'react'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
-import CardList from '../../components/Containers/CardList'
+import CardList from '../../components/Cards/CardList'
 import { Container } from '@material-ui/core'
 import { Game } from '../../models/game'
 

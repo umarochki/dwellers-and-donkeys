@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { Button, Grid, Typography } from '@material-ui/core'
 import { createStyles, makeStyles } from '@material-ui/core/styles'
-import AddCard from '../Cards/AddCard'
+import AddCard from './AddCard'
 import clsx from 'clsx'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectConnectGameState } from '../../store/game/selectors'
@@ -58,6 +58,13 @@ const CardList: React.FC<Props> = props => {
         dispatch(deleteGame(id))
     }, [dispatch])
 
+    const handleInvite = useCallback((card: Game) => () => {
+        const url = `${getUrl()}/tabletop/${card.invitation_code}`
+        copyTextToClipboard(url, () => {
+            dispatch(showSuccessNotification('Copied'))
+        })
+    }, [dispatch])
+
     useEffect(() => {
         if (connected === AsyncState.error) {
             setIsLoading(false)
@@ -77,37 +84,31 @@ const CardList: React.FC<Props> = props => {
                     <Grid item key={card.id} xs={12} sm={6} md={4}>
                         <MapCard
                             card={card}
-                            cardActions={
-                                <>
-                                    <Button
-                                        color="primary" variant="contained" disabled={isLoading}
-                                        onClick={() => handleConnect(card.invitation_code)}
-                                    >
-                                        Play
-                                    </Button>
-                                    <Button
-                                        color="primary"
-                                        disabled={isLoading}
-                                        onClick={() => {
-                                            setIdToDelete(card.id)
-                                            setConfirmOpen(true)
-                                        }}
-                                    >
-                                        Delete
-                                    </Button>
-                                    <Button
-                                        color="primary" disabled={isLoading} style={{ marginLeft: 'auto' }}
-                                        onClick={() => {
-                                            const url = `${getUrl()}/tabletop/${card.invitation_code}`
-                                            copyTextToClipboard(url, () => {
-                                                dispatch(showSuccessNotification('Copied'))
-                                            })
-                                        }}
-                                    >
-                                        Invite
-                                    </Button>
-                                </>
-                            }/>
+                            cardActions={<>
+                                <Button
+                                    color="primary"
+                                    variant="contained"
+                                    disabled={isLoading}
+                                    onClick={() => handleConnect(card.invitation_code)}>
+                                    Play
+                                </Button>
+                                <Button
+                                    color="primary"
+                                    disabled={isLoading}
+                                    onClick={() => {
+                                        setIdToDelete(card.id)
+                                        setConfirmOpen(true)
+                                    }}>
+                                    Delete
+                                </Button>
+                                <Button
+                                    color="primary"
+                                    disabled={isLoading}
+                                    style={{ marginLeft: 'auto' }}
+                                    onClick={handleInvite(card)}>
+                                    Invite
+                                </Button>
+                            </>}/>
                     </Grid>
                 ))}
             </Grid>
