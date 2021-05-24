@@ -8,7 +8,7 @@ from .models import Session, Hero, HeroSession
 class HeroSerializer(serializers.ModelSerializer):
     class Meta:
         model = Hero
-        fields = ("id", "name", "race", "sex", "sprite", "description")
+        fields = ("id", "name", "race", "sex", "sprite", "description", "preview")
 
     def create(self, validated_data):
         user = self.context["user"]
