@@ -8,7 +8,7 @@ from .models import Session, Hero, HeroSession
 class HeroSerializer(serializers.ModelSerializer):
     class Meta:
         model = Hero
-        fields = ("id", "name", "race", "sex", "sprite", "description", "preview")
+        fields = ("id", "name", "race", "sex", "sprite", "description")
 
     def create(self, validated_data):
         user = self.context["user"]
@@ -44,7 +44,7 @@ class HeroSessionSerializer(serializers.ModelSerializer):
 class DetailGameSessionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Session
-        fields = ("id", "name", "description", "game_master", "is_private", "invitation_code")
+        fields = ("id", "name", "description", "game_master", "is_private", "invitation_code", "preview")
 
     def __init__(self, *args, **kwargs):
         self.short = kwargs.pop("short", False)
