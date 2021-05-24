@@ -32,11 +32,10 @@ const INITIAL_STATE: GameState = {
 const gameReducer: Reducer<GameState> = (state = INITIAL_STATE, action) => {
     switch (action.type) {
         case gameConstants.CREATE_GAME_REQUEST_STARTED:
-            return { ...state, createGameState: AsyncState.inProcess, connectGameState: AsyncState.inProcess }
+            return { ...state, createGameState: AsyncState.inProcess }
         case gameConstants.CREATE_GAME_REQUEST_FINISHED:
             return {
                 ...state,
-                connectGameState: AsyncState.inProcess,
                 createGameState: AsyncState.success,
                 currentGame: action.payload,
             }
