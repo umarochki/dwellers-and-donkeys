@@ -15,6 +15,7 @@ import type {
 } from './plugins';
 import type { Viewport } from './Viewport';
 
+
 const PLUGIN_ORDER = [
     'drag',
     'pinch',

@@ -1,3 +1,4 @@
+
 export default class Loader extends PIXI.Loader {
     private queue: LoaderRequest[];
     private is_locked: boolean;
