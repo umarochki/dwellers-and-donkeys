@@ -12,6 +12,7 @@ import ConfirmDialog from '../Dialogs/ConfirmDialog'
 import ExploreIcon from '@material-ui/icons/Explore'
 import FilterHdrIcon from '@material-ui/icons/FilterHdr'
 import { primary400 } from '../../styles/colors'
+import InfoIcon from '@material-ui/icons/Info'
 
 const switcherWidth = 60
 
@@ -54,6 +55,7 @@ export enum MenuType {
     heroes = 'heroes',
     locations = 'locations',
     markers = 'markers',
+    info = 'info',
     unselect = 'unselect'
 }
 
@@ -69,6 +71,8 @@ const mapTypeToIcon = (type: MenuType) => {
             return <LayersIcon fontSize="large"/>
         case MenuType.markers:
             return <FlagIcon fontSize="large"/>
+        case MenuType.info:
+            return <InfoIcon fontSize="large"/>
         case MenuType.unselect:
             return null
     }
@@ -87,6 +91,8 @@ const mapTypeToTooltip = (type: MenuType): string => {
             return 'Maps'
         case MenuType.markers:
             return 'Markers'
+        case MenuType.info:
+            return 'Info'
         case MenuType.unselect:
             return 'unknown'
     }
@@ -113,8 +119,8 @@ const Switcher: React.FC<Props> = props => {
         if (global === null) return []
 
         return global
-            ? [MenuType.locations, MenuType.globalSymbols, MenuType.markers]
-            : [MenuType.global, MenuType.locations, MenuType.heroes]
+            ? [MenuType.locations, MenuType.globalSymbols, MenuType.markers,  MenuType.info]
+            : [MenuType.global, MenuType.locations, MenuType.heroes, MenuType.info]
     }, [global])
 
     return (

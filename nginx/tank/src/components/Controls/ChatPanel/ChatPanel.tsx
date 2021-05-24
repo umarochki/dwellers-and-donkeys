@@ -1,17 +1,16 @@
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { Button, Card, Grid, Hidden, IconButton, Theme } from '@material-ui/core'
 import { createStyles, makeStyles } from '@material-ui/core/styles'
-import { primary200, primary400, primary50, primary500, primary800, primary900 } from '../../styles/colors'
+import { primary200, primary50, primary800, primary900 } from '../../../styles/colors'
 import ClearIcon from '@material-ui/icons/Clear'
-import { WebSocketContext } from '../Contexts/WebSocketContext'
+import { WebSocketContext } from '../../Contexts/WebSocketContext'
 import { useSelector } from 'react-redux'
-import { selectConnectGameState } from '../../store/game/selectors'
-import { AsyncState } from '../../store/user/reducer'
-import ChatMessageContainer from './ChatPanel/ChatMessageContainer'
-import MiniDiceWithCount, { DiceWithCount } from './ChatPanel/MiniDiceWithCount'
-import Dice from '../common/Dice'
-import clsx from 'clsx'
-import { ChatMessagePayload } from '../../models/chat'
+import { selectConnectGameState } from '../../../store/game/selectors'
+import { AsyncState } from '../../../store/user/reducer'
+import ChatMessageContainer from './ChatMessageContainer'
+import MiniDiceWithCount, { DiceWithCount } from './MiniDiceWithCount'
+import { ChatMessagePayload, RollType } from '../../../models/chat'
+import RollContainer from '../../Containers/RollContainer'
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -73,39 +72,6 @@ const useStyles = makeStyles((theme: Theme) =>
                 marginLeft: theme.spacing(1),
                 paddingBottom: 0
             }
-        },
-        roll: {
-            width: 60,
-            height: 60,
-            color: primary200,
-            cursor: 'pointer',
-            '&:hover': {
-                backgroundColor: primary800
-            }
-        },
-        rollDisabled: {
-            cursor: 'inherit',
-            color: primary500,
-            '&:hover': {
-                backgroundColor: 'transparent'
-            }
-        },
-        rollType: {
-            color: 'white',
-            textShadow: '0 0 7px #000',
-            backgroundColor: primary400,
-            width: '1.4em',
-            height: '1.4em',
-            display: 'inline-block',
-            textAlign: 'center',
-            position: 'absolute',
-            bottom: '1.4em',
-            left: '-.7em',
-            border: '1px solid #212C3D'
-        },
-        rollContainer: {
-            userSelect: 'none',
-            position: 'relative'
         },
         chatContent: {
             flexGrow: 1,
@@ -244,14 +210,14 @@ const ChatPanel: React.FC<Props> = props => {
                         </Grid>
                     </Hidden>
                     <Grid container item xs={12} justify="space-between">
-                        <div className={classes.rollContainer}><Dice type={4} className={clsx(classes.roll, isDisabled(0) && classes.rollDisabled)} onClick={addDice('4', 0)}/><span className={classes.rollType}>4</span></div>
-                        <div className={classes.rollContainer}><Dice type={6} className={clsx(classes.roll, isDisabled(1) && classes.rollDisabled)} onClick={addDice('6', 1)}/><span className={classes.rollType}>6</span></div>
-                        <div className={classes.rollContainer}><Dice type={8} className={clsx(classes.roll, isDisabled(2) && classes.rollDisabled)} onClick={addDice('8', 2)}/><span className={classes.rollType}>8</span></div>
+                        <RollContainer type={RollType.D4} isDisabled={isDisabled(0)} onClick={addDice('4', 0)} />
+                        <RollContainer type={RollType.D6} isDisabled={isDisabled(1)} onClick={addDice('6', 1)} />
+                        <RollContainer type={RollType.D8} isDisabled={isDisabled(2)} onClick={addDice('8', 2)} />
                     </Grid>
                     <Grid container item xs={12} justify="space-between">
-                        <div className={classes.rollContainer}><Dice type={10} className={clsx(classes.roll, isDisabled(3) && classes.rollDisabled)} onClick={addDice('10', 3)}/><span className={classes.rollType}>10</span></div>
-                        <div className={classes.rollContainer}><Dice type={12} className={clsx(classes.roll, isDisabled(4) && classes.rollDisabled)} onClick={addDice('12', 4)}/><span className={classes.rollType}>12</span></div>
-                        <div className={classes.rollContainer}><Dice type={20} className={clsx(classes.roll, isDisabled(5) && classes.rollDisabled)} onClick={addDice('20', 5)}/><span className={classes.rollType}>20</span></div>
+                        <RollContainer type={RollType.D10} isDisabled={isDisabled(3)} onClick={addDice('10', 3)} />
+                        <RollContainer type={RollType.D12} isDisabled={isDisabled(4)} onClick={addDice('12', 4)} />
+                        <RollContainer type={RollType.D20} isDisabled={isDisabled(5)} onClick={addDice('20', 5)} />
                     </Grid>
                     <Hidden mdDown={true}>
                         <Grid container item xs={12} style={{ marginTop: 'auto', height: 50 }}>

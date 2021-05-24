@@ -29,7 +29,14 @@ interface ChatMessageRolls extends ChatMessageBase {
 
 export type ChatMessagePayload = ChatMessageMessage | ChatMessageRolls
 
-enum RollType {
+declare global {
+    interface ObjectConstructor {
+        typedKeys<T>(o: T) : Array<keyof T>
+    }
+}
+Object.typedKeys = Object.keys as any
+
+export enum RollType {
     D4 = 'd4',
     D6 = 'd6',
     D8 = 'd8',

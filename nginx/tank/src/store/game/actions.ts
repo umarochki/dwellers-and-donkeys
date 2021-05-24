@@ -6,11 +6,11 @@ import { push } from 'connected-react-router'
 import { AuthRoutes } from '../../routes'
 import { Game } from '../../models/game'
 
-export const createGame = (name: string, description: string, is_private: boolean) => {
+export const createGame = (name: string, description: string, is_private: boolean, preview: string = '') => {
     return (dispatch: Dispatch) => {
         dispatch(request())
 
-        gameService.create({ name, description, is_private })
+        gameService.create({ name, description, is_private, preview })
             .then((game: Game) => {
                 dispatch(success(game))
                 dispatch(push(`${AuthRoutes.tabletop}/${game.invitation_code}`))
@@ -65,6 +65,24 @@ export const disconnectGame = () => {
     return {
         type: gameConstants.DISCONNECT_GAME
     }
+}
+
+export const getAllGames = () => {
+    return (dispatch: Dispatch) => {
+        dispatch(request())
+
+        gameService.getGames()
+            .then((games: Game[]) => {
+                dispatch(success(games))
+            }, error => {
+                dispatch(failure(error))
+                dispatch(showErrorNotification('Failed to get games'))
+            })
+    }
+
+    function request() { return { type: gameConstants.GET_ALL_GAMES_REQUEST_STARTED } }
+    function success(games: Game[]) { return { type: gameConstants.GET_ALL_GAMES_REQUEST_FINISHED, payload: games } }
+    function failure(error: Error) { return { type: gameConstants.GET_ALL_GAMES_REQUEST_ERROR, error } }
 }
 
 export const getGameHistory = () => {

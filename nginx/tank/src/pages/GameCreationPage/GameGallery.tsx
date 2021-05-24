@@ -2,7 +2,7 @@ import React from 'react'
 import { GridList, GridListTile, GridListTileBar } from '@material-ui/core'
 import { makeStyles, Theme } from '@material-ui/core/styles'
 import { Map } from '../../models/map'
-import ImageLoader from '../../components/Containers/ImageLoader'
+import ImageLoader from '../../components/common/ImageLoader'
 
 const useStyles = makeStyles((theme: Theme) => ({
     root: {

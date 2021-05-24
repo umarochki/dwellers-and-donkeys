@@ -2,7 +2,7 @@ import React from 'react'
 import { Avatar, Card, Theme } from '@material-ui/core'
 import { createStyles, makeStyles } from '@material-ui/core/styles'
 import clsx from 'clsx'
-import { primary50, primary900 } from '../../styles/colors'
+import { primary50, primary900 } from '../../../styles/colors'
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({

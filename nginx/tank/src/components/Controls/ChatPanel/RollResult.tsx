@@ -1,9 +1,9 @@
 import React from 'react'
 import { createStyles, makeStyles } from '@material-ui/core/styles'
 import Paper from '@material-ui/core/Paper'
-import { Dices } from '../../../models/game'
-import { primary200, primary700, primary800 } from '../../../styles/colors'
-import Dice from '../../common/Dice'
+import { primary700, primary800 } from '../../../styles/colors'
+import { Dices, RollType } from '../../../models/chat'
+import DetailedRollResult from './DetailedRollResult'
 
 const useStyles = makeStyles(() =>
     createStyles({
@@ -40,36 +40,6 @@ const useStyles = makeStyles(() =>
             width: '100%',
             borderBottom: '1px solid #2e2e2e',
             fontWeight: 400
-        },
-        die: {
-            display: 'inline-block',
-            textAlign: 'center',
-            padding: '.5em',
-            color: primary200
-        },
-        rollResult: {
-            position: 'relative',
-            height: '2em',
-            boxSizing: 'content-box',
-            width: '2em'
-        },
-        rollDie: {
-            position: 'absolute',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '100%',
-            height: '100%',
-            top: 0,
-            left: 0,
-            textShadow: '0 0 5px #000',
-            fontSize: '1em',
-            fontWeight: 700
-        },
-        diceIcon: {
-            minWidth: 20,
-            height: 20,
-            marginRight: 3
         }
     })
 )
@@ -81,13 +51,8 @@ interface Props {
 
 const getText = (dices: Dices): string => {
     return Object.keys(dices).reduce((prev, dice) => (
-        dices[dice].length ? prev + (prev ? ' + ' : '') + (dices[dice].length + dice) : prev
+        dices[dice as RollType].length ? prev + (prev ? ' + ' : '') + (dices[dice as RollType].length + dice) : prev
     ), '')
-}
-
-const getNumber = (str: string): number => {
-    const num = Number(str.substring(1))
-    return num || 0
 }
 
 const RollResult: React.FC<Props> = props => {
@@ -99,20 +64,7 @@ const RollResult: React.FC<Props> = props => {
             <div className={classes.result}>{total}</div>
             <div className={classes.rolls}>
                 <div className={classes.formula}>{getText(dices)}</div>
-                {
-                    Object.keys(dices).map(dice => (
-                        dices[dice].map(count => (
-                            <div className={classes.die} key={dice + count}>
-                                <div className={classes.rollResult}>
-                                    <div className={classes.rollDie}>
-                                        <Dice type={getNumber(dice)} className={classes.diceIcon}/>
-                                        {count}
-                                    </div>
-                                </div>
-                            </div>
-                        ))
-                    ))
-                }
+                <DetailedRollResult dices={dices}/>
             </div>
         </Paper>
     )

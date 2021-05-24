@@ -1,14 +1,14 @@
 import React from 'react'
 import clsx from 'clsx'
 import Drawer from '@material-ui/core/Drawer'
-import UserCard from '../UserCard'
+import UserCard from '../User/UserCard'
 import { createStyles, makeStyles } from '@material-ui/core/styles'
 import { Theme } from '@material-ui/core'
 import { ConnectedUser } from '../../../models/user'
 import UserList from './UserList'
 import { primary200, primary50, primary600, primary700, primary800, primary900 } from '../../../styles/colors'
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos'
-import ChatPanel from '../ChatPanel'
+import ChatPanel from '../ChatPanel/ChatPanel'
 import AppsIcon from '@material-ui/icons/Apps'
 import { Hero } from '../../../models/hero'
 import { ChatMessagePayload } from '../../../models/chat'
@@ -90,7 +90,7 @@ interface Props {
     invitation_code: string
     users: ConnectedUser[]
     onSwitchGrid: () => void
-    hero: Hero
+    hero?: Hero
 }
 
 const RightDrawer: React.FC<Props> = props => {
