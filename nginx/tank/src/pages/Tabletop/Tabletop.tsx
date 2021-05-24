@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import LeftDrawer from '../../components/Switcher/LeftDrawer'
 import { Hidden } from '@material-ui/core'
-import Gameboard from 'game-module/src/Gameboard'
+import Gameboard from 'gameboard'
 import { WebSocketContext } from '../../components/Contexts/WebSocketContext'
 import { useDispatch, useSelector } from 'react-redux'
 import {

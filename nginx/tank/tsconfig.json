@@ -26,6 +26,6 @@
     "src/index.d.ts"
   ],
   "exclude": [
-    "game-module/**/*.js"
+    "gameboard/**/*.ts"
   ]
 }

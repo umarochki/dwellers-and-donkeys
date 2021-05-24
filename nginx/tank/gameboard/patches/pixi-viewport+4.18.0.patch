@@ -4,7 +4,7 @@ index 858b377..bba75aa 100644
 +++ b/node_modules/pixi-viewport/@types/index.d.ts
 @@ -1,4 +1,4 @@
 -import * as PIXI from 'pixi.js'
-+import * as PIXI from 'pixi.js-legacy'
++
  
  type DirectionType = 'all' | 'x' | 'y'
  type UnderflowType = 'center' | 'top' | 'left' | 'right' | 'bottom' | (string & {})

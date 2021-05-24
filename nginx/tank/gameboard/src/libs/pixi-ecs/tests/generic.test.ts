@@ -3,6 +3,7 @@ import ChainComponent from '../components/chain-component';
 import Builder from '../engine/builder';
 import { addTest } from './test-collector';
 
+
 addTest('RotationTest', (scene, onFinish) => {
 	let gfx = new Graphics('');
 	gfx.beginFill(0xFF0000);
