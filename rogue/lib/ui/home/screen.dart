@@ -5,20 +5,28 @@ import '../../src/classes/canvas_object.dart';
 import '../../src/controllers/canvas.dart';
 
 class GameScreen extends StatefulWidget {
+  // final Map<String, dynamic> gameObjects; // , @required this.gameObjects
   const GameScreen({Key key}) : super(key: key);
 
   @override
-  _GameScreenState createState() => _GameScreenState();
+  GameScreenState createState() => GameScreenState();
 }
 
-class _GameScreenState extends State<GameScreen> {
+class GameScreenState extends State<GameScreen> {
   final _controller = CanvasController();
 
   @override
   void initState() {
     _controller.init();
-    _dummyData();
     super.initState();
+  }
+
+  void recieveGameObjects(Map<String, dynamic> comingGameObjects) {
+    removeAll();
+    for (var gameObject in comingGameObjects.values) {
+      addObject(
+          gameObject['img'], gameObject['xy'], gameObject['id'], [100, 100]);
+    }
   }
 
   void _dummyData() {
@@ -28,27 +36,54 @@ class _GameScreenState extends State<GameScreen> {
         dy: 20,
         width: 100,
         height: 100,
-        child: Container(color: Colors.red),
+        child: Container(child: Image.asset('assets/heroes/Knight.png')),
       ),
     );
-    _controller.addObject(
-      CanvasObject(
-        dx: 80,
-        dy: 60,
-        width: 100,
-        height: 200,
-        child: Container(color: Colors.green),
-      ),
-    );
-    _controller.addObject(
-      CanvasObject(
-        dx: 100,
-        dy: 40,
-        width: 100,
-        height: 50,
-        child: Container(color: Colors.blue),
-      ),
-    );
+  }
+
+  void addObject(Widget img, List<dynamic> xy, dynamic id, List<dynamic> wh) {
+    _controller.addObject(CanvasObject(
+        dx: xy[0].toDouble() - wh[0].toDouble() / 2,
+        dy: xy[1].toDouble() - wh[1].toDouble() / 2,
+        width: wh[0].toDouble(),
+        height: wh[1].toDouble(),
+        child: Container(child: img),
+        id: id));
+  }
+
+  void addObjectFromMap(Map<String, dynamic> gameObject) {
+    addObject(
+        gameObject['img'], gameObject['xy'], gameObject['id'], [100, 100]);
+  }
+
+  int findIndexById(dynamic id) {
+    for (var i = _controller.objects.length - 1; i > -1; i--) {
+      if (_controller.objects[i].id == id) return i;
+    }
+    return -1;
+  }
+
+  void updateObjectFromMap(Map<String, dynamic> gameObject) {
+    int index = findIndexById(gameObject['id']);
+    if (index != -1)
+      _controller.updateObject(
+          index,
+          CanvasObject(
+              dx: gameObject['xy'][0].toDouble() - [100, 100][0].toDouble() / 2,
+              dy: gameObject['xy'][1].toDouble() - [100, 100][1].toDouble() / 2,
+              width: [100, 100][0].toDouble(),
+              height: [100, 100][1].toDouble(),
+              child: Container(child: gameObject['img']),
+              id: gameObject['id']));
+  }
+
+  void deleteObjectById(dynamic id) {
+    int index = findIndexById(id);
+    if (index != -1) _controller.removeObject(index);
+  }
+
+  void removeAll() {
+    _controller.removeAll();
   }
 
   @override
@@ -64,36 +99,39 @@ class _GameScreenState extends State<GameScreen> {
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return Scaffold(
-              appBar: AppBar(),
+              backgroundColor: Color.fromRGBO(33, 44, 61, 1),
+              appBar: AppBar(backgroundColor: Color.fromRGBO(33, 44, 61, 1)),
               body: Center(child: CircularProgressIndicator()),
             );
           }
           final instance = snapshot.data;
           return Scaffold(
+            backgroundColor: Color.fromRGBO(245, 245, 220, 1),
             appBar: AppBar(
+              backgroundColor: Color.fromRGBO(33, 44, 61, 1),
               actions: [
-                FocusScope(
-                  canRequestFocus: false,
-                  child: IconButton(
-                    tooltip: 'Selection',
-                    icon: Icon(Icons.select_all),
-                    color: instance.shiftPressed
-                        ? Theme.of(context).accentColor
-                        : null,
-                    onPressed: _controller.shiftSelect,
-                  ),
-                ),
-                FocusScope(
-                  canRequestFocus: false,
-                  child: IconButton(
-                    tooltip: 'Meta Key',
-                    color: instance.metaPressed
-                        ? Theme.of(context).accentColor
-                        : null,
-                    icon: Icon(Icons.category),
-                    onPressed: _controller.metaSelect,
-                  ),
-                ),
+                // FocusScope(
+                //   canRequestFocus: false,
+                //   child: IconButton(
+                //     tooltip: 'Selection',
+                //     icon: Icon(Icons.select_all),
+                //     color: instance.shiftPressed
+                //         ? Theme.of(context).accentColor
+                //         : null,
+                //     onPressed: _controller.shiftSelect,
+                //   ),
+                // ),
+                // FocusScope(
+                //   canRequestFocus: false,
+                //   child: IconButton(
+                //     tooltip: 'Meta Key',
+                //     color: instance.metaPressed
+                //         ? Theme.of(context).accentColor
+                //         : null,
+                //     icon: Icon(Icons.category),
+                //     onPressed: _controller.metaSelect,
+                //   ),
+                // ),
                 FocusScope(
                   canRequestFocus: false,
                   child: IconButton(

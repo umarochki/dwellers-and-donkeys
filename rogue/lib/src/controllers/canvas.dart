@@ -50,6 +50,10 @@ class CanvasController {
         _objects.removeAt(i);
       });
 
+  void removeAll() => _update(() {
+        while (_objects.length > 0) _objects.removeAt(0);
+      });
+
   /// Focus node for listening for keyboard shortcuts
   final focusNode = FocusNode();
 

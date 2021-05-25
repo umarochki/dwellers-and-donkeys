@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
+import 'package:rogue/classes.dart';
 import 'package:rogue/conf.dart';
 import 'dart:convert';
 
@@ -7,7 +8,28 @@ Map<String, String> headers = {
   'Content-Type': 'application/json; charset=UTF-8',
 };
 
+void clean_headers() {
+  headers = {
+    'Content-Type': 'application/json; charset=UTF-8',
+  };
+}
+
+Future<List<dynamic>> getMaps() async {
+  final response = await http.get(
+    Config.url + '/maps',
+    headers: headers,
+  );
+  updateCookie(response);
+  if (response.statusCode == 200) {
+    List<dynamic> mapList = json.decode(response.body);
+    return mapList;
+  } else {
+    return [];
+  }
+}
+
 Future<String> login(String username, String password) async {
+  clean_headers();
   final response = await http.post(
     // Uri.https(Config.url, 'api/v1/auth/login'),
     Config.url + '/auth/login',
@@ -32,6 +54,7 @@ Future<String> login(String username, String password) async {
 }
 
 Future<String> signup(String username, String password) async {
+  clean_headers();
   final response = await http.post(
     Config.url + '/auth/signup',
     headers: headers,
@@ -81,6 +104,42 @@ Future<String> createGame(String name, String description) async {
     return jsonDecode(response.body)['invitation_code'];
   } else {
     return response.body;
+  }
+}
+
+Future<List<Game>> getGmGames() async {
+  final response = await http.get(
+    Config.url + '/games/gm',
+    headers: headers,
+  );
+  updateCookie(response);
+  if (response.statusCode == 200) {
+    List<dynamic> gameList = json.decode(response.body);
+    List<Game> gameListRsp = gameList
+        .map((item) => new Game(
+            item['name'], item['description'], item['invitation_code']))
+        .toList();
+    return gameListRsp;
+  } else {
+    return [];
+  }
+}
+
+Future<List<Game>> getPlayerGames() async {
+  final response = await http.get(
+    Config.url + '/games/history',
+    headers: headers,
+  );
+  updateCookie(response);
+  if (response.statusCode == 200) {
+    List<dynamic> gameList = json.decode(response.body);
+    List<Game> gameListRsp = gameList
+        .map((item) => new Game(
+            item['name'], item['description'], item['invitation_code']))
+        .toList();
+    return gameListRsp;
+  } else {
+    return [];
   }
 }
 

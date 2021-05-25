@@ -6,14 +6,15 @@ class CanvasObject<T> {
   final double width;
   final double height;
   final T child;
+  final dynamic id;
 
-  CanvasObject({
-    this.dx = 0,
-    this.dy = 0,
-    this.width = 100,
-    this.height = 100,
-    this.child,
-  });
+  CanvasObject(
+      {this.dx = 0,
+      this.dy = 0,
+      this.width = 100,
+      this.height = 100,
+      this.child,
+      this.id});
 
   CanvasObject<T> copyWith({
     double dx,
