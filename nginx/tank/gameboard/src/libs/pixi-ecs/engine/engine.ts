@@ -1,3 +1,4 @@
+import * as PIXI from 'pixi.js-legacy'
 import Scene from './scene';
 import { resizeContainer } from '../utils/helpers';
 import { SceneConfig, defaultConfig as sceneDefaultConfig } from './scene';

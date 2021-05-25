@@ -1,7 +1,7 @@
+import * as PIXI from 'pixi.js-legacy'
 import GameObjectProxy from './game-object-proxy';
 import Component from './component';
 import Scene from './scene';
-
 import AnimatedSprite from './game-objects/animated-sprite';
 import BitmapText from './game-objects/bitmap-text';
 import Container from './game-objects/container';

@@ -1,3 +1,4 @@
+import * as PIXI from 'pixi.js-legacy'
 import { Plugin } from './Plugin';
 
 import type { Viewport } from '../Viewport';

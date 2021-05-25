@@ -10,7 +10,7 @@ COPY tsconfig.json .
 RUN yarn
 
 COPY gameboard ./gameboard
-RUN cd gameboard && npm install && npm start && cd /build
+RUN cd gameboard && npm install && npm run build && cd /build
 
 # Game-module deps
 RUN yarn add file:gameboard

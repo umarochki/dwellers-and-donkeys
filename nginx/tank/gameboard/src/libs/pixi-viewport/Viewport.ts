@@ -1,5 +1,5 @@
+import * as PIXI from 'pixi.js-legacy'
 import { Container } from '../pixi-ecs'
-
 import { InputManager } from './InputManager';
 import { PluginManager } from './PluginManager';
 import {

@@ -1,3 +1,4 @@
+import * as PIXI from 'pixi.js-legacy'
 import { Scene } from '..';
 import { Ticker } from 'pixi.js-legacy';
 

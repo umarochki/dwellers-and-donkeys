@@ -1,3 +1,4 @@
+import * as PIXI from 'pixi.js-legacy'
 import GameObjectProxy from '../game-object-proxy';
 import Component from '../component';
 import Scene from '../scene';

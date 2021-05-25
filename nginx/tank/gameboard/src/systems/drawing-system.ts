@@ -1,4 +1,4 @@
-import { Sprite } from 'pixi.js-legacy';
+import * as PIXI from 'pixi.js-legacy'
 import { Component, Container, Graphics, Message, Scene } from '../libs/pixi-ecs'
 import { drawCustomLine } from '../utils/draw'
 
@@ -34,14 +34,14 @@ class DrawingComponent extends Component {
     board: Container
 
     texture: PIXI.RenderTexture
-    sprite: Sprite
+    sprite: PIXI.Sprite
     marker: Graphics
     context: Container
     points: ([number, number] | PIXI.Point)[]
     edges: Graphics
     edge: Graphics
     vertices: Container
-    vertex: Sprite
+    vertex: PIXI.Sprite
     brush: Graphics
     
     constructor(color='#ff0000', boldness=3) {
@@ -183,7 +183,7 @@ class DrawingComponent extends Component {
         center.endFill();
         texture.addChild(center);
     
-        this.vertex = new Sprite(this.scene.app.renderer.generateTexture(texture, 1, 1));
+        this.vertex = new PIXI.Sprite(this.scene.app.renderer.generateTexture(texture, 1, 1));
         this.vertex.anchor.set(0.5);
         this.vertex.position.copyFrom(point);
         this.vertex.interactive = true;
