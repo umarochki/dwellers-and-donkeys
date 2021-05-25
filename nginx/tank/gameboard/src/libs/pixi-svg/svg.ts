@@ -1,3 +1,4 @@
+import * as PIXI from 'pixi.js-legacy'
 const parse = require("d-path-parser");
 import color from 'tinycolor2';
 

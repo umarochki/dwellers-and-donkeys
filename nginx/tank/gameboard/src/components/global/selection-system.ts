@@ -1,5 +1,5 @@
+import * as PIXI from 'pixi.js-legacy'
 import * as CONSTANTS from '../../constants'
-
 import { Component, Sprite, Message, Graphics, Container } from '../../libs/pixi-ecs'
 import { drawDashedPolygon } from '../../utils/draw';
 

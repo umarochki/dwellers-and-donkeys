@@ -1,3 +1,4 @@
+import * as PIXI from 'pixi.js-legacy'
 import { FuncComponent } from '..';
 import Builder from '../engine/builder';
 import { addTest } from './test-collector';

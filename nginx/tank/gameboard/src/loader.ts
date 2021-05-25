@@ -1,3 +1,4 @@
+import * as PIXI from 'pixi.js-legacy'
 
 export default class Loader extends PIXI.Loader {
     private queue: LoaderRequest[];

@@ -1,3 +1,4 @@
+import * as PIXI from 'pixi.js-legacy'
 import { Graphics, FuncComponent } from '..';
 import ChainComponent from '../components/chain-component';
 import Builder from '../engine/builder';

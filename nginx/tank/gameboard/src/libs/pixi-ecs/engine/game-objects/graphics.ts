@@ -3,6 +3,7 @@ import Component from '../component';
 import Scene from '../scene';
 import GameObject from '../game-object';
 
+import * as PIXI from 'pixi.js-legacy'
 import AnimatedSprite from './animated-sprite';
 import BitmapText from './bitmap-text';
 import Container from './container';

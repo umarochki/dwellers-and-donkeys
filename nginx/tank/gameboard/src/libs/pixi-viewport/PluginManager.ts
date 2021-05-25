@@ -1,3 +1,4 @@
+import * as PIXI from 'pixi.js-legacy'
 import type {
     Animate,
     Bounce,

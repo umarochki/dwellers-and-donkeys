@@ -4,7 +4,7 @@ interface ObjectOptions {
     id?: number,
     type: string,
     sprite: string,
-    texture?: PIXI.Texture,
+    texture?: import('pixi.js-legacy').Texture,
     xy: [number, number],
     wh?: [number, number],
     name?: string,
@@ -15,7 +15,7 @@ interface LoaderRequest {
         name: string,
         url: string
     }[], 
-    callback: (loader: PIXI.Loader, resources: Partial<Record<string, PIXI.LoaderResource>>) => any
+    callback: (loader: import('pixi.js-legacy').Loader, resources: Partial<Record<string, import('pixi.js-legacy').LoaderResource>>) => any
 }
 
 type Size = {
