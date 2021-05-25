@@ -14,8 +14,16 @@ export default class MapSystem {
         this.scene.addGlobalComponentAndRun(this.component);
     }
 
-    set(options) {
-        this.component.set(options)
+    get width() {
+        return this.component.width
+    }
+
+    get height() {
+        return this.component.height
+    }
+    
+    set(options, callback?: () => any) {
+        this.component.set(options, callback)
     }
 
     reset() {
@@ -33,6 +41,14 @@ class MapSystemComponent extends Component {
     map: Sprite
     grid: TilingSprite
     
+    get width() {
+        return (this.map) ? this.map.width : 0
+    }
+
+    get height() {
+        return (this.map) ? this.map.height : 0
+    }
+    
     onAttach() {
         this.layer = new Container();
         this.scene.viewport.addChild(this.layer)
@@ -47,7 +63,7 @@ class MapSystemComponent extends Component {
         this.reset()
     }
 
-    set(options: { sprite: string }) {
+    set(options: { sprite: string }, callback?: () => any) {
         this.layer.removeChildren()
                 
         let request : LoaderRequest = {
@@ -62,6 +78,7 @@ class MapSystemComponent extends Component {
                 this.layer.addChild(this.map)
                 this.scene.viewport.moveCenter(this.map.width / 2, this.map.height / 2);
                 this.sendMessage('map/set', { width: this.map.width, height: this.map.height })
+                typeof callback == "function" && callback();    
             }
         }
 
