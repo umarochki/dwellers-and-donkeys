@@ -177,7 +177,7 @@ export default class Container extends PIXI.Container implements GameObject {
 	detach(): void {
 		this.parent.removeChild(this);
 	}
-	destroy(options = { children: true, texture: true, baseTexture: false }): void {
+	destroy(options = { children: false, texture: false, baseTexture: false }): void {
 		if (this.parentGameObject) {
 			this.parentGameObject.destroyChild(this);
 		}

@@ -96,7 +96,7 @@ class MapSystemComponent extends Component {
 
     switchGrid() : boolean {
         
-        if (this.grid._proxy.isOnScene) {
+        if (this.grid.parent) {
             this.grid.detach()
             this.sendMessage('map/grid', { enabled: false })
             return false

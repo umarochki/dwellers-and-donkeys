@@ -69,7 +69,7 @@ class GameObjectManagerComponent extends Component {
     delete(options: { id: number }) {
         let obj = this.scene.findObjectByName(String(options.id))
         if (!obj) throw new Error(`Cannot find an element with id: ${options.id}`)
-        this.scene.sendMessage(new Message('object/unselect', undefined, obj))
+        this.scene.sendMessage(new Message('object/unselect', undefined, undefined))
         obj.destroy();
         
         this.sendMessage('object/delete', {
@@ -122,6 +122,7 @@ class GameObjectManagerComponent extends Component {
     }
     
     clear() {
+        this.scene.sendMessage(new Message('object/unselect', undefined, undefined))
         this.layer.destroyChildren()
     }
 }
