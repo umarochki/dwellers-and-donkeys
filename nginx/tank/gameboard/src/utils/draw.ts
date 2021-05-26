@@ -16,30 +16,30 @@ function drawPolygonWithHoles(graphics, outer, holes) {
   graphics.endHole();
 }
 
-function drawCustomLine(graphics, points, color='#ff0000', boldness=3) {
+function drawCustomLine(graphics, points: [number, number][], color='#ff0000', boldness=3) {
   if (points.length < 3) {
     var point = points[0];
     graphics.beginFill(color);
-    graphics.arcTo(point.x, point.y, boldness / 2, 0, Math.PI * 2, !0);
+    graphics.arcTo(point[0], point[1], boldness / 2, 0, Math.PI * 2, !0);
     graphics.endFill();      
     return graphics;
   }
   
-  graphics.moveTo(points[0].x, points[0].y);
+  graphics.moveTo(points[0][0], points[0][1]);
   
   for (var i = 1; i < points.length - 2; i++) {
-    var c = (points[i].x + points[i + 1].x) / 2;
-    var d = (points[i].y + points[i + 1].y) / 2;
+    var c = (points[i][0] + points[i + 1][0]) / 2;
+    var d = (points[i][1] + points[i + 1][1]) / 2;
     
-    graphics.quadraticCurveTo(points[i].x, points[i].y, c, d);
+    graphics.quadraticCurveTo(points[i][0], points[i][1], c, d);
   }
   
   // For the last 2 points
   graphics.quadraticCurveTo(
-    points[i].x,
-    points[i].y,
-    points[i + 1].x,
-    points[i + 1].y
+    points[i][0],
+    points[i][1],
+    points[i + 1][0],
+    points[i + 1][1]
   );
 }
 

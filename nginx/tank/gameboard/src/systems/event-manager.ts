@@ -12,8 +12,8 @@ export default class EventManager {
     this.scene.addGlobalComponentAndRun(this.component);
   }
 
-  add(eventType: string, listener: (any) => void, limit = false) {
-    this.component.add(eventType, listener, limit)
+  add(eventType: string, listener: (any) => void, limit: boolean = false, accumulate: string[] = []) {
+    this.component.add(eventType, listener, limit, accumulate)
   }
 
   remove(eventType: string, listener: (any) => any) {
@@ -23,45 +23,70 @@ export default class EventManager {
 
 class EventManagerComponent extends Component {
   private listeners: { [key: string]: ((any) => void)[] }
-  private timers: { [key: number]: number }
+  private timers: { [key: string]: (number | null)[] }
+  private cache: { [key: string]: any }
 
   constructor() {
     super()
     this.listeners = {}
     this.timers = {}
+    this.cache = {}
   }
   
-  add(eventType: string, listener: (any) => void, limit = false) {
+  add(eventType: string, listener: (any) => void, limit: boolean = false, accumulate: string[] = []) {
     this.listeners[eventType] = this.listeners[eventType] || []
     this.listeners[eventType].push(listener)
-    this.subscribe(eventType)
+    this.timers[eventType] = this.timers[eventType] || []
+    this.timers[eventType].push(limit ? 0 : null)
     
-    if (limit) {
-      this.timers[eventType] = 0
-    }
+    let acc = {}
+    accumulate.map((prop) => acc[prop] = [])
+
+    this.cache[eventType] = this.cache[eventType] || []
+    this.cache[eventType].push(accumulate.length > 0 ? acc : null)
+    this.subscribe(eventType)
   }
 
   remove(eventType: string, listener: (any) => any) {
-    this.listeners[eventType] = this.listeners[eventType].filter(e => e !== listener)
+    let index = this.listeners[eventType].indexOf(e => e === listener)
+    this.listeners[eventType].splice(index, 1)
+    this.timers[eventType].splice(index, 1)
+    this.cache[eventType].splice(index, 1)
     this.unsubscribe(eventType)
   }
 
   onMessage(msg: Message) {
 
-    if (!this.timers.hasOwnProperty(msg.action)) {
-      for (let i = 0; i < this.listeners[msg.action].length; i++) {
+    for (let i = 0; i < this.listeners[msg.action].length; i++) {
+                  
+      if (this.timers[msg.action][i] === null)
         this.listeners[msg.action][i](msg.data)
+      
+      else if (this.timers[msg.action][i] === 0) {
+
+        this.timers[msg.action][i] = window.setTimeout(() => {
+          this.timers[msg.action][i] = 0
+          if (!!this.cache[msg.action][i]) {
+            this.listeners[msg.action][i](Object.assign(msg.data, this.cache[msg.action][i]))
+            for (let prop in this.cache[msg.action][i]) this.cache[msg.action][i][prop] = []
+          }
+          else this.listeners[msg.action][i](msg.action)
+          
+        }, FPS)
+      }
+      else {
+        if (!!this.cache[msg.action][i]) 
+          this.mergeObjectsByKey(this.cache[msg.action][i], msg.data)
       }
     }
-    else if (this.timers[msg.action] === 0) {
-      
-      for (let i = 0; i < this.listeners[msg.action].length; i++) {
-        this.listeners[msg.action][i](msg.data)
-      }
-      
-      this.timers[msg.action] = window.setTimeout(() => {
-        this.timers[msg.action] = 0
-      }, FPS)
-    }
+  }
+
+  private mergeObjectsByKey(acc, ...objs) {
+    return objs.reduce((_, obj) => {
+      for (let k in acc) 
+        if (obj[k]) acc[k].push(obj[k]);
+        
+      return acc;
+    }, {});
   }
 }
