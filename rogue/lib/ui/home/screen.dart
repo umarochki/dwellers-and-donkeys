@@ -6,17 +6,20 @@ import '../../src/controllers/canvas.dart';
 
 class GameScreen extends StatefulWidget {
   // final Map<String, dynamic> gameObjects; // , @required this.gameObjects
-  const GameScreen({Key key}) : super(key: key);
+
+  final Function sendMove;
+  const GameScreen({Key key, @required this.sendMove}) : super(key: key);
 
   @override
   GameScreenState createState() => GameScreenState();
 }
 
 class GameScreenState extends State<GameScreen> {
-  final _controller = CanvasController();
+  dynamic _controller;
 
   @override
   void initState() {
+    _controller = CanvasController(widget.sendMove);
     _controller.init();
     super.initState();
   }
@@ -24,8 +27,8 @@ class GameScreenState extends State<GameScreen> {
   void recieveGameObjects(Map<String, dynamic> comingGameObjects) {
     removeAll();
     for (var gameObject in comingGameObjects.values) {
-      addObject(
-          gameObject['img'], gameObject['xy'], gameObject['id'], [100, 100]);
+      addObject(gameObject['img'], gameObject['xy'], gameObject['id'],
+          gameObject['wh']);
     }
   }
 
@@ -42,18 +45,28 @@ class GameScreenState extends State<GameScreen> {
   }
 
   void addObject(Widget img, List<dynamic> xy, dynamic id, List<dynamic> wh) {
+    bool isMap = id == -725;
+    double x, y;
+    if (isMap) {
+      x = 0;
+      y = 0;
+    } else {
+      x = xy[0].toDouble() - wh[0].toDouble() / 2;
+      y = xy[1].toDouble() - wh[1].toDouble() / 2;
+    }
     _controller.addObject(CanvasObject(
-        dx: xy[0].toDouble() - wh[0].toDouble() / 2,
-        dy: xy[1].toDouble() - wh[1].toDouble() / 2,
+        dx: x,
+        dy: y,
         width: wh[0].toDouble(),
         height: wh[1].toDouble(),
         child: Container(child: img),
-        id: id));
+        id: id,
+        unselectable: isMap));
   }
 
   void addObjectFromMap(Map<String, dynamic> gameObject) {
-    addObject(
-        gameObject['img'], gameObject['xy'], gameObject['id'], [100, 100]);
+    addObject(gameObject['img'], gameObject['xy'], gameObject['id'],
+        gameObject['wh']);
   }
 
   int findIndexById(dynamic id) {
@@ -69,12 +82,15 @@ class GameScreenState extends State<GameScreen> {
       _controller.updateObject(
           index,
           CanvasObject(
-              dx: gameObject['xy'][0].toDouble() - [100, 100][0].toDouble() / 2,
-              dy: gameObject['xy'][1].toDouble() - [100, 100][1].toDouble() / 2,
-              width: [100, 100][0].toDouble(),
-              height: [100, 100][1].toDouble(),
+              dx: gameObject['xy'][0].toDouble() -
+                  gameObject['wh'][0].toDouble() / 2,
+              dy: gameObject['xy'][1].toDouble() -
+                  gameObject['wh'][1].toDouble() / 2,
+              width: gameObject['wh'][0].toDouble(),
+              height: gameObject['wh'][1].toDouble(),
               child: Container(child: gameObject['img']),
-              id: gameObject['id']));
+              id: gameObject['id'],
+              unselectable: false));
   }
 
   void deleteObjectById(dynamic id) {
@@ -158,7 +174,13 @@ class GameScreenState extends State<GameScreen> {
                 ),
               ],
             ),
-            body: Listener(
+            body: Container(
+                // decoration: BoxDecoration(
+                //     image: DecorationImage(
+                //   image: AssetImage("assets/cat.jpg"),
+                //   fit: BoxFit.cover,
+                // )),
+                child: Listener(
               behavior: HitTestBehavior.opaque,
               onPointerSignal: (details) {
                 if (details is PointerScrollEvent) {
@@ -217,7 +239,9 @@ class GameScreenState extends State<GameScreen> {
                                   : Colors.transparent,
                             )),
                             child: GestureDetector(
-                              onTapDown: (_) => _controller.selectObject(i),
+                              onTapDown: (_) {
+                                return _controller.selectObject(i);
+                              },
                               child: FittedBox(
                                 fit: BoxFit.fill,
                                 child: SizedBox.fromSize(
@@ -240,7 +264,7 @@ class GameScreenState extends State<GameScreen> {
                   ),
                 ),
               ),
-            ),
+            )),
           );
         });
   }

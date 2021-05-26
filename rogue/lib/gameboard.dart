@@ -44,6 +44,7 @@ class _GameBoardState extends State<GameBoard>
   String _currentMap = "Global";
   Map<String, dynamic> _hero = {};
   bool _isGm = false;
+  bool _wsMustBeOn = true;
 
   WebSocketChannel _channel;
 
@@ -51,7 +52,7 @@ class _GameBoardState extends State<GameBoard>
 
   String _dir;
 
-  Map<String, dynamic> maps = {};
+  Map<String, dynamic> maps = {}; // все карты
 
   @override
   void initState() {
@@ -68,7 +69,9 @@ class _GameBoardState extends State<GameBoard>
       maps[map['hash']] = map;
       maps[map['hash']]['img'] =
           await _getImage(maps[map['hash']]['file'], _dir);
-      File file = _getLocalImageFile('${maps[map['hash']]['name']}.png', _dir);
+      String name = maps[map['hash']]['file']
+          .substring(maps[map['hash']]['file'].lastIndexOf('/') + 1);
+      File file = _getLocalImageFile('$name', _dir);
       var decodedImage = await decodeImageFromList(file.readAsBytesSync());
       maps[map['hash']]['wh'] = [decodedImage.width, decodedImage.height];
     }
@@ -77,6 +80,7 @@ class _GameBoardState extends State<GameBoard>
   @override
   void deactivate() {
     _channel.sink.close();
+    _wsMustBeOn = false;
     super.deactivate();
   }
 
@@ -124,7 +128,7 @@ class _GameBoardState extends State<GameBoard>
       onDone: () {
         debugPrint('ws channel closed');
 
-        if (this.mounted) connect();
+        if (this.mounted && _wsMustBeOn) connect();
         // TODO: не реконнектиться когда не надо (проверить что работает)
       },
       onError: (error) {
@@ -157,9 +161,22 @@ class _GameBoardState extends State<GameBoard>
     );
   }
 
+  void sendMove(dynamic id, List<dynamic> xy) {
+    // var intId = int.tryParse(id);
+    // if (intId != null)
+    //   _channel.sink
+    //       .add('{"type":"update", "meta": { "id" : $intId , "xy" : $xy}}');
+    if (id is String)
+      _channel.sink
+          .add('{"type":"update", "meta": { "id" : "$id" , "xy" : $xy}}');
+    else
+      _channel.sink
+          .add('{"type":"update", "meta": { "id" : $id , "xy" : $xy}}');
+  }
+
   void handleDisconnect() {
-    _channel.sink.close();
-    if (this.mounted) connect();
+    _channel.sink.close(); // TODO: только если ты
+    // if (this.mounted && _wsMustBeOn) connect();
   }
 
   void handleRefresh(Map<String, dynamic> json) {
@@ -181,10 +198,26 @@ class _GameBoardState extends State<GameBoard>
   void rewriteTokens() async {
     for (var gameObject in _gameObjects.values) {
       gameObject['img'] = await _getImage(gameObject['sprite'], _dir);
+
+      String name = gameObject['sprite']
+          .substring(gameObject['sprite'].lastIndexOf('/') + 1);
+      File file = _getLocalImageFile('$name', _dir);
+      var decodedImage = await decodeImageFromList(file.readAsBytesSync());
+      gameObject['wh'] = [decodedImage.width / 10, decodedImage.height / 10];
     }
     if (this.mounted)
       setState(() {
         _keyGameScreen.currentState.recieveGameObjects(_gameObjects);
+        if (_currentMap != 'Global') {
+          debugPrint('$_maps');
+          if (!maps.containsKey(_currentMap)) prepareMaps();
+          if (maps.containsKey(_currentMap))
+            _keyGameScreen.currentState.addObject(maps[_currentMap]['img'],
+                [0, 0], -725, maps[_currentMap]['wh']);
+        } else {
+          // TODO: Global map
+          debugPrint('Global!');
+        }
       });
   }
 
@@ -301,7 +334,7 @@ class _GameBoardState extends State<GameBoard>
                 body: SafeArea(
                     child: Column(children: <Widget>[
                   Container(
-                    child: GameScreen(key: _keyGameScreen),
+                    child: GameScreen(key: _keyGameScreen, sendMove: sendMove),
                     color: Colors.greenAccent,
                     height: MediaQuery.of(context).size.height / 1.5,
                   ),
