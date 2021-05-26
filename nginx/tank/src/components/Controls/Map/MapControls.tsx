@@ -32,19 +32,19 @@ const MapControls: React.FC<Props> = props => {
     
     return (
         <div className={classes.mapControls}>
-            <MapControl onClick={() => boardRef.current.switchGrid()} tooltip="Switch grip">
+            <MapControl onClick={() => boardRef.current.map.switchGrid()} tooltip="Switch grip">
                 <AppsIcon />
             </MapControl>
-            <MapControl onClick={() => boardRef.current.drawer.setMode('pencil')} tooltip="Pencil">
+            <MapControl onClick={() => boardRef.current.drawing.set('pencil')} tooltip="Pencil">
                 <CreateIcon />
             </MapControl>
-            <MapControl onClick={() => boardRef.current.drawer.setMode('eraser')} tooltip="Eraser">
+            <MapControl onClick={() => boardRef.current.drawing.set('eraser')} tooltip="Eraser">
                 <EraserIcon />
             </MapControl>
-            <MapControl onClick={() => boardRef.current.drawer.setMode('polygon')} tooltip="Polygon">
+            <MapControl onClick={() => boardRef.current.drawing.set('polygon')} tooltip="Polygon">
                 <SignalCellular4BarIcon />
             </MapControl>
-            <MapControl onClick={() => boardRef.current.drawer.clear()} tooltip="Clear all">
+            <MapControl onClick={() => boardRef.current.drawing.clear()} tooltip="Clear all">
                 <DeleteIcon />
             </MapControl>
         </div>

@@ -8,7 +8,6 @@ export default class Loader extends PIXI.Loader {
         super()
         this.queue = []
         this._loadFromQueue = this._loadFromQueue.bind(this)
-        this.onComplete.add(this._loadFromQueue);
     }
     
     loadMany(request: LoaderRequest) {
@@ -27,10 +26,11 @@ export default class Loader extends PIXI.Loader {
     private _loadFromQueue() {
         if (this.queue.length > 0) {
             var request = this.queue.pop();
-            this._addMany(request.resources);
             
-            this.onLoad.once(() => {
-                request.callback(this, this.resources)     
+            this._addMany(request.resources)
+            this.onComplete.once(() => {
+                request.callback(this, this.resources)  
+                this._loadFromQueue()   
             })
             
             this.load()
@@ -39,7 +39,7 @@ export default class Loader extends PIXI.Loader {
             this.is_locked = false;
     }
 
-    private _addMany(resources: { name: string; url: string; }[]) {
+    private _addMany(resources: { name: string; url: string; }[]) : boolean {
         let flag = false;
         for (let res of resources) {
             if (!this.isLoaded(res)) {
@@ -47,5 +47,6 @@ export default class Loader extends PIXI.Loader {
                 this.add(res); 
             }
         }
+        return flag
     }  
 }

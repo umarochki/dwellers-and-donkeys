@@ -156,7 +156,7 @@ const Tabletop = () => {
                 // TODO: isGameMaster: {boolean}
             })
 
-            const assets = [{ name: 'grid', path: '../grid64.png' }]
+            const assets = [{ name: 'grid', url: '../grid64.png' }]
 
             gameBoard.init(assets, () => {
                 // gameBoard.eventManager.add('map/set', (data: any) => ws.sendMessage('map', data))
