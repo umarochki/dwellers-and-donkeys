@@ -1,5 +1,5 @@
 import { showErrorNotification } from '../notifications/actions'
-import * as gameConstants from './constants'
+import gameConstants from './constants'
 import { Dispatch } from '..'
 import gameService from '../../services/game'
 import { push } from 'connected-react-router'

@@ -1,7 +1,7 @@
 import { AsyncState } from '../user/reducer'
 import { Hero } from '../../models/hero'
 import { Reducer } from 'redux'
-import * as heroConstants from './constants'
+import heroConstants from './constants'
 
 export interface HeroState {
     getHeroesState: AsyncState

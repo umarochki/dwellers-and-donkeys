@@ -1,6 +1,6 @@
 import { Dispatch } from '../index'
 import { showErrorNotification } from '../notifications/actions'
-import * as mapConstants from './constants'
+import mapConstants from './constants'
 import mapService from '../../services/map'
 import { Map, MapFile } from '../../models/map'
 

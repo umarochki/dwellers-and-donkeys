@@ -1,5 +1,5 @@
 import userService from '../../services/user'
-import * as userConstants from './constants'
+import userConstants from './constants'
 import { push } from 'connected-react-router'
 import { User } from '../../models/user'
 import { Dispatch } from '..'

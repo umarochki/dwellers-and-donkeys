@@ -1,7 +1,7 @@
 import { Reducer } from 'redux'
 import { AsyncState } from '../user/reducer'
 import { Map } from '../../models/map'
-import * as mapConstants from './constants'
+import mapConstants from './constants'
 
 export interface MapState {
     getMapsState: AsyncState

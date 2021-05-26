@@ -1,3 +1,9 @@
-export const ALERT_SUCCESS = 'ALERT_SUCCESS'
-export const ALERT_ERROR = 'ALERT_ERROR'
-export const ALERT_CLEAR = 'ALERT_CLEAR'
+import { getConstants } from '../../helpers/getConstants'
+
+const notificationConstants = getConstants([
+    'ALERT_SUCCESS',
+    'ALERT_ERROR',
+    'ALERT_CLEAR'
+])
+
+export default notificationConstants

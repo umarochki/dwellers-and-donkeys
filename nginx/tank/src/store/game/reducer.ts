@@ -1,4 +1,4 @@
-import * as gameConstants from './constants'
+import gameConstants from './constants'
 import { Reducer } from 'redux'
 import { AsyncState } from '../user/reducer'
 import { Game } from '../../models/game'

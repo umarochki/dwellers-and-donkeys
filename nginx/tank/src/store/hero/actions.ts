@@ -1,6 +1,6 @@
 import { Dispatch } from '../index'
 import { showErrorNotification } from '../notifications/actions'
-import * as heroConstants from './constants'
+import heroConstants from './constants'
 import heroesService from '../../services/heroes'
 import { Hero } from '../../models/hero'
 

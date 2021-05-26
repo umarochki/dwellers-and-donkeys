@@ -1,4 +1,10 @@
-export const GET_MAPS_REQUEST_STARTED = 'GET_MAPS_REQUEST_STARTED'
-export const GET_MAPS_REQUEST_FINISHED = 'GET_MAPS_REQUEST_FINISHED'
-export const GET_MAPS_REQUEST_ERROR = 'GET_MAPS_REQUEST_ERROR'
-export const ADD_MAP = 'ADD_MAP'
+import { getConstants } from '../../helpers/getConstants'
+
+const mapConstants = getConstants([
+    'GET_MAPS_REQUEST_STARTED',
+    'GET_MAPS_REQUEST_FINISHED',
+    'GET_MAPS_REQUEST_ERROR',
+    'ADD_MAP'
+])
+
+export default mapConstants

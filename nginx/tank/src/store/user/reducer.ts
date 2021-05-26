@@ -1,4 +1,4 @@
-import * as userConstants from './constants'
+import userConstants from './constants'
 import { Reducer } from 'redux'
 import { User } from '../../models/user'
 
