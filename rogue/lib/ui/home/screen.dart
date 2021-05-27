@@ -51,6 +51,7 @@ class GameScreenState extends State<GameScreen> {
       x = 0;
       y = 0;
     } else {
+      // debugPrint('$xy $wh');
       x = xy[0].toDouble() - wh[0].toDouble() / 2;
       y = xy[1].toDouble() - wh[1].toDouble() / 2;
     }
@@ -123,57 +124,57 @@ class GameScreenState extends State<GameScreen> {
           final instance = snapshot.data;
           return Scaffold(
             backgroundColor: Color.fromRGBO(245, 245, 220, 1),
-            appBar: AppBar(
-              backgroundColor: Color.fromRGBO(33, 44, 61, 1),
-              actions: [
-                // FocusScope(
-                //   canRequestFocus: false,
-                //   child: IconButton(
-                //     tooltip: 'Selection',
-                //     icon: Icon(Icons.select_all),
-                //     color: instance.shiftPressed
-                //         ? Theme.of(context).accentColor
-                //         : null,
-                //     onPressed: _controller.shiftSelect,
-                //   ),
-                // ),
-                // FocusScope(
-                //   canRequestFocus: false,
-                //   child: IconButton(
-                //     tooltip: 'Meta Key',
-                //     color: instance.metaPressed
-                //         ? Theme.of(context).accentColor
-                //         : null,
-                //     icon: Icon(Icons.category),
-                //     onPressed: _controller.metaSelect,
-                //   ),
-                // ),
-                FocusScope(
-                  canRequestFocus: false,
-                  child: IconButton(
-                    tooltip: 'Zoom In',
-                    icon: Icon(Icons.zoom_in),
-                    onPressed: _controller.zoomIn,
-                  ),
-                ),
-                FocusScope(
-                  canRequestFocus: false,
-                  child: IconButton(
-                    tooltip: 'Zoom Out',
-                    icon: Icon(Icons.zoom_out),
-                    onPressed: _controller.zoomOut,
-                  ),
-                ),
-                FocusScope(
-                  canRequestFocus: false,
-                  child: IconButton(
-                    tooltip: 'Reset the Scale and Offset',
-                    icon: Icon(Icons.restore),
-                    onPressed: _controller.reset,
-                  ),
-                ),
-              ],
-            ),
+            // appBar: AppBar(
+            //   backgroundColor: Color.fromRGBO(33, 44, 61, 1),
+            //   actions: [
+            //     // FocusScope(
+            //     //   canRequestFocus: false,
+            //     //   child: IconButton(
+            //     //     tooltip: 'Selection',
+            //     //     icon: Icon(Icons.select_all),
+            //     //     color: instance.shiftPressed
+            //     //         ? Theme.of(context).accentColor
+            //     //         : null,
+            //     //     onPressed: _controller.shiftSelect,
+            //     //   ),
+            //     // ),
+            //     // FocusScope(
+            //     //   canRequestFocus: false,
+            //     //   child: IconButton(
+            //     //     tooltip: 'Meta Key',
+            //     //     color: instance.metaPressed
+            //     //         ? Theme.of(context).accentColor
+            //     //         : null,
+            //     //     icon: Icon(Icons.category),
+            //     //     onPressed: _controller.metaSelect,
+            //     //   ),
+            //     // ),
+            //     FocusScope(
+            //       canRequestFocus: false,
+            //       child: IconButton(
+            //         tooltip: 'Zoom In',
+            //         icon: Icon(Icons.zoom_in),
+            //         onPressed: _controller.zoomIn,
+            //       ),
+            //     ),
+            //     FocusScope(
+            //       canRequestFocus: false,
+            //       child: IconButton(
+            //         tooltip: 'Zoom Out',
+            //         icon: Icon(Icons.zoom_out),
+            //         onPressed: _controller.zoomOut,
+            //       ),
+            //     ),
+            //     FocusScope(
+            //       canRequestFocus: false,
+            //       child: IconButton(
+            //         tooltip: 'Reset the Scale and Offset',
+            //         icon: Icon(Icons.restore),
+            //         onPressed: _controller.reset,
+            //       ),
+            //     ),
+            //   ],
+            // ),
             body: Container(
                 // decoration: BoxDecoration(
                 //     image: DecorationImage(

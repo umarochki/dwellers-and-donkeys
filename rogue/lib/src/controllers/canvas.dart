@@ -43,7 +43,16 @@ class CanvasController {
 
   /// Add an object to the canvas
   void addObject(CanvasObject<Widget> value) => _update(() {
-        _objects.add(value);
+        if (_objects.length > 0 &&
+            _objects[_objects.length - 1]
+                .unselectable) //мб потом придётся разделять анселектабл и мап
+        {
+          final item = _objects.removeAt(_objects.length - 1);
+          _objects.add(value);
+          _objects.add(item);
+        } else {
+          _objects.add(value);
+        }
       });
 
   /// Add an object to the canvas

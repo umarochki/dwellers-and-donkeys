@@ -265,7 +265,6 @@ class _MenuState extends State<Menu> {
                                     style: _lowSizeTextWhite),
                                 trailing: MaterialButton(
                                   onPressed: () {
-                                    debugPrint('kekw');
                                     Navigator.push(
                                         context,
                                         MaterialPageRoute(

@@ -14,9 +14,9 @@ void clean_headers() {
   };
 }
 
-Future<List<dynamic>> getMaps() async {
+Future<List<dynamic>> getMaps(String session) async {
   final response = await http.get(
-    Config.url + '/maps',
+    Config.url + '/maps?game_id=$session',
     headers: headers,
   );
   updateCookie(response);

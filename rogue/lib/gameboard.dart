@@ -57,14 +57,15 @@ class _GameBoardState extends State<GameBoard>
   @override
   void initState() {
     super.initState();
+
     _channel = widget.channel;
     prepareMaps();
     listen();
     refresh();
   }
 
-  void prepareMaps() async {
-    List<dynamic> rsp = await getMaps();
+  Future<void> prepareMaps() async {
+    List<dynamic> rsp = await getMaps(_invite_code);
     for (var map in rsp) {
       maps[map['hash']] = map;
       maps[map['hash']]['img'] =
@@ -75,6 +76,10 @@ class _GameBoardState extends State<GameBoard>
       var decodedImage = await decodeImageFromList(file.readAsBytesSync());
       maps[map['hash']]['wh'] = [decodedImage.width, decodedImage.height];
     }
+    maps['Global'] = {};
+    maps['Global']['name'] = 'global';
+    maps['Global']['img'] = Image.asset('assets/WorldMap.png');
+    maps['Global']['wh'] = [1920, 1080];
   }
 
   @override
@@ -119,6 +124,12 @@ class _GameBoardState extends State<GameBoard>
         }
         if (json['type'] == 'delete') {
           handleDelete(json);
+        }
+        if (json['type'] == 'map') {
+          handleMap(json);
+        }
+        if (json['type'] == 'global_map') {
+          handleGlobalMap(json);
         }
         if ((json['type'] == 'update') ||
             (json['type'] == 'update_and_start')) {
@@ -195,6 +206,14 @@ class _GameBoardState extends State<GameBoard>
     // debugPrint('$_gameObjects');
   }
 
+  void handleMap(Map<String, dynamic> json) {
+    refresh(); // TODO : понять глубокую логику давать карту по имени и т.д.
+  }
+
+  void handleGlobalMap(Map<String, dynamic> json) {
+    refresh(); // TODO : что вообще с бэком?
+  }
+
   void rewriteTokens() async {
     for (var gameObject in _gameObjects.values) {
       gameObject['img'] = await _getImage(gameObject['sprite'], _dir);
@@ -205,19 +224,13 @@ class _GameBoardState extends State<GameBoard>
       var decodedImage = await decodeImageFromList(file.readAsBytesSync());
       gameObject['wh'] = [decodedImage.width / 10, decodedImage.height / 10];
     }
+    if (!maps.containsKey(_currentMap)) await prepareMaps();
     if (this.mounted)
       setState(() {
         _keyGameScreen.currentState.recieveGameObjects(_gameObjects);
-        if (_currentMap != 'Global') {
-          debugPrint('$_maps');
-          if (!maps.containsKey(_currentMap)) prepareMaps();
-          if (maps.containsKey(_currentMap))
-            _keyGameScreen.currentState.addObject(maps[_currentMap]['img'],
-                [0, 0], -725, maps[_currentMap]['wh']);
-        } else {
-          // TODO: Global map
-          debugPrint('Global!');
-        }
+        if (maps.containsKey(_currentMap))
+          _keyGameScreen.currentState.addObject(
+              maps[_currentMap]['img'], [0, 0], -725, maps[_currentMap]['wh']);
       });
   }
 
@@ -225,6 +238,15 @@ class _GameBoardState extends State<GameBoard>
     _gameObjects[json['meta']['id'].toString()] = json['meta'];
     _gameObjects[json['meta']['id'].toString()]['img'] = await _getImage(
         _gameObjects[json['meta']['id'].toString()]['sprite'], _dir);
+
+    String name = _gameObjects[json['meta']['id'].toString()]['sprite']
+        .substring(_gameObjects[json['meta']['id'].toString()]['sprite']
+                .lastIndexOf('/') +
+            1);
+    File file = _getLocalImageFile('$name', _dir);
+    var decodedImage = await decodeImageFromList(file.readAsBytesSync());
+    _gameObjects[json['meta']['id'].toString()]
+        ['wh'] = [decodedImage.width / 10, decodedImage.height / 10];
     if (this.mounted)
       setState(() {
         _keyGameScreen.currentState
@@ -300,9 +322,7 @@ class _GameBoardState extends State<GameBoard>
       _dir = (await getApplicationDocumentsDirectory()).path;
     }
     String name = url.substring(url.lastIndexOf('/') + 1);
-    if (!await _hasToDownloadAssets('$name', _dir))
-      debugPrint('yos');
-    else {
+    if (await _hasToDownloadAssets('$name', _dir)) {
       var imageFile = await _downloadFile(url, '$name', _dir);
     }
     var file = _getLocalImageFile(name, _dir);
