@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:rogue/api.dart';
 import 'package:flutter/foundation.dart';
-import 'package:rogue/conf.dart';
+import 'package:rogue/live.dart';
 import 'package:http/http.dart' as http;
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/io.dart';
@@ -24,6 +24,7 @@ class GameBoard extends StatefulWidget {
 }
 
 class _GameBoardState extends State<GameBoard>
+    with SingleTickerProviderStateMixin
 // with AutomaticKeepAliveClientMixin
 {
   final _sizeTextWhite = const TextStyle(fontSize: 20.0, color: Colors.white);
@@ -48,19 +49,21 @@ class _GameBoardState extends State<GameBoard>
 
   WebSocketChannel _channel;
 
-  Map<String, dynamic> _gameObjectsForGameScreen = {};
-
   String _dir;
+  dynamic _initHeightDashboard;
+
+  TabController _tabController;
 
   Map<String, dynamic> maps = {}; // все карты
 
   @override
   void initState() {
     super.initState();
-
     _channel = widget.channel;
+    _tabController = new TabController(vsync: this, length: 3);
     prepareMaps();
     listen();
+    _tabController.animateTo(1);
     refresh();
   }
 
@@ -87,6 +90,12 @@ class _GameBoardState extends State<GameBoard>
     _channel.sink.close();
     _wsMustBeOn = false;
     super.deactivate();
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   // @override
@@ -172,11 +181,15 @@ class _GameBoardState extends State<GameBoard>
     );
   }
 
+  void sendMap(String message) {
+    _channel.sink.add('{"type":"map", "meta": "$message"}');
+  }
+
+  void sendWorldMap() {
+    _channel.sink.add('{"type":"global_map"}');
+  }
+
   void sendMove(dynamic id, List<dynamic> xy) {
-    // var intId = int.tryParse(id);
-    // if (intId != null)
-    //   _channel.sink
-    //       .add('{"type":"update", "meta": { "id" : $intId , "xy" : $xy}}');
     if (id is String)
       _channel.sink
           .add('{"type":"update", "meta": { "id" : "$id" , "xy" : $xy}}');
@@ -354,10 +367,175 @@ class _GameBoardState extends State<GameBoard>
                 body: SafeArea(
                     child: Column(children: <Widget>[
                   Container(
-                    child: GameScreen(key: _keyGameScreen, sendMove: sendMove),
-                    color: Colors.greenAccent,
-                    height: MediaQuery.of(context).size.height / 1.5,
-                  ),
+                      height: MediaQuery.of(context).size.height / 1.5,
+                      child: DefaultTabController(
+                          length: 3,
+                          child: Column(children: [
+                            PreferredSize(
+                                preferredSize: Size.fromHeight(50.0),
+                                child: TabBar(
+                                  controller: _tabController,
+                                  labelColor: Colors.black,
+                                  tabs: [
+                                    Tab(
+                                      text: 'Maps',
+                                    ),
+                                    Tab(
+                                      text: 'Dashboard',
+                                    ),
+                                    Tab(
+                                      text: 'Tokens',
+                                    )
+                                  ],
+                                )),
+                            Expanded(
+                                child: TabBarView(
+                              physics: NeverScrollableScrollPhysics(),
+                              controller: _tabController,
+                              children: [
+                                Live(
+                                    child: Container(
+                                        child: ListView.builder(
+                                            padding: const EdgeInsets.all(8),
+                                            // itemCount: _maps.length,
+                                            itemCount: _maps.length + 2,
+                                            itemBuilder: (BuildContext context,
+                                                int index) {
+                                              if (index == 0)
+                                                return Container(
+                                                  margin: const EdgeInsets.all(
+                                                      15.0),
+                                                  padding:
+                                                      const EdgeInsets.all(3.0),
+                                                  decoration: BoxDecoration(
+                                                      color: _color),
+                                                  child: ListTile(
+                                                    leading: CircleAvatar(
+                                                      backgroundColor:
+                                                          Colors.transparent,
+                                                      backgroundImage: AssetImage(
+                                                          'assets/WorldMap.png'),
+                                                    ),
+                                                    title: Text('World Map',
+                                                        style: _sizeTextWhite),
+                                                    trailing: MaterialButton(
+                                                      onPressed: () {
+                                                        sendWorldMap();
+                                                      },
+                                                      color: Theme.of(context)
+                                                          .accentColor,
+                                                      height: 30.0,
+                                                      minWidth: 40.0,
+                                                      child: new Text(
+                                                        "Go to",
+                                                      ),
+                                                    ),
+                                                    onTap: () {},
+                                                  ),
+                                                );
+                                              if (index == _maps.length + 1) {
+                                                if (_isGm)
+                                                  return Container(
+                                                    margin:
+                                                        const EdgeInsets.all(
+                                                            15.0),
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            3.0),
+                                                    decoration: BoxDecoration(
+                                                        color: _color),
+                                                    child: ListTile(
+                                                      leading: CircleAvatar(
+                                                        backgroundColor:
+                                                            Colors.blueGrey,
+                                                      ),
+                                                      title: Text(
+                                                          'There will be adding new map',
+                                                          style:
+                                                              _sizeTextWhite),
+                                                      trailing: MaterialButton(
+                                                        onPressed: () {},
+                                                        color: Theme.of(context)
+                                                            .accentColor,
+                                                        height: 30.0,
+                                                        minWidth: 40.0,
+                                                        child: new Text(
+                                                          "Create map (no)",
+                                                        ),
+                                                      ),
+                                                      onTap: () {
+                                                        print('Debug');
+                                                      },
+                                                    ),
+                                                  );
+                                                else
+                                                  return Center(
+                                                      child: Text(
+                                                          'Not allowed to create maps'));
+                                              }
+
+                                              if (maps.containsKey(
+                                                  _maps[index - 1])) {
+                                                String name = maps[
+                                                            _maps[index - 1]]
+                                                        ['file']
+                                                    .substring(
+                                                        maps[_maps[index - 1]]
+                                                                    ['file']
+                                                                .lastIndexOf(
+                                                                    '/') +
+                                                            1);
+                                                return Container(
+                                                  margin: const EdgeInsets.all(
+                                                      15.0),
+                                                  padding:
+                                                      const EdgeInsets.all(3.0),
+                                                  decoration: BoxDecoration(
+                                                      color: _color),
+                                                  child: ListTile(
+                                                    leading: CircleAvatar(
+                                                      backgroundColor:
+                                                          Colors.transparent,
+                                                      backgroundImage: // можно попытаться подгружать из локального хранилища
+                                                          FileImage(
+                                                              _getLocalImageFile(
+                                                                  name, _dir)),
+                                                    ),
+                                                    title: Text(
+                                                        '${maps[_maps[index - 1]]['name']}',
+                                                        style: _sizeTextWhite),
+                                                    trailing: MaterialButton(
+                                                      onPressed: () {
+                                                        sendMap(maps[_maps[
+                                                                index - 1]]
+                                                            ['hash']);
+                                                      },
+                                                      color: Theme.of(context)
+                                                          .accentColor,
+                                                      height: 30.0,
+                                                      minWidth: 40.0,
+                                                      child: new Text(
+                                                        "Go to",
+                                                      ),
+                                                    ),
+                                                    onTap: () {},
+                                                  ),
+                                                );
+                                              } else {
+                                                return Container();
+                                              }
+                                            }))),
+                                Live(
+                                    child: Container(
+                                        child: GameScreen(
+                                            key: _keyGameScreen,
+                                            sendMove: sendMove),
+                                        color: Colors.greenAccent)),
+                                Live(child: Container())
+                              ],
+                            ))
+                          ]))),
+
                   // Divider(color: Colors.black),
                   PreferredSize(
                     preferredSize: Size.fromHeight(50.0),
