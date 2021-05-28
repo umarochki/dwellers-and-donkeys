@@ -40,3 +40,10 @@
 
 #### 4) Создаем себе юзера напотестить
 ```python3  manage.py createsuperuser```, дальше по инструкции, регистрацию завезу попоже.
+
+
+### Файловая структура:
+* nginx/tank - Frontend
+* nginx/tank/game-module - Game Module (map for Frontend)
+* rogue - Mobile App
+* wzrd - Backend
