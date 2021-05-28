@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:rogue/api.dart';
+import 'package:rogue/conf.dart';
 import 'package:flutter/foundation.dart';
 import 'package:rogue/live.dart';
 import 'package:http/http.dart' as http;
@@ -62,9 +63,21 @@ class _GameBoardState extends State<GameBoard>
     _channel = widget.channel;
     _tabController = new TabController(vsync: this, length: 3);
     prepareMaps();
+    prepareTokens();
     listen();
     _tabController.animateTo(1);
     refresh();
+  }
+
+  void prepareTokens() async {
+    if (_dir == null) {
+      _dir = (await getApplicationDocumentsDirectory()).path;
+    }
+    for (var name in Config.listOfHeroesTokens) {
+      var imageFile =
+          await _downloadFile('${Config.url_heroes}$name', '$name', _dir);
+    }
+    debugPrint('downloaded');
   }
 
   Future<void> prepareMaps() async {
@@ -183,6 +196,13 @@ class _GameBoardState extends State<GameBoard>
 
   void sendMap(String message) {
     _channel.sink.add('{"type":"map", "meta": "$message"}');
+  }
+
+  void sendAdd(String sprite) {
+    debugPrint(
+        '{"type":"add", "meta": { "type": "none", "sprite" : "$sprite", "xy": [100.0, 100.0]}}');
+    _channel.sink.add(
+        '{"type":"add", "meta": { "type": "none", "sprite" : "$sprite", "xy": [100.0, 100.0]}}');
   }
 
   void sendWorldMap() {
@@ -496,10 +516,9 @@ class _GameBoardState extends State<GameBoard>
                                                     leading: CircleAvatar(
                                                       backgroundColor:
                                                           Colors.transparent,
-                                                      backgroundImage: // можно попытаться подгружать из локального хранилища
-                                                          FileImage(
-                                                              _getLocalImageFile(
-                                                                  name, _dir)),
+                                                      backgroundImage: FileImage(
+                                                          _getLocalImageFile(
+                                                              name, _dir)),
                                                     ),
                                                     title: Text(
                                                         '${maps[_maps[index - 1]]['name']}',
@@ -518,7 +537,6 @@ class _GameBoardState extends State<GameBoard>
                                                         "Go to",
                                                       ),
                                                     ),
-                                                    onTap: () {},
                                                   ),
                                                 );
                                               } else {
@@ -531,7 +549,42 @@ class _GameBoardState extends State<GameBoard>
                                             key: _keyGameScreen,
                                             sendMove: sendMove),
                                         color: Colors.greenAccent)),
-                                Live(child: Container())
+                                Live(
+                                    child: Container(
+                                  padding: EdgeInsets.all(10),
+                                  child: GridView.builder(
+                                      gridDelegate:
+                                          SliverGridDelegateWithFixedCrossAxisCount(
+                                              crossAxisCount: 3,
+                                              childAspectRatio: 1,
+                                              crossAxisSpacing: 10,
+                                              mainAxisSpacing: 10),
+                                      itemCount:
+                                          Config.listOfHeroesTokens.length,
+                                      itemBuilder: (BuildContext ctx, index) {
+                                        return GestureDetector(
+                                            child: Container(
+                                              alignment: Alignment.center,
+                                              child: Image.file(
+                                                  _getLocalImageFile(
+                                                      Config.listOfHeroesTokens[
+                                                          index],
+                                                      _dir)),
+                                              decoration: BoxDecoration(
+                                                  color: Colors.amber,
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          15)),
+                                            ),
+                                            onTap: () {
+                                              debugPrint('here!!!');
+
+                                              sendAdd(Config.url_heroes +
+                                                  Config.listOfHeroesTokens[
+                                                      index]);
+                                            });
+                                      }),
+                                ))
                               ],
                             ))
                           ]))),
@@ -560,7 +613,8 @@ class _GameBoardState extends State<GameBoard>
                   Expanded(
                     child: TabBarView(
                       children: [
-                        Container(
+                        Live(
+                            child: Container(
                           color: _bgc,
                           child: Center(
                               child: ListView.builder(
@@ -589,79 +643,81 @@ class _GameBoardState extends State<GameBoard>
                                       ),
                                     );
                                   })),
-                        ),
-                        Container(
-                            color: _bgc,
-                            child: Column(
-                              children: <Widget>[
-                                Container(
-                                  child: ListView.builder(
-                                      controller: _chatScrollController,
-                                      padding: const EdgeInsets.all(8),
-                                      itemCount: _chat.length,
-                                      itemBuilder:
-                                          (BuildContext context, int index) {
-                                        if (_chat[index]['type'] == 'message') {
-                                          return Text(
-                                            '${_chat[index]['sender']} : ${_chat[index]['message']}',
-                                            style: _sizeTextWhite,
-                                          );
-                                        } else if (_chat[index]['type'] ==
-                                            'roll') {
-                                          String sum =
-                                              getSumStr(_chat[index]['dice']);
-                                          return Text(
-                                            '${_chat[index]['sender']} : ' +
-                                                sum +
-                                                ' = ${_chat[index]['total']}',
-                                            style: _sizeTextWhite,
-                                          );
-                                        } else {
-                                          return Text('');
-                                        }
-                                      }),
-                                  height: 96,
-                                  padding: const EdgeInsets.all(6.0),
-                                  color: _color,
-                                ),
-                                Row(
+                        )),
+                        Live(
+                            child: Container(
+                                color: _bgc,
+                                child: Column(
                                   children: <Widget>[
-                                    SizedBox(
-                                      width: 15,
+                                    Container(
+                                      child: ListView.builder(
+                                          controller: _chatScrollController,
+                                          padding: const EdgeInsets.all(8),
+                                          itemCount: _chat.length,
+                                          itemBuilder: (BuildContext context,
+                                              int index) {
+                                            if (_chat[index]['type'] ==
+                                                'message') {
+                                              return Text(
+                                                '${_chat[index]['sender']} : ${_chat[index]['message']}',
+                                                style: _sizeTextWhite,
+                                              );
+                                            } else if (_chat[index]['type'] ==
+                                                'roll') {
+                                              String sum = getSumStr(
+                                                  _chat[index]['dice']);
+                                              return Text(
+                                                '${_chat[index]['sender']} : ' +
+                                                    sum +
+                                                    ' = ${_chat[index]['total']}',
+                                                style: _sizeTextWhite,
+                                              );
+                                            } else {
+                                              return Text('');
+                                            }
+                                          }),
+                                      height: 96,
+                                      padding: const EdgeInsets.all(6.0),
+                                      color: _color,
                                     ),
-                                    Expanded(
-                                      child: TextField(
-                                        controller: _sendMessageController,
-                                        decoration: InputDecoration(
-                                            hintText: "Write message...",
-                                            hintStyle:
-                                                TextStyle(color: _lightGrey),
-                                            border: InputBorder.none),
-                                        style: TextStyle(color: _lightGrey),
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: 15,
-                                    ),
-                                    FloatingActionButton(
-                                      onPressed: () {
-                                        sendMessage(
-                                            _sendMessageController.text);
-                                        _sendMessageController.clear();
-                                      },
-                                      child: Icon(
-                                        Icons.send,
-                                        color: Colors.white,
-                                        size: 18,
-                                      ),
-                                      backgroundColor: _color,
-                                      elevation: 0,
+                                    Row(
+                                      children: <Widget>[
+                                        SizedBox(
+                                          width: 15,
+                                        ),
+                                        Expanded(
+                                          child: TextField(
+                                            controller: _sendMessageController,
+                                            decoration: InputDecoration(
+                                                hintText: "Write message...",
+                                                hintStyle: TextStyle(
+                                                    color: _lightGrey),
+                                                border: InputBorder.none),
+                                            style: TextStyle(color: _lightGrey),
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          width: 15,
+                                        ),
+                                        FloatingActionButton(
+                                          onPressed: () {
+                                            sendMessage(
+                                                _sendMessageController.text);
+                                            _sendMessageController.clear();
+                                          },
+                                          child: Icon(
+                                            Icons.send,
+                                            color: Colors.white,
+                                            size: 18,
+                                          ),
+                                          backgroundColor: _color,
+                                          elevation: 0,
+                                        ),
+                                      ],
                                     ),
                                   ],
-                                ),
-                              ],
-                            )),
-                        Dices(channel: _channel),
+                                ))),
+                        Live(child: Dices(channel: _channel)),
                         Container(
                           color: _bgc,
                           child: Center(
