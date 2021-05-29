@@ -32,7 +32,7 @@ const MapControls: React.FC<Props> = props => {
     
     return (
         <div className={classes.mapControls}>
-            <MapControl onClick={() => boardRef.current.switchGrid()} tooltip="Switch grip">
+            <MapControl onClick={() => boardRef.current.switchGrid()} tooltip="Switch grid">
                 <AppsIcon />
             </MapControl>
             <MapControl onClick={() => boardRef.current.drawer.setMode('pencil')} tooltip="Pencil">
