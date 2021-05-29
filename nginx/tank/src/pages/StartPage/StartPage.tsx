@@ -92,7 +92,7 @@ const StartPage = () => {
             <CssBaseline/>
             <AppBar position="relative">
                 <Toolbar className={classes.toolbarAvatar}>
-                    {user && <Avatar onClick={handleProfileClick} className={classes.avatar}>?</Avatar>}
+                    {user && <Avatar onClick={handleProfileClick} className={classes.avatar}/>}
                     <Menu
                         id="profile-menu"
                         anchorEl={anchorEl}
