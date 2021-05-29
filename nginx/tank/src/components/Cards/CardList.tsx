@@ -36,10 +36,11 @@ interface Props {
     headerText: string
     cards: Game[]
     onAddClick: () => void
+    showAddCard?: boolean
 }
 
 const CardList: React.FC<Props> = props => {
-    const { headerText, cards, onAddClick } = props
+    const { headerText, cards, onAddClick, showAddCard = false } = props
     const classes = useStyles()
     const dispatch = useDispatch()
 
@@ -77,9 +78,9 @@ const CardList: React.FC<Props> = props => {
                 {headerText}
             </Typography>
             <Grid container spacing={4}>
-                <Grid item xs={12} sm={6} md={4}>
+                {showAddCard && <Grid item xs={12} sm={6} md={4}>
                     <AddCard className={clsx(classes.card, classes.addCard)} onClick={onAddClick}/>
-                </Grid>
+                </Grid>}
                 {cards.map(card => (
                     <Grid item key={card.id} xs={12} sm={6} md={4}>
                         <MapCard
