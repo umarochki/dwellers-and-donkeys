@@ -236,6 +236,10 @@ class CanvasController {
         _objects.insert(0, item);
       });
 
+  void unselectAll() {
+    _selectedObjects.clear();
+  }
+
   /// Checks if the shift key on the keyboard is pressed
   bool get shiftPressed => _shiftPressed;
   bool _shiftPressed = false;

@@ -218,6 +218,10 @@ class _GameBoardState extends State<GameBoard>
           .add('{"type":"update", "meta": { "id" : $id , "xy" : $xy}}');
   }
 
+  void sendDelete(dynamic id) {
+    _channel.sink.add('{"type":"delete", "meta": { "id" : "$id"}}');
+  }
+
   void handleDisconnect() {
     _channel.sink.close(); // TODO: только если ты
     // if (this.mounted && _wsMustBeOn) connect();
@@ -547,7 +551,8 @@ class _GameBoardState extends State<GameBoard>
                                     child: Container(
                                         child: GameScreen(
                                             key: _keyGameScreen,
-                                            sendMove: sendMove),
+                                            sendMove: sendMove,
+                                            sendDelete: sendDelete),
                                         color: Colors.greenAccent)),
                                 Live(
                                     child: Container(

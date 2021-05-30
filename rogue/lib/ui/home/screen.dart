@@ -5,10 +5,11 @@ import '../../src/classes/canvas_object.dart';
 import '../../src/controllers/canvas.dart';
 
 class GameScreen extends StatefulWidget {
-  // final Map<String, dynamic> gameObjects; // , @required this.gameObjects
-
   final Function sendMove;
-  const GameScreen({Key key, @required this.sendMove}) : super(key: key);
+  final Function sendDelete;
+  const GameScreen(
+      {Key key, @required this.sendMove, @required this.sendDelete})
+      : super(key: key);
 
   @override
   GameScreenState createState() => GameScreenState();
@@ -123,6 +124,18 @@ class GameScreenState extends State<GameScreen> {
           }
           final instance = snapshot.data;
           return Scaffold(
+            floatingActionButton: FloatingActionButton(
+                backgroundColor: Colors.red,
+                child: Icon(Icons.delete),
+                onPressed: () {
+                  if (_controller.selectedObjectsIndices.length > 0) {
+                    widget.sendDelete(_controller
+                        .objects[_controller.selectedObjectsIndices[0]].id);
+                    _controller
+                        .removeObject(_controller.selectedObjectsIndices[0]);
+                    _controller.unselectAll();
+                  }
+                }),
             backgroundColor: Color.fromRGBO(245, 245, 220, 1),
             // appBar: AppBar(
             //   backgroundColor: Color.fromRGBO(33, 44, 61, 1),
