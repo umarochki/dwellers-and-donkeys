@@ -5,7 +5,7 @@ from django.http import JsonResponse
 from rest_framework import viewsets
 from rest_framework.decorators import action
 
-from wzrd.utils import generate_key
+from wzrd.utils import generate_key, is_invite_key
 from wzrd.users.mixins import IsAuthorisedMixin
 from wzrd.users.decorators import is_authorized, self_set_auth_token
 
@@ -62,7 +62,7 @@ class GameSessionViewSet(viewsets.ModelViewSet, IsAuthorisedMixin):
     @is_authorized
     def retrieve(self, request, *args, **kwargs):
         pk = _.get(self, "request.parser_context.kwargs.pk")
-        if isinstance(pk, str):
+        if is_invite_key(pk):
             self.lookup_field = "invitation_code"
             self.kwargs[self.lookup_field] = pk
         return super().retrieve(request, *args, **kwargs)
