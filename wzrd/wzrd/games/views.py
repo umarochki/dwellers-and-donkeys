@@ -55,12 +55,17 @@ class GameSessionViewSet(viewsets.ModelViewSet, IsAuthorisedMixin):
     @self_set_auth_token
     def get_queryset(self):
         queryset = self.model_class.objects.none()
-        pk = _.get(self, "request.parser_context.kwargs.pk")
-        if pk:
-            return self.model_class.objects.filter(pk=pk)
         queryset |= self.model_class.objects.filter(is_private=False)
         queryset |= self.model_class.objects.filter(game_master=self.user.id)
         return queryset
+
+    @is_authorized
+    def retrieve(self, request, *args, **kwargs):
+        pk = _.get(self, "request.parser_context.kwargs.pk")
+        if isinstance(pk, str):
+            self.lookup_field = "invitation_code"
+            self.kwargs[self.lookup_field] = pk
+        return super().retrieve(request, *args, **kwargs)
 
     @is_authorized
     def create(self, request, *args, **kwargs):

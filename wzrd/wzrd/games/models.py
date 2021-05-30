@@ -7,7 +7,7 @@ class GameObjectsField(djongo_models.JSONField):
     def get_prep_value(self, value):
         if not isinstance(value, dict):
             raise ValueError(
-                f'Value: {value} must be of type dict/list'
+                f'Value: {value} must be of type dict'
             )
         return orjson.dumps(value, option=orjson.OPT_NON_STR_KEYS)
 
