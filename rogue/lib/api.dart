@@ -143,6 +143,24 @@ Future<List<Game>> getPlayerGames() async {
   }
 }
 
+Future<List<Game>> getPublicGames() async {
+  final response = await http.get(
+    Config.url + '/games',
+    headers: headers,
+  );
+  updateCookie(response);
+  if (response.statusCode == 200) {
+    List<dynamic> gameList = json.decode(response.body);
+    List<Game> gameListRsp = gameList
+        .map((item) => new Game(
+            item['name'], item['description'], item['invitation_code']))
+        .toList();
+    return gameListRsp;
+  } else {
+    return [];
+  }
+}
+
 void updateCookie(http.Response response) {
   String rawCookie = response.headers['set-cookie'];
   if (rawCookie != null) {

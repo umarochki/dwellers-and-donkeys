@@ -55,7 +55,7 @@ flutter:
   #   - images/a_dot_ham.jpeg
   assets:
     - assets/dices/
-    - assets/heroes/
+    # - assets/heroes/
     # - assets/locations/
     # - assets/markers/
     # - assets/worldMap/

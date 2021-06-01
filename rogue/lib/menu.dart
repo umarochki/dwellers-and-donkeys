@@ -38,6 +38,7 @@ class _MenuState extends State<Menu> {
 
   List<Game> _gmGames = [];
   List<Game> _playerGames = [];
+  List<Game> _publicGames = [];
 
   void hideKeyboard() {
     SystemChannels.textInput.invokeMethod('TextInput.hide');
@@ -46,10 +47,13 @@ class _MenuState extends State<Menu> {
   void loadHistory() async {
     _gmGames = await getGmGames();
     _playerGames = await getPlayerGames();
+    _publicGames = await getPublicGames();
     if (this.mounted)
       setState(() {
         _gmGames = _gmGames;
+
         _playerGames = _playerGames;
+        _publicGames = _publicGames;
       });
   }
 
@@ -59,16 +63,17 @@ class _MenuState extends State<Menu> {
     return new Scaffold(
         backgroundColor: _bgc,
         body: DefaultTabController(
-          length: 3,
+          length: 4,
           child: Scaffold(
             appBar: AppBar(
               title: Text("Dwellers & Donkeys", style: _titleTextStyle),
               backgroundColor: Color.fromRGBO(33, 44, 61, 1),
               bottom: TabBar(
                 tabs: [
-                  Tab(text: 'JOIN'),
-                  Tab(text: 'CREATE'),
-                  Tab(text: 'HISTORY'),
+                  Tab(text: 'Join'),
+                  Tab(text: 'Create'),
+                  Tab(text: 'History'),
+                  Tab(text: 'Public'),
                 ],
               ),
             ),
@@ -286,6 +291,49 @@ class _MenuState extends State<Menu> {
                                   ),
                                 ));
                           }
+                        })),
+                Container(
+                    color: Color.fromRGBO(33, 44, 61, 1),
+                    child: ListView.builder(
+                        padding: EdgeInsets.all(20),
+                        itemCount: _publicGames.length + 1,
+                        itemBuilder: (BuildContext context, int index) {
+                          if (index == 0) {
+                            return Text('Public games:',
+                                style: _lowTitleTextStyle);
+                          }
+                          return ListTile(
+                            leading: CircleAvatar(
+                              backgroundColor: Colors.blueGrey,
+                            ),
+                            title: Text('${_publicGames[index - 1].name}',
+                                style: _midWhiteTextStyle),
+                            subtitle: Text(
+                                '${_publicGames[index - 1].description}',
+                                style: _lowSizeTextWhite),
+                            trailing: MaterialButton(
+                              onPressed: () async {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => GameBoard(
+                                                channel: IOWebSocketChannel.connect(
+                                                    'ws://207.154.226.69/ws/games/${_publicGames[index - 1].invitationCode}',
+                                                    headers: {
+                                                  'Cookie': headers['cookie']
+                                                })),
+                                        settings: RouteSettings(
+                                            arguments: _gmGames[index - 1]
+                                                .invitationCode)));
+                              },
+                              color: Theme.of(context).accentColor,
+                              height: 30.0,
+                              minWidth: 40.0,
+                              child: new Text(
+                                "JOIN",
+                              ),
+                            ),
+                          );
                         }))
               ],
             ),

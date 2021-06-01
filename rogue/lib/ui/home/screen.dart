@@ -31,6 +31,7 @@ class GameScreenState extends State<GameScreen> {
       addObject(gameObject['img'], gameObject['xy'], gameObject['id'],
           gameObject['wh']);
     }
+    _controller.unselectAll();
   }
 
   void _dummyData() {

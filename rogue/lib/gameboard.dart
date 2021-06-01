@@ -5,6 +5,7 @@ import 'package:rogue/conf.dart';
 import 'package:flutter/foundation.dart';
 import 'package:rogue/live.dart';
 import 'package:http/http.dart' as http;
+import 'package:rogue/newMap.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/io.dart';
 import 'dart:convert';
@@ -442,18 +443,21 @@ class _GameBoardState extends State<GameBoard>
                                                     ),
                                                     title: Text('World Map',
                                                         style: _sizeTextWhite),
-                                                    trailing: MaterialButton(
-                                                      onPressed: () {
-                                                        sendWorldMap();
-                                                      },
-                                                      color: Theme.of(context)
-                                                          .accentColor,
-                                                      height: 30.0,
-                                                      minWidth: 40.0,
-                                                      child: new Text(
-                                                        "Go to",
-                                                      ),
-                                                    ),
+                                                    trailing: _isGm
+                                                        ? MaterialButton(
+                                                            onPressed: () {
+                                                              sendWorldMap();
+                                                            },
+                                                            color: Theme.of(
+                                                                    context)
+                                                                .accentColor,
+                                                            height: 30.0,
+                                                            minWidth: 40.0,
+                                                            child: new Text(
+                                                              "Go to",
+                                                            ),
+                                                          )
+                                                        : null,
                                                     onTap: () {},
                                                   ),
                                                 );
@@ -469,27 +473,42 @@ class _GameBoardState extends State<GameBoard>
                                                     decoration: BoxDecoration(
                                                         color: _color),
                                                     child: ListTile(
-                                                      leading: CircleAvatar(
-                                                        backgroundColor:
-                                                            Colors.blueGrey,
-                                                      ),
-                                                      title: Text(
-                                                          'There will be adding new map',
+                                                      // leading: CircleAvatar(
+                                                      //   backgroundColor:
+                                                      //       Colors.blueGrey,
+                                                      // ),
+                                                      title: Text('New Map',
                                                           style:
                                                               _sizeTextWhite),
                                                       trailing: MaterialButton(
-                                                        onPressed: () {},
+                                                        onPressed: () async {
+                                                          print(
+                                                              'NewMapOpening');
+                                                          if (_dir == null) {
+                                                            _dir =
+                                                                (await getApplicationDocumentsDirectory())
+                                                                    .path;
+                                                          }
+                                                          Navigator.push(
+                                                              context,
+                                                              MaterialPageRoute(
+                                                                  builder: (context) => NewMap(
+                                                                      sendMap:
+                                                                          sendMap,
+                                                                      getLocalImageFile:
+                                                                          _getLocalImageFile,
+                                                                      dir:
+                                                                          _dir)));
+                                                        },
                                                         color: Theme.of(context)
                                                             .accentColor,
                                                         height: 30.0,
                                                         minWidth: 40.0,
                                                         child: new Text(
-                                                          "Create map (no)",
+                                                          "Create",
                                                         ),
                                                       ),
-                                                      onTap: () {
-                                                        print('Debug');
-                                                      },
+                                                      onTap: () {},
                                                     ),
                                                   );
                                                 else
@@ -527,20 +546,24 @@ class _GameBoardState extends State<GameBoard>
                                                     title: Text(
                                                         '${maps[_maps[index - 1]]['name']}',
                                                         style: _sizeTextWhite),
-                                                    trailing: MaterialButton(
-                                                      onPressed: () {
-                                                        sendMap(maps[_maps[
-                                                                index - 1]]
-                                                            ['hash']);
-                                                      },
-                                                      color: Theme.of(context)
-                                                          .accentColor,
-                                                      height: 30.0,
-                                                      minWidth: 40.0,
-                                                      child: new Text(
-                                                        "Go to",
-                                                      ),
-                                                    ),
+                                                    trailing: _isGm
+                                                        ? MaterialButton(
+                                                            onPressed: () {
+                                                              sendMap(maps[_maps[
+                                                                      index -
+                                                                          1]]
+                                                                  ['hash']);
+                                                            },
+                                                            color: Theme.of(
+                                                                    context)
+                                                                .accentColor,
+                                                            height: 30.0,
+                                                            minWidth: 40.0,
+                                                            child: new Text(
+                                                              "Go to",
+                                                            ),
+                                                          )
+                                                        : null,
                                                   ),
                                                 );
                                               } else {
@@ -705,6 +728,7 @@ class _GameBoardState extends State<GameBoard>
                                           width: 15,
                                         ),
                                         FloatingActionButton(
+                                          heroTag: "btn$_invite_code",
                                           onPressed: () {
                                             sendMessage(
                                                 _sendMessageController.text);
