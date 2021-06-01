@@ -32,14 +32,14 @@
 ##### Продакшн:
 ```docker-compose -f docker-compose-prod.yml up -d --build```
 
-#### 2) Залетаем в контейнер wzrd
+#### 2) Заходим в бэкенд-контейнер (wzrd)
 ```docker exec -it umr_wzrd bash```
 
 #### 3) Делаем миграции
 ```python3  manage.py migrate```
 
-#### 4) Создаем себе юзера напотестить
-```python3  manage.py createsuperuser```, дальше по инструкции, регистрацию завезу попоже.
+#### 4) Создаем себе суперпользователя если необходимо
+```python3  manage.py createsuperuser```, дальше по инструкции
 
 
 ### Файловая структура:
