@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import LeftDrawer from '../../components/Switcher/LeftDrawer'
 import { Hidden } from '@material-ui/core'
-import Gameboard from 'game-module/src/Gameboard'
+import Gameboard from 'gameboard'
 import { WebSocketContext } from '../../components/Contexts/WebSocketContext'
 import { useDispatch, useSelector } from 'react-redux'
 import {
@@ -95,7 +95,7 @@ const Tabletop = () => {
     }, [])
 
     const handleOpenDrawer = useCallback(() => {
-        myGameBoard && myGameBoard.resetDraggedDOMListeners()
+        myGameBoard && myGameBoard.dragAndDrop.reset()
     }, [myGameBoard])
 
     const handleOpenGlobalCard = useCallback(() => {
@@ -118,8 +118,8 @@ const Tabletop = () => {
         const newMap = maps.find(m => m.hash === mapId)
 
         if (newMap) {
-            myGameBoard.setMap({ sprite: newMap.file }, () => {
-                myGameBoard.refresh({
+            myGameBoard.map.set({ sprite: newMap.file }, () => {
+                myGameBoard.gameObjectManager.refresh({
                     ...currentGameData.meta
                 })
             })
@@ -131,8 +131,8 @@ const Tabletop = () => {
             dispatch(getMaps(id, (maps: Map[]) => {
                 const newMap = maps.find(m => m.hash === mapId)
                 if (newMap) {
-                    myGameBoard.setMap({ sprite: newMap.file }, () => {
-                        myGameBoard.refresh({
+                    myGameBoard.map.set({ sprite: newMap.file }, () => {
+                        myGameBoard.gameObjectManager.refresh({
                             ...currentGameData.meta
                         })
                     })
@@ -167,30 +167,30 @@ const Tabletop = () => {
                 // TODO: isGameMaster: {boolean}
             })
 
-            // gameBoard.eventManager.subscribe('map', (data: any) => ws.sendMessage('map', data))
-            gameBoard.eventManager.subscribe('add', (data: any) => ws.sendMessage('add', data))
-            gameBoard.eventManager.subscribe('delete', (data: any) => ws.sendMessage('delete', data))
-            gameBoard.eventManager.subscribe('update', (data: any) => ws.sendMessage('update', data))
-            gameBoard.eventManager.subscribe('update_and_save', (data: any) => {
-                ws.sendMessage('update_and_save', data)
+            const assets = [{ name: 'grid', url: '../grid64.png' }]
 
-                if (isDltBtnHovered.current) {
-                    gameBoard.deleteObject({ id: data.id })
-                    ws.sendMessage('delete', { id: data.id })
-                    isDltBtnHovered.current = false
-                }
+            gameBoard.init(assets, () => {
+                // gameBoard.eventManager.add('map/set', (data: any) => ws.sendMessage('map', data))
+                gameBoard.eventManager.add('object/add', (data: any) => ws.sendMessage('add', data))
+                gameBoard.eventManager.add('object/delete', (data: any) => ws.sendMessage('delete', data))
+                gameBoard.eventManager.add('object/update', (data: any) => ws.sendMessage('update', data), true)
+                gameBoard.eventManager.add('object/update-end', (data: any) => {
+                    ws.sendMessage('update_and_save', data)
 
-                setIdToDelete(null)
+                    if (isDltBtnHovered.current) {
+                        gameBoard.gameObjectManager.delete({ id: data.id })
+                        ws.sendMessage('delete', { id: data.id })
+                        isDltBtnHovered.current = false
+                    }
 
-            })
-            gameBoard.eventManager.subscribe('update_and_start', (data: any) => {
-                ws.sendMessage('update_and_start', data)
-                setIdToDelete(data.id)
-            })
+                    setIdToDelete(null)
+                })
 
-            const assets = [{ name: 'grid', path: '../grid64.png' }]
+                gameBoard.eventManager.add('object/update-start', (data: any) => {
+                    ws.sendMessage('update_and_start', data)
+                    setIdToDelete(data.id)
+                })
 
-            gameBoard.preload(assets, () => {
                 boardRef.current = gameBoard
                 ws.sendMessage('refresh')
             })
@@ -207,17 +207,17 @@ const Tabletop = () => {
 
             switch (currentGameData.type) {
                 case 'update_and_start':
-                    myGameBoard.updateObject(currentGameData.meta, 'overlap')
-                    myGameBoard.updateObject(currentGameData.meta)
+                    myGameBoard.gameObjectManager.update(currentGameData.meta)
+                    myGameBoard.gameObjectManager.update(currentGameData.meta)
                     break
                 case 'update':
-                    myGameBoard.updateObject(currentGameData.meta)
+                    myGameBoard.gameObjectManager.update(currentGameData.meta)
                     break
                 case 'add':
-                    myGameBoard.addObject(currentGameData.meta)
+                    myGameBoard.gameObjectManager.add(currentGameData.meta)
                     break
                 case 'delete':
-                    myGameBoard.deleteObject(currentGameData.meta)
+                    myGameBoard.gameObjectManager.delete(currentGameData.meta)
                     break
                 case 'chat':
                     setMessages(prev => [...prev, currentGameData.meta])
@@ -239,8 +239,8 @@ const Tabletop = () => {
 
                     currentGameData.meta.map !== 'Global'
                         ? handleUpdateMap(currentGameData.meta.map, currentGameData)
-                        : myGameBoard.setMap({ sprite: '../globalSymbols/WorldMap.png' }, () =>
-                            myGameBoard.refresh({
+                        : myGameBoard.map.set({ sprite: '../globalSymbols/WorldMap.png' }, () =>
+                            myGameBoard.gameObjectManager.refresh({
                                 ...currentGameData.meta
                             }))
 
@@ -258,8 +258,8 @@ const Tabletop = () => {
                     handleUpdateMap(mapId, currentGameData)
                     break
                 case 'global_map':
-                    myGameBoard.setMap({ sprite: '../globalSymbols/WorldMap.png' }, () => {
-                        myGameBoard.refresh({
+                    myGameBoard.map.set({ sprite: '../globalSymbols/WorldMap.png' }, () => {
+                        myGameBoard.gameObjectManager.refresh({
                             ...currentGameData.meta
                         })
                     })
@@ -381,7 +381,7 @@ const Tabletop = () => {
                         ws.sendMessage('add', {
                             type: 'hero',
                             hero_id: hero.id,
-                            xy: myGameBoard ? [myGameBoard.mapContainer.width / 2, myGameBoard.mapContainer.height / 2] : [0, 0],
+                            xy: myGameBoard ? [myGameBoard.map.width / 2, myGameBoard.map.height / 2] : [0, 0],
                             sprite: hero.sprite,
                             name: hero.name
                         })
