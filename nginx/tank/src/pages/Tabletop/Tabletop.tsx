@@ -34,6 +34,7 @@ import ChooseCharacterDialog from '../../components/Dialogs/ChooseCharacterDialo
 import { Hero } from '../../models/hero'
 import MapControls from '../../components/Controls/Map/MapControls'
 import BottomControlPanel from '../../components/Controls/Bottom/BottomControlPanel'
+import { RefreshMessage } from '../../models/tabletop'
 
 export enum MyHeroType {
     unknown,
@@ -162,9 +163,8 @@ const Tabletop = () => {
                 width: divRef.current.clientWidth,
                 height: divRef.current.clientHeight,
                 transparent: true,
-                resizeTo: divRef.current
-                //backgroundColor: 0xfff000
-                // TODO: isGameMaster: {boolean}
+                resizeTo: divRef.current,
+                isGameMaster: (currentGameData as RefreshMessage).meta.is_gm || false
             })
 
             const assets = [{ name: 'grid', url: '../grid64.png' }]
