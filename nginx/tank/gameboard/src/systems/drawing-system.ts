@@ -204,6 +204,7 @@ class DrawingComponent extends Component {
         (x - this.scene.viewport.x) / this.scene.viewport.scale.x, 
         (y - this.scene.viewport.y) / this.scene.viewport.scale.y
       );
+      
   
       this.edges = new Graphics();
       this.temp.addChild(this.edges);

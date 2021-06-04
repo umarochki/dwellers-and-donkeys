@@ -69,10 +69,8 @@ export default class SelectionSystem extends Component {
   }
 
   offSelect() {
-    if (!this.selected) {
-      throw new Error('No object is selected')
-      return;
-    }
+    if (!this.selected) throw new Error('No object is selected')
+    
 
     this.selected.asContainer().removeChild(this.border)
     this.selected = undefined

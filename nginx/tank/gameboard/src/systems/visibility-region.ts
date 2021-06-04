@@ -54,7 +54,7 @@ class VisibilityRegionComponent extends Component {
         // @ts-ignore
         this.context.onChildrenChange = this.contextToSegments;
 
-        this.subscribe('object/selected', 'object/unselected', 'object/updated', 'region/updated', 'map/set/after')
+        this.subscribe('object/selected', 'object/unselected', 'object/updated', 'region/update', 'map/set/after')
     }
 
     onMessage(msg: Message) {
@@ -113,18 +113,33 @@ class VisibilityRegionComponent extends Component {
         let polygons = [];
         polygons.push(this.border);
     
-        for (let i = 0; i < this.context.children.length; i++) {
-            let child = this.context.getChildAt(i) as Container
-            polygons.push(child.getAttribute('points'));
+        for (let i = this.context.children.length - 1; i > -1; i--) {
+          let flag = true
+          let child = this.context.getChildAt(i) as Container
+          let points = child.getAttribute('points') as [number, number][]
+
+          for (let point of points) {
+            if (!this._inPolygon(point, this.border)) {
+              flag = false
+              break
+            }
+          }
+
+          if (flag) polygons.push(points);
+          else this.context.removeChild(child)
         }
             
         let segments = this._convertToSegments(polygons);
         segments = this._breakIntersections(segments);
         this.segments = segments;
-        this.sendMessage('region/update')
+
+        if (this.selected) {
+          this.getRegion([this.selected.x, this.selected.y])
+          this.sendMessage('object/region/set/after', { id: this.selected.name })
+        }
     }
     
-    getRegion(position) {
+    getRegion(position: [number, number]) {
         if (this._inPolygon(position, this.border)) {
             var visibility = this.compute(position, this.segments);
             if (visibility.length === 0) return;
@@ -156,7 +171,7 @@ class VisibilityRegionComponent extends Component {
     
         switch (this.mode) {
           case 'draw':
-            this.sendMessage('drawing', { mode: 'polygon', toTexture: true, context: this.context })
+            this.sendMessage('drawing', { mode: 'polygon', toTexture: false, context: this.context })
             break;
     
           case 'none':      
