@@ -2,7 +2,8 @@ let FLAGS = {
     SELECTABLE: 1,
     RESIZABLE: 2,
     RESTRICTED_VISIBILITY: 3,
-    IS_DRAWER: 3
+    LINKED_TO_MAP: 4,
+    IS_DRAWER: 5
 }
 
 export { FLAGS }

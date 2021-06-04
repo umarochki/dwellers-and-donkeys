@@ -1,4 +1,4 @@
-import { Component, Container, Scene, Sprite, TilingSprite } from '../libs/pixi-ecs'
+import { Component, Container, Scene, Sprite, TilingSprite, Message } from '../libs/pixi-ecs'
 import { SVG } from '../libs/pixi-svg';
 
 import createSVGElement from '../utils/create-svg-element';
@@ -50,11 +50,18 @@ class MapSystemComponent extends Component {
     }
     
     onAttach() {
-        this.layer = new Container();
+        this.layer = new Container('map-container');
         this.scene.viewport.addChild(this.layer)
         
         this.initDummyMap()
         this.layer.addChild(this.dummy)
+        this.subscribe('map/set')
+    }
+
+    onMessage(msg: Message) {
+        if (msg.action === 'map/set') {
+            this.set({sprite: msg.data.sprite })
+        } 
     }
 
     onDetach() {
@@ -72,12 +79,11 @@ class MapSystemComponent extends Component {
                 url: options.sprite
             }],
             callback: (_, resources) => {
-                this.map = new Sprite('', resources[options.sprite].texture) 
-                
+                this.map = new Sprite('', resources[options.sprite].texture)
                 this.grid = new TilingSprite('', resources['grid'].texture, this.map.width, this.map.height);
                 this.layer.addChild(this.map)
                 this.scene.viewport.moveCenter(this.map.width / 2, this.map.height / 2);
-                this.sendMessage('map/set', { width: this.map.width, height: this.map.height })
+                this.sendMessage('map/set/after', { width: this.map.width, height: this.map.height })
                 typeof callback == "function" && callback();    
             }
         }
@@ -91,19 +97,19 @@ class MapSystemComponent extends Component {
             this.grid.destroy()
             this.scene.viewport.addChild(this.dummy)
         }
-        this.sendMessage('map/reset', {})
+        this.sendMessage('map/reset/after', {})
     }
 
     switchGrid() : boolean {
         
         if (this.grid.parent) {
             this.grid.detach()
-            this.sendMessage('map/grid', { enabled: false })
+            this.sendMessage('map/grid/after', { enabled: false })
             return false
         }
 
         this.map.addChild(this.grid)
-        this.sendMessage('map/grid', { enabled: true })
+        this.sendMessage('map/grid/after', { enabled: true })
         return true
     }
 

@@ -3,12 +3,12 @@ import { Container, Sprite, Text } from '../libs/pixi-ecs'
 
 import Draggable from '../components/draggable'
 import PixelPerfectHitArea from '../components/pixel-perfect-hit-area';
-//import RestrictedVisibility from '../components/restricted-visibility'
-//import LinkedToMap from '../components/linked-to-map'
 
 export default function GameObjectBuilder(options: ObjectOptions) : Container {
 
   let obj = new Container()
+
+  obj.assignAttribute('options', options)
   
   obj.name = String(options.id)
   obj.position.set(options.xy[0], options.xy[1]);
@@ -41,7 +41,7 @@ export default function GameObjectBuilder(options: ObjectOptions) : Container {
     obj.addChild(name);
     obj.assignAttribute('name', name)
   }
-  
+
   switch (options.type) {
     case 'hero':
       sprite.addComponent(new PixelPerfectHitArea())
@@ -54,17 +54,30 @@ export default function GameObjectBuilder(options: ObjectOptions) : Container {
     case 'marker':
       obj.setFlag(CONSTANTS.FLAGS.SELECTABLE)
       obj.setFlag(CONSTANTS.FLAGS.RESIZABLE)
+      obj.setFlag(CONSTANTS.FLAGS.LINKED_TO_MAP)
       obj.addComponent(new Draggable())
-      //obj.addComponent(new LinkedToMap())
+      return obj
+  
+    case 'decoration':
+      obj.setFlag(CONSTANTS.FLAGS.SELECTABLE)
+      obj.setFlag(CONSTANTS.FLAGS.RESIZABLE)
+      obj.addComponent(new Draggable())
+      return obj
+
+    case 'creature':
+      obj.setFlag(CONSTANTS.FLAGS.SELECTABLE)
+      obj.setFlag(CONSTANTS.FLAGS.RESIZABLE)
+      obj.addComponent(new Draggable())
       return obj
 
     case 'obstacle':
       obj.setFlag(CONSTANTS.FLAGS.SELECTABLE)
       obj.addComponent(new Draggable())
       return obj
-
+  
     default:
       obj.setFlag(CONSTANTS.FLAGS.SELECTABLE)
+      obj.setFlag(CONSTANTS.FLAGS.RESIZABLE)
       obj.addComponent(new Draggable())
       return obj
   

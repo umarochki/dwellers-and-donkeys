@@ -12,10 +12,9 @@ import GameObjectManager from './systems/game-object-manager'
 import DrawingSystem from './systems/drawing-system'
 import VisibilityRegion from './systems/visibility-region'
 
-
 import Selection from './components/global/selection-system'
 import TransformSystem from './components/global/transform-system'
-import RestrictedVisibility from './components/global/restricted-visibility'
+import LinkedToMapSystem from './components/global/linked-to-map'
 
 export default class Gameboard {
     private engine: ECS.Engine
@@ -137,7 +136,7 @@ export default class Gameboard {
       this.engine.scene.addGlobalComponentAndRun(new LoaderSystem(this.loader))
       this.engine.scene.addGlobalComponentAndRun(new Selection())
       this.engine.scene.addGlobalComponentAndRun(new TransformSystem())
-      this.engine.scene.addGlobalComponentAndRun(new RestrictedVisibility())
+      this.engine.scene.addGlobalComponentAndRun(new LinkedToMapSystem())
 
       this.eventManager = new EventManager(this.engine.scene)
       this.dragAndDrop = new DragAndDrop(this.engine.scene)
