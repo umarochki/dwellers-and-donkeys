@@ -32,14 +32,19 @@ export default class SelectionSystem extends Component {
   onMessage(msg: Message) {
     if (msg.action === 'object/clicked' || msg.action === 'object/select') {
       let obj = msg.gameObject
-      
-      if (!obj.hasFlag(CONSTANTS.FLAGS.SELECTABLE))
-        return;
+            
+      if (this.selected) {
+        if (this.selected.id === obj.id) {
+          this.offSelect()
+          return;
+        }
 
-      if (this.selected) this.offSelect()
+        this.offSelect()
+      }
+
+      if (!obj.hasFlag(CONSTANTS.FLAGS.SELECTABLE)) return;
       
       this.selected = obj;
-
       this.onSelect()
     }
     else if (msg.action === 'clicked' || msg.action === 'object/unselect') {
@@ -60,6 +65,7 @@ export default class SelectionSystem extends Component {
       this._onResize()
     
     window.addEventListener('keydown', this._onKeyDown)
+    this.scene.sendMessage(new Message('object/selected', null, this.selected, { id: this.selected.name }))
   }
 
   offSelect() {
@@ -71,6 +77,7 @@ export default class SelectionSystem extends Component {
     this.selected.asContainer().removeChild(this.border)
     this.selected = undefined
     window.removeEventListener('keydown', this._onKeyDown, false)
+    this.scene.sendMessage(new Message('object/unselected', null))
   }
 
   _onResize() {

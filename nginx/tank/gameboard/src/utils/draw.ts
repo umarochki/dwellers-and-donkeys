@@ -9,10 +9,10 @@ function drawPolygon(graphics, points) {
 
 function drawPolygonWithHoles(graphics, outer, holes) {
   graphics.currentPath = null;
-  this.drawPolygon(graphics, outer);
+  drawPolygon(graphics, outer);
   graphics.beginHole();
   for (let i=0;i<holes.length;i++)
-      this.drawPolygon(graphics, holes[i]);
+      drawPolygon(graphics, holes[i]);
   graphics.endHole();
 }
 

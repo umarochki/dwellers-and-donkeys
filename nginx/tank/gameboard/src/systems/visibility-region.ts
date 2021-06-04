@@ -1,5 +1,7 @@
 import { Component, Container, Graphics, Message, Scene } from '../libs/pixi-ecs'
 import { drawPolygonWithHoles } from '../utils/draw'
+import * as CONSTANTS from '../constants'
+import { drawDashedPolygon } from '../utils/draw';
 
 export default class VisibilityRegion {
     scene: Scene
@@ -29,6 +31,8 @@ class VisibilityRegionComponent extends Component {
     segments: [number, number][]
     context: Container
     
+    selected: Container
+
     onAttach() {
         this.mode = 'none';
     
@@ -50,19 +54,50 @@ class VisibilityRegionComponent extends Component {
         // @ts-ignore
         this.context.onChildrenChange = this.contextToSegments;
 
-        this.subscribe('map/set', 'region/show', 'region/hide')
+        this.subscribe('object/selected', 'object/unselected', 'object/updated', 'region/updated', 'map/set/after')
     }
 
     onMessage(msg: Message) {
-        if (msg.action === 'map/set') {
-            this.redrawBorders(msg.data.width, msg.data.height)
-        }
-        else if (msg.action === 'region/show') {
-            this.getRegion(msg.data)
-        }
-        else if (msg.action === 'region/hide') {
+      switch (msg.action) {
+        case 'object/selected':
+          let obj = msg.gameObject
+          if (!obj.hasFlag(CONSTANTS.FLAGS.RESTRICTED_VISIBILITY)) return;
+
+          if (this.selected) {
+              this.hide()
+              this.selected = undefined
+          }
+
+          this.selected = obj;
+          this.getRegion([obj.x, obj.y])
+          this.sendMessage('object/region/set/after', { id: this.selected.name })
+          break
+
+        case 'object/unselected':
+          if (this.selected) {
             this.hide()
-        }
+            this.selected = undefined
+          }
+          break
+      
+        case 'object/updated':
+          if (this.selected && msg.gameObject.id === this.selected.id) {
+            this.getRegion([this.selected.x, this.selected.y])
+            this.sendMessage('object/region/set/after', { id: this.selected.name })
+          }
+          break
+      
+        case 'region/update':
+          if (this.selected) {
+            this.getRegion([this.selected.x, this.selected.y])
+            this.sendMessage('object/region/set/after', { id: this.selected.name })
+          }
+          break
+
+        case 'map/set/after':
+          this.redrawBorders(msg.data.width, msg.data.height)
+          break
+      }
     }
     
     redrawBorders(width, height) {

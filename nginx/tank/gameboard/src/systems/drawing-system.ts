@@ -169,7 +169,7 @@ class DrawingComponent extends Component {
       this.pencilDown(0)
       this.overlay.on('mousemove', this.onPencilMove);
       this.overlay.on('mouseup', this.onPencilUp);
-      this.sendMessage('draw/pencil/start')
+      this.sendMessage('draw/pencil/started')
     }
     
     onPencilMove(event) {
@@ -182,14 +182,14 @@ class DrawingComponent extends Component {
       ];
   
       this.pencilMove(0, [point])
-      this.sendMessage('draw/pencil/move', { xy: point })
+      this.sendMessage('draw/pencil/moved', { xy: point })
     }
     
     onPencilUp(event) {
       this.overlay.off('mousemove', this.onPencilMove);
       this.overlay.off('mouseup', this.onPencilUp);
       this.pencilUp(0)
-      this.sendMessage('draw/pencil/stop')
+      this.sendMessage('draw/pencil/stopped')
     }
     
     // ----------------------------------------
@@ -269,11 +269,11 @@ class DrawingComponent extends Component {
       event.stopPropagation();
   
       let polygon = new Graphics();
-      polygon.assignAttribute('points', this.points);
+      polygon.assignAttribute('points', this.points[0]);
       
       let arr = [];
       // @ts-ignore
-      for (let row of this.points) for (let e of row) arr.push(e);
+      for (let row of this.points[0]) for (let e of row) arr.push(e);
   
       if (this.context.getAttribute('is-drawer'))
         polygon.beginFill(0xff0000);
