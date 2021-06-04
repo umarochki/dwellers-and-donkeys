@@ -419,7 +419,7 @@ export default class GameObjectProxy {
 			}
 		});
 
-		this.scene._onObjectRemoved(this);
+		if (this.scene) this.scene._onObjectRemoved(this);
 
 		for (let child of this.pixiObj.children) {
 			let cmpObj = <GameObject><any>child;

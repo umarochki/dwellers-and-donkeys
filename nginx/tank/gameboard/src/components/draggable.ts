@@ -39,7 +39,7 @@ export default class Draggable extends Component {
     this.last = { x: e.data.global.x, y: e.data.global.y }
     this.timer = null
 
-    this.sendMessage('object/update-start', {
+    this.sendMessage('object/updated/before', {
       id: this.owner.name,
       xy: [this.start.x, this.start.y]
     })
@@ -57,7 +57,7 @@ export default class Draggable extends Component {
     this.scene.viewport.pause = false
     this.dragging = false
 
-    this.sendMessage('object/update-end', {
+    this.sendMessage('object/updated/after', {
       id: this.owner.name,
       xy: [this.owner.x, this.owner.y]
     })
@@ -74,7 +74,7 @@ export default class Draggable extends Component {
 
       this.last = { x, y }
 
-      this.sendMessage('object/update', {
+      this.sendMessage('object/updated', {
         id: this.owner.name,
         xy: [this.owner.x, this.owner.y]
       })

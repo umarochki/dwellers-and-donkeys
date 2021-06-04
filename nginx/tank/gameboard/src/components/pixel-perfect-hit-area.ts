@@ -8,6 +8,5 @@ export default class PixelPerfectHitArea extends Component {
     }
 
     onDestroy() {
-        console.log('5678')
     }
 }
