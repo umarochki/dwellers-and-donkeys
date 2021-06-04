@@ -20,6 +20,14 @@ export default class VisibilityRegion {
     clear() {
         this.component.clear()
     }
+
+    getRegion(options) {
+      this.getRegion(options.position)
+    }
+
+    hide() {
+      this.hide()
+    }
 }
 
 class VisibilityRegionComponent extends Component {
@@ -70,7 +78,6 @@ class VisibilityRegionComponent extends Component {
 
           this.selected = obj;
           this.getRegion([obj.x, obj.y])
-          this.sendMessage('object/region/set/after', { id: this.selected.name })
           break
 
         case 'object/unselected':
@@ -83,14 +90,12 @@ class VisibilityRegionComponent extends Component {
         case 'object/updated':
           if (this.selected && msg.gameObject.id === this.selected.id) {
             this.getRegion([this.selected.x, this.selected.y])
-            this.sendMessage('object/region/set/after', { id: this.selected.name })
           }
           break
       
         case 'region/update':
           if (this.selected) {
             this.getRegion([this.selected.x, this.selected.y])
-            this.sendMessage('object/region/set/after', { id: this.selected.name })
           }
           break
 
@@ -133,52 +138,52 @@ class VisibilityRegionComponent extends Component {
         segments = this._breakIntersections(segments);
         this.segments = segments;
 
-        if (this.selected) {
-          this.getRegion([this.selected.x, this.selected.y])
-          this.sendMessage('object/region/set/after', { id: this.selected.name })
-        }
+        if (this.selected) this.getRegion([this.selected.x, this.selected.y])
     }
     
     getRegion(position: [number, number]) {
-        if (this._inPolygon(position, this.border)) {
-            var visibility = this.compute(position, this.segments);
-            if (visibility.length === 0) return;
+      if (this._inPolygon(position, this.border)) {
+          var visibility = this.compute(position, this.segments);
+          if (visibility.length === 0) return;
 
-            this.region.clear();
-            this.region.beginFill(0x000000, 0.5);
-            drawPolygonWithHoles(this.region, this.border.reduce((acc, val) => acc.concat(val), []), [visibility])
-            this.region.endFill();
-        }
-        else {
-            return
-        }
+          this.region.clear();
+          this.region.beginFill(0x000000, 0.5);
+          drawPolygonWithHoles(this.region, this.border.reduce((acc, val) => acc.concat(val), []), [visibility])
+          this.region.endFill();
+          this.sendMessage('region/showed', { position: position })
+      }
+      else {
+          return
+      }
     }
     
     clear() {
-        this.region.clear();
-        this.context.removeChildren();
+      this.region.clear();
+      this.context.removeChildren();
+      this.sendMessage('region/cleared')
     }
     
     hide() {
-        this.region.clear();
+      this.region.clear();
+      this.sendMessage('region/hided')
     }
     
     
     set(mode) {
         
-        if (this.mode === mode) this.mode = 'none';
-        else this.mode = mode;
-    
-        switch (this.mode) {
-          case 'draw':
-            this.sendMessage('drawing', { mode: 'polygon', toTexture: false, context: this.context })
-            break;
-    
-          case 'none':      
-          default:
-            this.sendMessage('drawing', { mode: 'none', toTexture: false })
-            break;
-        }
+      if (this.mode === mode) this.mode = 'none';
+      else this.mode = mode;
+  
+      switch (this.mode) {
+        case 'draw':
+          this.sendMessage('drawing', { mode: 'polygon', toTexture: false, context: this.context })
+          break;
+  
+        case 'none':      
+        default:
+          this.sendMessage('drawing', { mode: 'none', toTexture: false })
+          break;
+      }
     }
     
     // ----------------------------------------
