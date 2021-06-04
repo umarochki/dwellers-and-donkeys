@@ -39,10 +39,10 @@ class GameObjectManagerComponent extends Component {
     layer: Container
 
     onAttach() {
-        this.layer = new Container();
+        this.layer = new Container('game-object-container');
         this.scene.viewport.addChild(this.layer)
     }
-    
+
     add(options: ObjectOptions, callback?: () => any) {
         if (this.scene.findObjectByName(String(options.id)))
             throw new Error(`Object with id ${options.id} already exists`)
@@ -59,6 +59,7 @@ class GameObjectManagerComponent extends Component {
                     wh: [0, 0],
                 } as ObjectOptions); 
                 this.layer.addChild(obj)
+                this.scene.sendMessage(new Message('object/added', undefined, obj))
                 typeof callback == "function" && callback(); 
             }
         }
@@ -72,16 +73,18 @@ class GameObjectManagerComponent extends Component {
         this.scene.sendMessage(new Message('object/unselect', undefined, undefined))
         obj.destroy();
         
-        this.sendMessage('object/delete', {
+        this.sendMessage('object/deleted', {
             id: options.id
           })
     }
 
-    update(options: { id: number, xy?: [number, number], wh?: [number, number] }) {
+    update(options: any) {
         let obj = this.scene.findObjectByName(String(options.id))
         if (!obj) throw new Error(`Cannot find an element with id: ${options.id}`)
         if (options.wh) this.scene.sendMessage(new Message('object/resize', undefined, obj, { width: options.wh[0], height: options.wh[1] }))
         if (options.xy) this.scene.sendMessage(new Message('object/position', undefined, obj, { x: options.xy[0], y: options.xy[1] }))
+        if (options.location) this.scene.sendMessage(new Message('object/location/set', undefined, obj, { location: options.location }))
+        else if (options.location === null) this.scene.sendMessage(new Message('object/location/unset', undefined, obj ))
     }
 
     refresh(options: { game_objects: { [key: number]: ObjectOptions }}, callback?: () => any) {
@@ -112,6 +115,7 @@ class GameObjectManagerComponent extends Component {
                     } as ObjectOptions); 
 
                     this.layer.addChild(obj)
+                    this.scene.sendMessage(new Message('object/added', undefined, obj))
                 }
                 
                 typeof callback == "function" && callback(); 
