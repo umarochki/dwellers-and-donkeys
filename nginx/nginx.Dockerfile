@@ -9,7 +9,7 @@ COPY tank/tsconfig.json .
 RUN yarn
 
 COPY tank/gameboard ./gameboard
-RUN cd gameboard && npm install && npm run build && cd /build
+RUN cd gameboard && npm install && npm run build && cd /app
 
 RUN yarn add file:gameboard
 

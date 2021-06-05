@@ -70,7 +70,7 @@ class EventManagerComponent extends Component {
             this.listeners[msg.action][i](Object.assign(msg.data, this.cache[msg.action][i]))
             for (let prop in this.cache[msg.action][i]) this.cache[msg.action][i][prop] = []
           }
-          else this.listeners[msg.action][i](msg.action)
+          else this.listeners[msg.action][i](msg.data)
           
         }, FPS)
       }
