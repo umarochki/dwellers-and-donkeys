@@ -56,7 +56,6 @@ class GameSessionViewSet(viewsets.ModelViewSet, IsAuthorisedMixin):
     def get_queryset(self):
         queryset = self.model_class.objects.none()
         queryset |= self.model_class.objects.filter(is_private=False)
-        queryset |= self.model_class.objects.filter(game_master=self.user.id)
         return queryset
 
     @is_authorized

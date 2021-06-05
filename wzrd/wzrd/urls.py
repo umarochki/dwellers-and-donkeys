@@ -1,4 +1,5 @@
-from django.conf.urls import url, include
+from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
+from django.conf.urls import url, include, re_path
 from django.contrib import admin
 from rest_framework import routers
 
@@ -29,5 +30,11 @@ urlpatterns = [
         url("auth/google/authorize", users_views.GoogleAuthenticationExtended.as_view(), name="authenticate"),
         url("auth/google_auth", users_views.UserViewSet.as_view({"get": "google_auth"}), name="google_auth"),
         url("heroes/active", games_views.HeroViewSet.as_view({"get": "active"}), name="active"),
+        re_path('^auth/reset-password/?$', PasswordResetView.as_view(), name='password_reset'),
+        re_path('^auth/reset-password/done/?$', PasswordResetDoneView.as_view(), name='password_reset_done'),
+        re_path('^auth/reset-password/confirm/(?P<uidb64>[0-9A-Za-z]+)-(?P<token>.+)$',
+                PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+        re_path('^auth/reset-password/complete/?$', PasswordResetCompleteView.as_view(),
+                name='password_reset_complete'),
     ])),
 ]

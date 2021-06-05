@@ -31,6 +31,8 @@ POST /api/v1/auth/signup [Регистрация]
 Можно еще передать: first_name, last_name, email.
 
 GET /api/v1/auth/me [Информация о текущем пользователе]
+
+GET /api/v1/auth/reset-password [Восстановление пароля]
 ```
 Что-то про игры:
 ```
