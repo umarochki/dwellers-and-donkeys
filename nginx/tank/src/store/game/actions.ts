@@ -43,10 +43,16 @@ export const connectGameWithRedirect = (code: string) => {
 
 export const connectGame = (code: string) => {
     return (dispatch: Dispatch) => {
-        dispatch(request(code))
+        gameService.getGame(code)
+            .then((game: Game) => {
+                dispatch(request(game))
+            })
+            .catch(() => {
+                dispatch(showErrorNotification('Failed to connect'))
+            })
     }
 
-    function request(code: string) { return { type: gameConstants.CONNECT_GAME_STARTED, payload: code } }
+    function request(game: Game) { return { type: gameConstants.CONNECT_GAME_STARTED, payload: game }}
 }
 
 export const connectGameSuccess = () => {

@@ -1,7 +1,7 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectCurrentGame } from '../../store/game/selectors'
-import { getUrlWithoutProtocol } from '../../helpers/authHeader'
+import { getUrlWithoutProtocol } from '../../helpers/url'
 import { connectGameError, connectGameSuccess, updateGameData } from '../../store/game/actions'
 import { AuthRoutes } from '../../routes'
 import { useLocation } from 'react-router-dom'
