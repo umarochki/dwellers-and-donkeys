@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from 'react'
 import { createStyles, makeStyles } from '@material-ui/core/styles'
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton } from '@material-ui/core'
-import { getUrl } from '../../helpers/authHeader'
+import { getUrl } from '../../helpers/url'
 import { useDispatch } from 'react-redux'
 import { showSuccessNotification } from '../../store/notifications/actions'
 import CloseIcon from '@material-ui/icons/Close'

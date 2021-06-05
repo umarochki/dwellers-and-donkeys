@@ -21,7 +21,7 @@ import { useDispatch } from 'react-redux'
 import { addHero } from '../../store/hero/actions'
 import { Hero } from '../../models/hero'
 import { heroes } from '../Switcher/icons'
-import { getUrl } from '../../helpers/authHeader'
+import { getUrl } from '../../helpers/url'
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
