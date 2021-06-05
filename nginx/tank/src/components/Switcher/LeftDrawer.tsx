@@ -15,7 +15,7 @@ import { useSelector } from 'react-redux'
 import { selectMaps } from '../../store/map/selectors'
 import { Game } from '../../models/game'
 import MapCard from '../Cards/MapCard'
-import { globalSymbols, heroes, markersList } from './icons'
+import { decorations, heroes, decorationsExtra, markers } from './icons'
 
 const drawerWidth = 300
 
@@ -110,7 +110,7 @@ interface Props {
     type: MenuType
     setType: (v: MenuType) => void
     selectedMaps: string[]
-    game?: Game
+    game: Game | null
 }
 
 interface MapMapType {
@@ -183,13 +183,13 @@ const LeftDrawer: React.FC<Props> = props => {
 
     const renderSidebar = (type: string) => {
         switch (type) {
-            case MenuType.markers:
+            case MenuType.decorationsExtra:
                 return (
                     <GridList cellHeight={70} cols={3} className={classes.gridList}>
-                        {markersList.map((marker: string) => (
-                            <Tooltip classes={classesTooltip} TransitionComponent={Zoom} title={marker} key={marker}>
+                        {decorationsExtra.map((decoration: string) => (
+                            <Tooltip classes={classesTooltip} TransitionComponent={Zoom} title={decoration} key={decoration}>
                                 <GridListTile cols={1} className={classes.tile}>
-                                    <ImageLoader src={`/markers/${marker}.png`} marker draggable/>
+                                    <ImageLoader src={`/decorations_extra/${decoration}.png`} data="decoration" draggable/>
                                 </GridListTile>
                             </Tooltip>
                         ))}
@@ -201,7 +201,7 @@ const LeftDrawer: React.FC<Props> = props => {
                         {heroes.map((hero: string) => (
                             <Tooltip classes={classesTooltip} TransitionComponent={Zoom} title={hero} key={hero}>
                                 <GridListTile cols={1} className={classes.tile}>
-                                    <ImageLoader src={`/heroes/${hero}.png`} draggable/>
+                                    <ImageLoader src={`/heroes/${hero}.png`} data="creature" draggable/>
                                 </GridListTile>
                             </Tooltip>
                         ))}
@@ -230,13 +230,26 @@ const LeftDrawer: React.FC<Props> = props => {
                         </GridListTile>
                     </GridList>
                 )
-            case MenuType.globalSymbols:
+            case MenuType.decorations:
                 return (
                     <GridList cellHeight={70} cols={3}>
-                        {globalSymbols.map((globalSymbol: string) => (
-                            <Tooltip classes={classesTooltip} TransitionComponent={Zoom} title={globalSymbol} key={globalSymbol}>
+                        {decorations.map((decoration: string) => (
+                            <Tooltip classes={classesTooltip} TransitionComponent={Zoom} title={decoration} key={decoration}>
                                 <GridListTile cols={1} className={classes.tile}>
-                                    <ImageLoader src={`/globalSymbols/${globalSymbol}.png`} marker draggable/>
+                                    <ImageLoader src={`/decorations/${decoration}.png`} data="decoration" draggable/>
+                                </GridListTile>
+                            </Tooltip>
+                        ))}
+                    </GridList>
+                )
+
+            case MenuType.markers:
+                return (
+                    <GridList cellHeight={70} cols={3}>
+                        {markers.map((marker: string) => (
+                            <Tooltip classes={classesTooltip} TransitionComponent={Zoom} title={marker} key={marker}>
+                                <GridListTile cols={1} className={classes.tile}>
+                                    <ImageLoader src={`/markers/${marker}.png`} data="marker" draggable/>
                                 </GridListTile>
                             </Tooltip>
                         ))}

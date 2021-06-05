@@ -13,6 +13,7 @@ import ExploreIcon from '@material-ui/icons/Explore'
 import FilterHdrIcon from '@material-ui/icons/FilterHdr'
 import { primary400 } from '../../styles/colors'
 import InfoIcon from '@material-ui/icons/Info'
+import RoomIcon from '@material-ui/icons/Room'
 
 const switcherWidth = 60
 
@@ -51,9 +52,10 @@ const useStyles = makeStyles(() => ({
 
 export enum MenuType {
     global = 'global',
-    globalSymbols = 'global_symbols',
+    decorations = 'decorations',
     heroes = 'heroes',
     locations = 'locations',
+    decorationsExtra = 'decorationsExtra',
     markers = 'markers',
     info = 'info',
     unselect = 'unselect'
@@ -63,14 +65,16 @@ const mapTypeToIcon = (type: MenuType) => {
     switch (type) {
         case MenuType.global:
             return <ExploreIcon fontSize="large"/>
-        case MenuType.globalSymbols:
+        case MenuType.decorations:
             return <FilterHdrIcon fontSize="large"/>
         case MenuType.heroes:
             return <FaceIcon fontSize="large"/>
         case MenuType.locations:
             return <LayersIcon fontSize="large"/>
-        case MenuType.markers:
+        case MenuType.decorationsExtra:
             return <FlagIcon fontSize="large"/>
+        case MenuType.markers:
+            return <RoomIcon fontSize="large"/>
         case MenuType.info:
             return <InfoIcon fontSize="large"/>
         case MenuType.unselect:
@@ -83,12 +87,14 @@ const mapTypeToTooltip = (type: MenuType): string => {
     switch (type) {
         case MenuType.global:
             return 'Global map'
-        case MenuType.globalSymbols:
-            return 'Markings on the map'
+        case MenuType.decorations:
+            return 'Global map decorations'
         case MenuType.heroes:
             return 'Characters'
         case MenuType.locations:
             return 'Maps'
+        case MenuType.decorationsExtra:
+            return 'Special decorations'
         case MenuType.markers:
             return 'Markers'
         case MenuType.info:
@@ -119,7 +125,7 @@ const Switcher: React.FC<Props> = props => {
         if (global === null) return []
 
         return global
-            ? [MenuType.locations, MenuType.globalSymbols, MenuType.markers,  MenuType.info]
+            ? [MenuType.locations, MenuType.markers, MenuType.decorations, MenuType.decorationsExtra,  MenuType.info]
             : [MenuType.global, MenuType.locations, MenuType.heroes, MenuType.info]
     }, [global])
 
