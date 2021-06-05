@@ -15,6 +15,7 @@ class Menu extends StatefulWidget {
 class _MenuState extends State<Menu> {
   String _description;
   String _title;
+  bool _isPrivate = false;
   String _inviteCode;
   final _color = const Color.fromRGBO(120, 136, 164, 1);
   final _bgc = const Color.fromRGBO(233, 238, 251, 1);
@@ -39,6 +40,8 @@ class _MenuState extends State<Menu> {
   List<Game> _gmGames = [];
   List<Game> _playerGames = [];
   List<Game> _publicGames = [];
+
+  String _publicFilter = "";
 
   void hideKeyboard() {
     SystemChannels.textInput.invokeMethod('TextInput.hide');
@@ -165,6 +168,25 @@ class _MenuState extends State<Menu> {
                                 width: 300.0,
                                 padding: new EdgeInsets.only(top: 10.0),
                               ),
+                              new Container(
+                                child: new CheckboxListTile(
+                                  value: _isPrivate,
+                                  onChanged: (val) {
+                                    setState(() {
+                                      _isPrivate = val;
+                                    });
+                                  },
+                                  title: new Text(
+                                    'Private Game',
+                                    style: _sizeTextPlaceholder,
+                                  ),
+                                  controlAffinity:
+                                      ListTileControlAffinity.leading,
+                                  activeColor: _color,
+                                ),
+                                width: 300.0,
+                                padding: new EdgeInsets.only(top: 10.0),
+                              ),
                               new Padding(
                                 padding: new EdgeInsets.only(top: 25.0),
                                 child: new MaterialButton(
@@ -174,7 +196,7 @@ class _MenuState extends State<Menu> {
                                       form.save();
                                       hideKeyboard();
                                       String inviteCode = await createGame(
-                                          _title, _description);
+                                          _title, _description, _isPrivate);
                                       debugPrint('$headers');
                                       debugPrint('rsp: $inviteCode');
                                       if ("OK" == "OK") {
@@ -211,23 +233,35 @@ class _MenuState extends State<Menu> {
                     color: Color.fromRGBO(33, 44, 61, 1),
                     child: ListView.builder(
                         padding: EdgeInsets.all(20),
-                        itemCount: _gmGames.length + _playerGames.length + 2,
+                        itemCount: _gmGames.length + _playerGames.length + 3,
                         itemBuilder: (BuildContext context, int index) {
                           if (index == 0) {
+                            return Container(); //поиск в истории пока нет
+                            return TextField(
+                              decoration: new InputDecoration(
+                                  labelText: "Search...",
+                                  labelStyle: _sizeTextPlaceholder),
+                              obscureText: true,
+                              style: _sizeTextInput,
+                              onChanged: (text) {
+                                debugPrint("Hello there");
+                              },
+                            );
+                          } else if (index == 1) {
                             return Text('Created games (as Game Master):',
                                 style: _lowTitleTextStyle);
-                          } else if (index == _gmGames.length + 1) {
+                          } else if (index == _gmGames.length + 2) {
                             return Text('Game history (as Player):',
                                 style: _lowTitleTextStyle);
-                          } else if (index < _gmGames.length + 1) {
+                          } else if (index < _gmGames.length + 2) {
                             return ListTile(
                               leading: CircleAvatar(
                                 backgroundColor: Colors.blueGrey,
                               ),
-                              title: Text('${_gmGames[index - 1].name}',
+                              title: Text('${_gmGames[index - 2].name}',
                                   style: _midWhiteTextStyle),
                               subtitle: Text(
-                                  '${_gmGames[index - 1].description}',
+                                  '${_gmGames[index - 2].description}',
                                   style: _lowSizeTextWhite),
                               trailing: MaterialButton(
                                 onPressed: () async {
@@ -237,12 +271,12 @@ class _MenuState extends State<Menu> {
                                           builder: (context) => GameBoard(
                                                   channel: IOWebSocketChannel
                                                       .connect(
-                                                          'ws://207.154.226.69/ws/games/${_gmGames[index - 1].invitationCode}',
+                                                          'ws://207.154.226.69/ws/games/${_gmGames[index - 2].invitationCode}',
                                                           headers: {
                                                     'Cookie': headers['cookie']
                                                   })),
                                           settings: RouteSettings(
-                                              arguments: _gmGames[index - 1]
+                                              arguments: _gmGames[index - 2]
                                                   .invitationCode)));
                                 },
                                 color: Theme.of(context).accentColor,
@@ -259,10 +293,10 @@ class _MenuState extends State<Menu> {
                                   backgroundColor: Colors.blueGrey,
                                 ),
                                 title: Text(
-                                    '${_playerGames[index - 2 - _gmGames.length].name}',
+                                    '${_playerGames[index - 3 - _gmGames.length].name}',
                                     style: _midWhiteTextStyle),
                                 subtitle: Text(
-                                    '${_playerGames[index - 2 - _gmGames.length].description}',
+                                    '${_playerGames[index - 3 - _gmGames.length].description}',
                                     style: _lowSizeTextWhite),
                                 trailing: MaterialButton(
                                   onPressed: () {
@@ -272,14 +306,14 @@ class _MenuState extends State<Menu> {
                                             builder: (context) => GameBoard(
                                                     channel: IOWebSocketChannel
                                                         .connect(
-                                                            'ws://207.154.226.69/ws/games/${_playerGames[index - 2 - _gmGames.length].invitationCode}',
+                                                            'ws://207.154.226.69/ws/games/${_playerGames[index - 3 - _gmGames.length].invitationCode}',
                                                             headers: {
                                                       'Cookie':
                                                           headers['cookie']
                                                     })),
                                             settings: RouteSettings(
                                                 arguments: _playerGames[index -
-                                                        2 -
+                                                        3 -
                                                         _gmGames.length]
                                                     .invitationCode)));
                                   },
@@ -296,44 +330,68 @@ class _MenuState extends State<Menu> {
                     color: Color.fromRGBO(33, 44, 61, 1),
                     child: ListView.builder(
                         padding: EdgeInsets.all(20),
-                        itemCount: _publicGames.length + 1,
+                        itemCount: _publicGames.length + 2,
                         itemBuilder: (BuildContext context, int index) {
                           if (index == 0) {
+                            return Container(
+                                child: TextField(
+                              decoration: InputDecoration(
+                                  border: InputBorder.none,
+                                  hintText: "Search...",
+                                  hintStyle: _sizeTextInput),
+                              style: _sizeTextInput,
+                              onChanged: (text) {
+                                debugPrint("Hello there");
+                                setState(() {
+                                  _publicFilter = text;
+                                });
+                              },
+                            ));
+                          } else if (index == 1) {
                             return Text('Public games:',
                                 style: _lowTitleTextStyle);
                           }
-                          return ListTile(
-                            leading: CircleAvatar(
-                              backgroundColor: Colors.blueGrey,
-                            ),
-                            title: Text('${_publicGames[index - 1].name}',
-                                style: _midWhiteTextStyle),
-                            subtitle: Text(
-                                '${_publicGames[index - 1].description}',
-                                style: _lowSizeTextWhite),
-                            trailing: MaterialButton(
-                              onPressed: () async {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => GameBoard(
-                                                channel: IOWebSocketChannel.connect(
-                                                    'ws://207.154.226.69/ws/games/${_publicGames[index - 1].invitationCode}',
-                                                    headers: {
-                                                  'Cookie': headers['cookie']
-                                                })),
-                                        settings: RouteSettings(
-                                            arguments: _gmGames[index - 1]
-                                                .invitationCode)));
-                              },
-                              color: Theme.of(context).accentColor,
-                              height: 30.0,
-                              minWidth: 40.0,
-                              child: new Text(
-                                "JOIN",
+                          if (_publicGames[index - 2]
+                                  .description
+                                  .contains(_publicFilter) ||
+                              _publicGames[index - 2]
+                                  .name
+                                  .contains(_publicFilter))
+                            return ListTile(
+                              leading: CircleAvatar(
+                                backgroundColor: Colors.blueGrey,
                               ),
-                            ),
-                          );
+                              title: Text('${_publicGames[index - 2].name}',
+                                  style: _midWhiteTextStyle),
+                              subtitle: Text(
+                                  '${_publicGames[index - 2].description}',
+                                  style: _lowSizeTextWhite),
+                              trailing: MaterialButton(
+                                onPressed: () async {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => GameBoard(
+                                                  channel: IOWebSocketChannel
+                                                      .connect(
+                                                          'ws://207.154.226.69/ws/games/${_publicGames[index - 2].invitationCode}',
+                                                          headers: {
+                                                    'Cookie': headers['cookie']
+                                                  })),
+                                          settings: RouteSettings(
+                                              arguments: _gmGames[index - 2]
+                                                  .invitationCode)));
+                                },
+                                color: Theme.of(context).accentColor,
+                                height: 30.0,
+                                minWidth: 40.0,
+                                child: new Text(
+                                  "JOIN",
+                                ),
+                              ),
+                            );
+                          else
+                            return Container();
                         }))
               ],
             ),

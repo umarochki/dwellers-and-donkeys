@@ -90,13 +90,18 @@ Future<String> quickstart() async {
   }
 }
 
-Future<String> createGame(String name, String description) async {
+Future<String> createGame(
+    String name, String description, bool isPrivate) async {
   final response = await http.post(
     Config.url + '/games',
     headers: headers,
-    body:
-        jsonEncode(<String, String>{'name': name, 'description': description}),
+    body: jsonEncode(<String, dynamic>{
+      'name': name,
+      'description': description,
+      'is_private': isPrivate
+    }),
   );
+
   updateCookie(response);
   if (response.statusCode == 201) {
     debugPrint(response.headers['set-cookie']);

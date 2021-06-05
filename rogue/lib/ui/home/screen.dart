@@ -7,8 +7,12 @@ import '../../src/controllers/canvas.dart';
 class GameScreen extends StatefulWidget {
   final Function sendMove;
   final Function sendDelete;
+  final Function isGm;
   const GameScreen(
-      {Key key, @required this.sendMove, @required this.sendDelete})
+      {Key key,
+      @required this.sendMove,
+      @required this.sendDelete,
+      @required this.isGm})
       : super(key: key);
 
   @override
@@ -20,7 +24,7 @@ class GameScreenState extends State<GameScreen> {
 
   @override
   void initState() {
-    _controller = CanvasController(widget.sendMove);
+    _controller = CanvasController(widget.sendMove, widget.isGm);
     _controller.init();
     super.initState();
   }
@@ -125,18 +129,22 @@ class GameScreenState extends State<GameScreen> {
           }
           final instance = snapshot.data;
           return Scaffold(
-            floatingActionButton: FloatingActionButton(
-                backgroundColor: Colors.red,
-                child: Icon(Icons.delete),
-                onPressed: () {
-                  if (_controller.selectedObjectsIndices.length > 0) {
-                    widget.sendDelete(_controller
-                        .objects[_controller.selectedObjectsIndices[0]].id);
-                    _controller
-                        .removeObject(_controller.selectedObjectsIndices[0]);
-                    _controller.unselectAll();
-                  }
-                }),
+            floatingActionButton:
+                widget.isGm() //TODO: правки по удалению могут затронуть это
+                    ? FloatingActionButton(
+                        backgroundColor: Colors.red,
+                        child: Icon(Icons.delete),
+                        onPressed: () {
+                          if (_controller.selectedObjectsIndices.length > 0) {
+                            widget.sendDelete(_controller
+                                .objects[_controller.selectedObjectsIndices[0]]
+                                .id);
+                            _controller.removeObject(
+                                _controller.selectedObjectsIndices[0]);
+                            _controller.unselectAll();
+                          }
+                        })
+                    : null,
             backgroundColor: Color.fromRGBO(245, 245, 220, 1),
             // appBar: AppBar(
             //   backgroundColor: Color.fromRGBO(33, 44, 61, 1),

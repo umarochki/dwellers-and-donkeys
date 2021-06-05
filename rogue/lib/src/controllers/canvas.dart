@@ -11,9 +11,11 @@ import '../classes/rect_points.dart';
 /// Control the canvas and the objects on it
 class CanvasController {
   Function sendMove;
+  Function isGm;
 
-  CanvasController(Function sendMove) {
+  CanvasController(Function sendMove, Function isGm) {
     this.sendMove = sendMove;
+    this.isGm = isGm;
   }
 
   /// Controller for the stream output
@@ -173,14 +175,18 @@ class CanvasController {
         return;
       }
       for (final idx in _selectedObjects) {
-        final widget = _objects[idx];
-        final delta = (b - a) / scale;
-        final _newOffset = widget.offset + delta;
-        _objects[idx] = widget.copyWith(dx: _newOffset.dx, dy: _newOffset.dy);
-        sendMove(_objects[idx].id, [
-          _objects[idx].dx + _objects[idx].width / 2,
-          _objects[idx].dy + _objects[idx].height / 2
-        ]);
+        // debugPrint('$isGm()');
+        if (isGm()) {
+          // TODO: или если это твой герой
+          final widget = _objects[idx];
+          final delta = (b - a) / scale;
+          final _newOffset = widget.offset + delta;
+          _objects[idx] = widget.copyWith(dx: _newOffset.dx, dy: _newOffset.dy);
+          sendMove(_objects[idx].id, [
+            _objects[idx].dx + _objects[idx].width / 2,
+            _objects[idx].dy + _objects[idx].height / 2
+          ]);
+        }
       }
     } else if (touchCount == 2) {
       // Scale and Rotate Update
