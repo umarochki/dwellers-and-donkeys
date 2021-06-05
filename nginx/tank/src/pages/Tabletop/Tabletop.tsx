@@ -40,6 +40,8 @@ interface ParamTypes {
     id: string
 }
 
+const locationChangeCallbackDefault = () => {}
+
 const Tabletop = () => {
     const { id } = useParams<ParamTypes>()
 
@@ -59,8 +61,11 @@ const Tabletop = () => {
     const [users, setUsers] = useState<ConnectedUser[]>([])
     const [isGlobal, setIsGlobal] = useState<boolean | null>(null)
     const [isSwiping, setSwiping] = useState(false)
+
     const [open, setOpen] = useState(false)
     const [type, setType] = useState<MenuType>(MenuType.unselect)
+    const [locationChangeCallback, setLocationChangeCallback] = useState<typeof locationChangeCallbackDefault>(locationChangeCallbackDefault)
+
     const [showControls, setShowControls] = useState(true)
     const [tutorialOpen, setTutorialOpen] = useState(false)
     const [chooseHeroDialogOpen, setChooseHeroDialogOpen] = useState(false)
@@ -143,7 +148,23 @@ const Tabletop = () => {
         }
     }, [dispatch, id])
 
+    const handleLocationChange = useCallback((callback: (location: string) => void) => {
+        if (type !== MenuType.markerLocation) {
+            setType(MenuType.markerLocation)
+            setLocationChangeCallback(callback)
+        }
+        setOpen(true)
+    }, [type])
+
     useEffect(() => {
+        if (!myGameBoard && connectGameState === AsyncState.success && ws.socket && !currentGameData) {
+            ws.sendMessage('refresh')
+        }
+    }, [divRef, ws, connectGameState, myGameBoard, currentGameData])
+
+
+    useEffect(() => {
+
         if (!myGameBoard && connectGameState === AsyncState.success && divRef && divRef.current && ws.socket && currentGameData) {
 
             const gameBoard = new Gameboard({
@@ -179,19 +200,25 @@ const Tabletop = () => {
                     setIdToDelete(data.id)
                 })
 
+                gameBoard.eventManager.add('object/selected', (data: any) => {
+                    handleLocationChange((location: string) => {
+                        gameBoard.gameObjectManager.update({ id: data.id, location })
+                        ws.sendMessage('update', { id: data.id, location })
+                    })
+                })
+                gameBoard.eventManager.add('object/unselected', () => closeSidebar())
+
                 boardRef.current = gameBoard
-                ws.sendMessage('refresh')
             })
 
             setMyGameBoard(gameBoard)
         }
-    }, [divRef, ws, connectGameState, myGameBoard, currentGameData])
+    }, [divRef, ws, connectGameState, myGameBoard, currentGameData, closeSidebar, handleLocationChange])
 
     useEffect(() => {
-        if (currentGameData === currentGameDataRef.current) return
-        currentGameDataRef.current = currentGameData
-
         if (currentGameData && myGameBoard !== null && boardRef.current && connectGameState === AsyncState.success) {
+            if (currentGameData === currentGameDataRef.current) return
+            currentGameDataRef.current = currentGameData
 
             switch (currentGameData.type) {
                 case 'update_and_start':
@@ -227,7 +254,7 @@ const Tabletop = () => {
 
                     currentGameData.meta.map !== 'Global'
                         ? handleUpdateMap(currentGameData.meta.map, currentGameData)
-                        : myGameBoard.map.set({ sprite: '../globalSymbols/WorldMap.png' }, () =>
+                        : myGameBoard.map.set({ sprite: '../decorations/WorldMap.png' }, () =>
                             myGameBoard.gameObjectManager.refresh({
                                 ...currentGameData.meta
                             }))
@@ -259,7 +286,7 @@ const Tabletop = () => {
                     break
             }
         }
-    }, [myGameBoard, currentGameData, connectGameState, closeSidebar, handleUpdateMap])
+    }, [myGameBoard, currentGameData, connectGameState, closeSidebar, handleUpdateMap, boardRef.current])
 
     useEffect(() => {
         window.addEventListener('resize', detect)
@@ -302,6 +329,7 @@ const Tabletop = () => {
                     global={isGlobal}
                     onOpen={handleOpenDrawer}
                     onMapChange={handleMapChange}
+                    onLocationChange={locationChangeCallback}
                     onOpenGlobalCard={handleOpenGlobalCard}
                     open={open}
                     setOpen={setOpen}

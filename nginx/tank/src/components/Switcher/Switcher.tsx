@@ -55,6 +55,7 @@ export enum MenuType {
     decorations = 'decorations',
     heroes = 'heroes',
     locations = 'locations',
+    markerLocation = 'markerLocation',
     decorationsExtra = 'decorationsExtra',
     markers = 'markers',
     info = 'info',
@@ -92,6 +93,7 @@ const mapTypeToTooltip = (type: MenuType): string => {
         case MenuType.heroes:
             return 'Characters'
         case MenuType.locations:
+        case MenuType.markerLocation:
             return 'Maps'
         case MenuType.decorationsExtra:
             return 'Special decorations'

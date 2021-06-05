@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import Drawer from '@material-ui/core/Drawer'
-import { GridList, GridListTile, Theme, Tooltip } from '@material-ui/core'
+import { Button, GridList, GridListTile, Theme, Tooltip } from '@material-ui/core'
 import clsx from 'clsx'
 import Switcher, { MenuType } from './Switcher'
 // @ts-ignore
@@ -15,7 +15,7 @@ import { useSelector } from 'react-redux'
 import { selectMaps } from '../../store/map/selectors'
 import { Game } from '../../models/game'
 import MapCard from '../Cards/MapCard'
-import { decorations, heroes, decorationsExtra, markers } from './icons'
+import { decorations, decorationsExtra, heroes, markers } from './icons'
 
 const drawerWidth = 300
 
@@ -111,6 +111,7 @@ interface Props {
     setType: (v: MenuType) => void
     selectedMaps: string[]
     game: Game | null
+    onLocationChange: (location: string) => void
 }
 
 interface MapMapType {
@@ -121,7 +122,18 @@ interface MapMapType {
 }
 
 const LeftDrawer: React.FC<Props> = props => {
-    const { onOpen, onMapChange, onOpenGlobalCard, global, open, setOpen, type, setType, selectedMaps, game } = props
+    const {
+        onOpen,
+        onMapChange,
+        onOpenGlobalCard,
+        global,
+        open, setOpen,
+        type, setType,
+        selectedMaps,
+        game,
+        onLocationChange
+    } = props
+
     const classes = useStyles()
     const classesTooltip = useTooltipStyles()
     const mapsList = useSelector(selectMaps)
@@ -172,7 +184,7 @@ const LeftDrawer: React.FC<Props> = props => {
     }, [type, onOpenGlobalCard, setOpen, setType])
 
     const handleMapClick = (map: string) => () => {
-        onMapChange(map)
+        type === MenuType.locations ? onMapChange(map) : onLocationChange(map)
     }
 
     React.useEffect(() => {
@@ -208,8 +220,12 @@ const LeftDrawer: React.FC<Props> = props => {
                     </GridList>
                 )
             case MenuType.locations:
+            case MenuType.markerLocation:
                 return (
                     <GridList cellHeight={100} cols={1}>
+                        {type === MenuType.markerLocation && (
+                            <Button>Remove map</Button>
+                        )}
                         {selectedMaps.map((map: string) => (
                             mapMap[map] && <Tooltip classes={classesTooltip} TransitionComponent={Zoom} title={mapMap[map].name} key={map}>
                                 <GridListTile cols={1} className={classes.tile} onClick={handleMapClick(map)}>
@@ -223,11 +239,11 @@ const LeftDrawer: React.FC<Props> = props => {
                                 </GridListTile>
                             </Tooltip>
                         ))}
-                        <GridListTile cols={1} className={classes.tile} onClick={() => {
+                        {type === MenuType.locations && (<GridListTile cols={1} className={classes.tile} onClick={() => {
                             setOpenAddMap(true)
                         }}>
                             <AddCard />
-                        </GridListTile>
+                        </GridListTile>)}
                     </GridList>
                 )
             case MenuType.decorations:
