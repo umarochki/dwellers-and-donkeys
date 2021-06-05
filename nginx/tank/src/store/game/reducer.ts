@@ -82,7 +82,7 @@ const gameReducer: Reducer<GameState> = (state = INITIAL_STATE, action) => {
         case gameConstants.CONNECT_GAME_STARTED:
             return {
                 ...state,
-                currentGame: state.allGames.find(g => g.invitation_code === action.payload),
+                currentGame: action.payload,
                 connectGameState: AsyncState.inProcess
             }
         case gameConstants.CONNECT_GAME_FINISHED:
