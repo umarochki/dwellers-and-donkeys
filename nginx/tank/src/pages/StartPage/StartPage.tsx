@@ -111,7 +111,7 @@ const StartPage = () => {
                 <StartPageHeader className={classes.content} openWorldDialog={openWorldDialog}/>
                 <CreatedGameWorlds title="Created games (as Game Master):" games={gameHistoryGM} openWorldDialog={openWorldDialog} showAddCard/>
                 <CreatedGameWorlds title="Game history (as Player):" games={gameHistory} openWorldDialog={openWorldDialog}/>
-                <CreatedGameWorlds title="Public games:" games={gamesPublic} openWorldDialog={openWorldDialog}/>
+                <CreatedGameWorlds title="Public games:" games={gamesPublic} openWorldDialog={openWorldDialog} removable={false}/>
                 <ImageLoader src={seaDark} className={classes.seaDark}/>
                 {/*<CreatedCharacters />*/}
             </main>

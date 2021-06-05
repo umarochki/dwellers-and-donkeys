@@ -18,15 +18,22 @@ interface Props {
     title: string
     games: Game[]
     showAddCard?: boolean
+    removable?: boolean
 }
 
 const CreatedGameWorlds: React.FC<Props> = props => {
-    const { openWorldDialog, title, games, showAddCard } = props
+    const { openWorldDialog, title, games, showAddCard, removable = true } = props
     const classes = useStyles()
 
     return (
         <Container className={classes.cardGrid} maxWidth="md">
-            <CardList headerText={title} cards={games} onAddClick={openWorldDialog} showAddCard={showAddCard}/>
+            <CardList
+                headerText={title}
+                cards={games}
+                onAddClick={openWorldDialog}
+                showAddCard={showAddCard}
+                removable={removable}
+            />
         </Container>
     )
 }
