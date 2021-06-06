@@ -42,10 +42,18 @@ class _GameBoardState extends State<GameBoard>
 
   List<dynamic> _chat = [];
   List<dynamic> _activeUsers = [];
+
   Map<String, dynamic> _gameObjects = {};
+  Map<String, dynamic> gameObjects() => _gameObjects;
+
   List<dynamic> _maps = []; // list string
+  List<dynamic> mapsOfSession() => _maps;
+
   String _currentMap = "Global";
+  String currentMap() => _currentMap;
+
   Map<String, dynamic> _hero = {};
+
   bool _isGm = false;
   bool isGm() => _isGm;
 
@@ -54,22 +62,25 @@ class _GameBoardState extends State<GameBoard>
   WebSocketChannel _channel;
 
   String _dir;
+  String dir() => _dir;
+
   dynamic _initHeightDashboard;
 
   TabController _tabController;
 
   Map<String, dynamic> maps = {}; // все карты
+  Map<String, dynamic> mapsInfo() => maps;
 
   @override
   void initState() {
     super.initState();
     _channel = widget.channel;
     _tabController = new TabController(vsync: this, length: 3);
-    prepareMaps();
     prepareTokens();
     prepareMarkers();
     listen();
     _tabController.animateTo(1);
+    // prepareMaps();
     refresh();
   }
 
@@ -111,6 +122,9 @@ class _GameBoardState extends State<GameBoard>
     maps['Global']['name'] = 'global';
     maps['Global']['img'] = Image.asset('assets/WorldMap.png');
     maps['Global']['wh'] = [1920, 1080];
+    setState(() {
+      maps = maps;
+    });
   }
 
   @override
@@ -143,7 +157,7 @@ class _GameBoardState extends State<GameBoard>
         debugPrint('message $message');
         Map<String, dynamic> json = jsonDecode(message);
 
-        // debugPrint('q: $json');
+        // debugPrint('q: ${json['meta']});
         if (json['type'] == 'refresh') {
           handleRefresh(json);
         }
@@ -213,15 +227,15 @@ class _GameBoardState extends State<GameBoard>
     _channel.sink.add('{"type":"map", "meta": "$message"}');
   }
 
-  void sendAdd(String sprite) {
-    debugPrint(
-        '{"type":"add", "meta": { "type": "none", "sprite" : "$sprite", "xy": [100.0, 100.0]}}');
+  void sendAdd(String sprite, String type) {
+    // debugPrint(
+    //     '{"type":"add", "meta": { "type": "none", "sprite" : "$sprite", "xy": [100.0, 100.0]}}');
     if (_currentMap == "Global")
       _channel.sink.add(
-          '{"type":"add", "meta": { "type": "marker", "sprite" : "$sprite", "xy": [100.0, 100.0]}}');
+          '{"type":"add", "meta": { "type": "marker", "location" : "" , "sprite" : "$sprite", "xy": [100.0, 100.0]}}');
     else
       _channel.sink.add(
-          '{"type":"add", "meta": { "type": "none", "sprite" : "$sprite", "xy": [100.0, 100.0]}}');
+          '{"type":"add", "meta": { "type": "$type", "sprite" : "$sprite", "xy": [100.0, 100.0]}}');
   }
 
   void sendWorldMap() {
@@ -237,6 +251,18 @@ class _GameBoardState extends State<GameBoard>
           .add('{"type":"update", "meta": { "id" : $id , "xy" : $xy}}');
   }
 
+  void sendLocation(dynamic id, String location) {
+    debugPrint(
+        '{"type":"update", "meta": { "id" : "$id" , "location" : "$location"}}');
+    if (id is String)
+      _channel.sink.add(
+          '{"type":"update", "meta": { "id" : "$id" , "location" : "$location"}}');
+    else
+      _channel.sink.add(
+          '{"type":"update", "meta": { "id" : $id , "location" : "$location"}}');
+    _gameObjects[id]['location'] = location;
+  }
+
   void sendDelete(dynamic id) {
     _channel.sink.add('{"type":"delete", "meta": { "id" : "$id"}}');
   }
@@ -247,6 +273,7 @@ class _GameBoardState extends State<GameBoard>
   }
 
   void handleRefresh(Map<String, dynamic> json) {
+    prepareMaps();
     if (this.mounted)
       setState(() {
         _chat = json['meta']['chat'];
@@ -353,6 +380,10 @@ class _GameBoardState extends State<GameBoard>
               .jumpTo(_chatScrollController.position.maxScrollExtent)
       },
     );
+  }
+
+  dynamic getSelectedId() {
+    return _keyGameScreen.currentState.selectedId();
   }
 
   String getSumStr(Map<String, dynamic> dice) {
@@ -599,7 +630,17 @@ class _GameBoardState extends State<GameBoard>
                                             key: _keyGameScreen,
                                             sendMove: sendMove,
                                             sendDelete: sendDelete,
-                                            isGm: isGm),
+                                            sendMap: sendMap,
+                                            isGm: isGm,
+                                            dir: dir,
+                                            mapsOfSession: mapsOfSession,
+                                            sendLocation: sendLocation,
+                                            mapsInfo: mapsInfo,
+                                            gameObjects: gameObjects,
+                                            currentMap: currentMap,
+                                            getLocalImageFile:
+                                                _getLocalImageFile,
+                                            selectedId: getSelectedId),
                                         color: Colors.greenAccent)),
                                 !_isGm
                                     ? Live(child: Container()) // герои
@@ -642,10 +683,11 @@ class _GameBoardState extends State<GameBoard>
                                                             debugPrint(
                                                                 'here!!!');
 
-                                                            sendAdd(Config
-                                                                    .url_markers +
-                                                                Config.listOfMarkers[
-                                                                    index]);
+                                                            sendAdd(
+                                                                Config.url_markers +
+                                                                    Config.listOfMarkers[
+                                                                        index],
+                                                                "marker");
                                                           });
                                                     }),
                                               )
@@ -687,10 +729,11 @@ class _GameBoardState extends State<GameBoard>
                                                             debugPrint(
                                                                 'here!!!');
 
-                                                            sendAdd(Config
-                                                                    .url_heroes +
-                                                                Config.listOfHeroesTokens[
-                                                                    index]);
+                                                            sendAdd(
+                                                                Config.url_heroes +
+                                                                    Config.listOfHeroesTokens[
+                                                                        index],
+                                                                "creature");
                                                           });
                                                     }),
                                               ))
