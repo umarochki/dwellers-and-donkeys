@@ -196,14 +196,14 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
                 logging.warning(f"[WS {self.session_name} UPDATE] Object [{meta['id']}] not found!")
                 return await self.start_sending("send_me", json_data)
 
-            changes = _.pick(meta, *self.UPDATE_FIELDS)
-            if not self.validate_fields(changes):
+            # changes = _.pick(meta, *self.UPDATE_FIELDS)
+            if not self.validate_fields(meta):
                 json_data["type"] = "error"
                 json_data["meta"] = "Field validation failed!"
                 logging.warning(f"[WS {self.session_name} UPDATE] Field validation failed!")
                 return await self.start_sending("send_me", json_data)
 
-            obj.update(changes)
+            obj.update(meta)
 
             if action_type == "update_and_save":
                 json_data["type"] = "update"
