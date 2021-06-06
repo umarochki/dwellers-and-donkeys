@@ -69,7 +69,7 @@ const WebSocketProvider: React.FC = ({ children }) => {
 
                 console.log('event.code', event.code)
                 if (event.code === 1006) {
-                    dispatch(showErrorNotification('Игра не найдена'))
+                    dispatch(showErrorNotification('Game not found'))
                 }
 
                 if (event.wasClean) {
