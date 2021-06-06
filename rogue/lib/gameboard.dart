@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:rogue/live.dart';
 import 'package:http/http.dart' as http;
 import 'package:rogue/newMap.dart';
+import 'package:rogue/createHero.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/io.dart';
 import 'dart:convert';
@@ -41,6 +42,7 @@ class _GameBoardState extends State<GameBoard>
   String _invite_code = "invite_code_filler";
 
   List<dynamic> _chat = [];
+  List<dynamic> _heroes = [];
   List<dynamic> _activeUsers = [];
 
   Map<String, dynamic> _gameObjects = {};
@@ -78,10 +80,15 @@ class _GameBoardState extends State<GameBoard>
     _tabController = new TabController(vsync: this, length: 3);
     prepareTokens();
     prepareMarkers();
+    prepareHeroes();
     listen();
     _tabController.animateTo(1);
     // prepareMaps();
     refresh();
+  }
+
+  void prepareHeroes() async {
+    _heroes = await getHeroes();
   }
 
   void prepareTokens() async {
@@ -643,7 +650,58 @@ class _GameBoardState extends State<GameBoard>
                                             selectedId: getSelectedId),
                                         color: Colors.greenAccent)),
                                 !_isGm
-                                    ? Live(child: Container()) // герои
+                                    ? Live(
+                                        child: ListView.builder(
+                                            padding: EdgeInsets.all(20),
+                                            itemCount: _heroes.length + 1,
+                                            itemBuilder: (BuildContext context,
+                                                int index) {
+                                              if (index == _heroes.length) {
+                                                return ListTile(
+                                                  leading: CircleAvatar(
+                                                    backgroundColor:
+                                                        Colors.blueGrey,
+                                                  ),
+                                                  title: Text('New Hero'),
+                                                  trailing: MaterialButton(
+                                                    onPressed: () {
+                                                      Navigator.push(
+                                                          context,
+                                                          MaterialPageRoute(
+                                                              builder: (context) =>
+                                                                  CreateHero()));
+                                                    },
+                                                    color: Theme.of(context)
+                                                        .accentColor,
+                                                    height: 30.0,
+                                                    minWidth: 40.0,
+                                                    child: new Text(
+                                                      "Create",
+                                                    ),
+                                                  ),
+                                                );
+                                              }
+                                              return ListTile(
+                                                leading: CircleAvatar(
+                                                  backgroundColor:
+                                                      Colors.blueGrey,
+                                                  backgroundImage: NetworkImage(
+                                                      _heroes[index]["sprite"]),
+                                                ),
+                                                title: Text(
+                                                    '${_heroes[index]['name']}'),
+                                                trailing: MaterialButton(
+                                                  onPressed: () {},
+                                                  color: Theme.of(context)
+                                                      .accentColor,
+                                                  height: 30.0,
+                                                  minWidth: 40.0,
+                                                  child: new Text(
+                                                    "Choose",
+                                                  ),
+                                                ),
+                                              );
+                                            })) // герои
                                     : Live(
                                         child: _currentMap == "Global"
                                             ? Container(
