@@ -112,6 +112,13 @@ const LoginPage = () => {
                                     >
                                         Continue as Guest
                                     </Button>
+                                    <Button
+                                        color="primary"
+                                        size="large"
+                                        className={classes.forgetButton}
+                                    >
+                                        Forgot password?
+                                    </Button>
                                     <div className={clsx(classes.formDividerContainer, classes.marginBottom)}>
                                         <div className={classes.formDivider} />
                                         <Typography className={classes.formDividerWord}>or</Typography>
@@ -129,13 +136,6 @@ const LoginPage = () => {
                                         &nbsp;Sign in with Google
                                     </Button>
                                 </>)}
-                                {/*<Button*/}
-                                {/*    color="primary"*/}
-                                {/*    size="large"*/}
-                                {/*    className={classes.forgetButton}*/}
-                                {/*>*/}
-                                {/*    Forgot password?*/}
-                                {/*</Button>*/}
                             </div>
                         </>
                     )}
