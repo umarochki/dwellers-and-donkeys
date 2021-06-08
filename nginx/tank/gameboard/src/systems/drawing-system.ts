@@ -22,23 +22,51 @@ export default class DrawingSystem {
         this.component.clear()
     }
 
-    pencilDown(id: number) {
-      this.component.pencilDown(id)
+    pencilDown(id: number, boldness?, color?) {
+      this.component.pencilDown(id, boldness, color)
     }
 
-    pencilMove(id: number, point: [number, number][], boldness?, color?) {
-      this.component.pencilMove(id, point, boldness, color)
+    pencilMove(id: number, point: [number, number][]) {
+      this.component.pencilMove(id, point)
     }
 
     pencilUp(id: number) {
       this.component.pencilUp(id)
     }
+
+    eraserDown(id: number) {
+      this.component.eraserDown()
+    }
+
+    eraserMove(id: number, point: [number, number][]) {
+      this.component.eraserMove(point)
+    }
+
+    eraserUp(id: number) {
+      this.component.eraserUp()
+    }
+
+    polygonClickStart(id: number, point: [number, number]) {
+      this.component.polygonClickStart(id, point)
+    }
+
+    polygonClickMiddle(id: number, point: [number, number]) {
+      this.component.polygonClickMiddle(id, point)
+    }
+
+    polygonClickEnd(id: number, point: [number, number]) {
+      this.component.polygonClickEnd(id)
+    }
+
+    polygonMove(id: number, point: [number, number]) {
+      this.component.polygonMove(id, point)
+    }
 }
 
 class DrawingComponent extends Component {
     layer: Container
-    color: number
-    boldness: number
+    
+    context: Container
     mode: DrawingMode
 
     overlay: Container
@@ -47,25 +75,28 @@ class DrawingComponent extends Component {
 
     markers: { [key: number]: Graphics }
     points: { [key: number]: [number, number][] }
+    color: { [key: number]: number }
+    boldness: { [key: number]: number }
     
     texture: PIXI.RenderTexture
     sprite: PIXI.Sprite
     
-    context: Container
     edges: Graphics
     edge: Graphics
     vertices: Container
     vertex: PIXI.Sprite
     brush: Graphics
     
-    constructor(color='#ff0000', boldness=3) {
+    constructor(color=0xff0000, boldness=3) {
       super()
-      this.color = this.convertFromHexToNumericColor(color)
-      this.boldness = boldness
-      this.mode = 'none';
       
+      this.mode = 'none';
       this.markers = {}
       this.points = {}
+      this.color = {}
+      this.boldness = {}
+      this.color[0] = color
+      this.boldness[0] = boldness
     }
     
     onAttach() {
@@ -135,21 +166,24 @@ class DrawingComponent extends Component {
       this.board.addChild(this.sprite);
     }
     
-    pencilDown(id: number) {
+    pencilDown(id: number, boldness = this.boldness[0], color = this.color[0]) {
       // Create marker and points for id
       this.markers[id] = new Graphics()
-      this.context.addChild(this.markers[id])
+      this.boldness[id] = boldness
+      this.color[id] = color
       this.points[id] = []
+
+      this.context.addChild(this.markers[id])
     }
 
-    pencilMove(id: number, points: [number, number][] = [], boldness = this.boldness, color = this.color) {
+    pencilMove(id: number, points: [number, number][] = []) {
       
       if (!this.points[id]) return
       
       this.points[id] = this.points[id].concat(points)
       
       this.markers[id].clear();
-      this.markers[id].lineStyle(boldness, color);
+      this.markers[id].lineStyle(this.boldness[id], this.color[id]);
             
       if (points.length > 0)
         drawCustomLine(this.markers[id], this.points[id]);
@@ -158,8 +192,90 @@ class DrawingComponent extends Component {
     pencilUp(id: number) {
       // Delete marker and points for id
       //this.context.removeChild(this.markers[id])
-      //delete this.markers[id]
       delete this.points[id]
+      delete this.markers[id]
+      if (id !== 0) {
+        delete this.boldness[id]
+        delete this.color[id]
+      }
+    }
+
+    eraserDown() {
+      this.brush = new Graphics();
+      this.brush.beginFill(0xffffff);
+      this.brush.drawCircle(0, 0, 50);
+      this.brush.endFill();
+    }
+
+    eraserMove(points: [number, number][]) {
+      for (let point of points) {
+        this.brush.position.set(point[0], point[1]);
+        this.brush.blendMode = PIXI.BLEND_MODES.DST_OUT;
+        this.scene.app.renderer.render(this.brush, { 
+          renderTexture: this.texture,
+          clear: false,
+          transform: null,
+          skipUpdateTransform: false }
+        );
+      }
+    }
+
+    eraserUp() { }
+
+    polygonClickStart(id: number, point: [number, number]) {
+      
+      // Edges container creation
+      this.edges = new Graphics();
+      this.temp.addChild(this.edges);
+      
+      // Edge creation
+      this.edge = new Graphics();
+      this.edges.addChild(this.edge);
+
+      // Vertices container creation
+      this.vertices = new Container();
+      this.vertices.interactive = true;
+      this.vertices.cursor = 'pointer';
+      this.temp.addChild(this.vertices);
+  
+      this.points[id] = [];
+      this.points[id].push(point);
+    }
+
+    polygonClickMiddle(id: number, point: [number, number]) {
+      this.points[id].push(point);
+      this.edge = new Graphics();
+      this.edges.addChild(this.edge);
+    }
+
+    polygonClickEnd(id: number) {
+      let polygon = new Graphics();
+      polygon.assignAttribute('points', this.points[id]);
+      
+      let arr = [];
+      // @ts-ignore
+      for (let row of this.points[id]) for (let e of row) arr.push(e);
+  
+      if (this.context.getAttribute('is-drawer'))
+        polygon.beginFill(this.color[id]);
+      else
+        polygon.beginFill(0x43536B);
+      
+      polygon.drawPolygon(arr);
+      polygon.endFill();
+  
+      // Draw on board or pass it to the outer context
+      this.context.addChild(polygon);
+  
+      this.temp.removeChild(this.edges);
+      this.temp.removeChild(this.vertices);
+    }
+
+    polygonMove(id: number, point: [number, number]) {
+      this.edge.clear();
+      this.edge.lineStyle(this.boldness[0], 0xffffff, 0.5);
+      this.edge.moveTo(this.points[id][this.points[id].length - 1][0], this.points[id][this.points[id].length - 1][1]);
+      this.edge.lineTo(point[0], point[1]);
     }
     
     // --------=====x{ HANDLERS }x=====--------
@@ -185,11 +301,43 @@ class DrawingComponent extends Component {
       this.sendMessage('draw/pencil/moved', { xy: point })
     }
     
-    onPencilUp(event) {
+    onPencilUp() {
+      this.pencilUp(0)
       this.overlay.off('mousemove', this.onPencilMove);
       this.overlay.off('mouseup', this.onPencilUp);
-      this.pencilUp(0)
       this.sendMessage('draw/pencil/stopped')
+      this.points[0] = []
+    }
+
+    // ----------------------------------------
+
+    onEraserDown(event) {
+      event.stopPropagation();
+      this.eraserDown()
+      this.overlay.on('mousemove', this.onEraserMove);
+      this.overlay.on('mouseup', this.onEraserUp);
+      this.sendMessage('draw/eraser/started')
+    }
+    
+    onEraserMove(event) {
+      const x = event.data.global.x;
+      const y = event.data.global.y;
+  
+      if (!this.sprite) return;
+  
+      var point : [number, number] = 
+      [ (x - this.scene.viewport.x ) / this.scene.viewport.scale.x - this.sprite.x, 
+        (y - this.scene.viewport.y ) / this.scene.viewport.scale.y - this.sprite.y ];
+  
+      this.eraserMove([point])
+      this.sendMessage('draw/eraser/moved', { xy: point })
+    }
+    
+    onEraserUp() {
+        this.eraserUp()
+        this.overlay.off('mousemove', this.onEraserMove);
+        this.overlay.off('mouseup', this.onEraserUp);
+        this.sendMessage('draw/eraser/stopped')
     }
     
     // ----------------------------------------
@@ -200,23 +348,14 @@ class DrawingComponent extends Component {
       const x = event.data.global.x
       const y = event.data.global.y
   
-      var point = new PIXI.Point(
+      var point : [number, number] = [
         (x - this.scene.viewport.x) / this.scene.viewport.scale.x, 
         (y - this.scene.viewport.y) / this.scene.viewport.scale.y
-      );
+      ];
       
+      this.polygonClickStart(0, point)
   
-      this.edges = new Graphics();
-      this.temp.addChild(this.edges);
-      
-      this.vertices = new Container();
-      this.vertices.interactive = true;
-      this.vertices.cursor = 'pointer';
-      this.temp.addChild(this.vertices);
-      
-      this.edge = new Graphics();
-      this.edges.addChild(this.edge);
-  
+      // Vertex creation
       let texture = new Graphics();
       texture.beginFill(0xffffff, 0.5);
       texture.drawCircle(0, 0, 10)
@@ -230,21 +369,18 @@ class DrawingComponent extends Component {
   
       this.vertex = new PIXI.Sprite(this.scene.app.renderer.generateTexture(texture, 1, 1));
       this.vertex.anchor.set(0.5);
-      this.vertex.position.copyFrom(point);
+      this.vertex.position.set(point[0], point[1]);
       this.vertex.interactive = true;
       this.vertex.cursor = 'pointer';
   
       this.vertices.addChild(this.vertex)
-  
-  
-      this.points[0] = [];
-      this.points[0].push([point.x, point.y]);
-  
+      
       this.overlay.on('mousemove', this.onPolygonMove);
       this.vertex.on('click', this.onPolygonEndClick);
   
       this.overlay.off('click', this.onPolygonStartClick);
       this.overlay.on('click', this.onPolygonMiddleClick);
+      this.sendMessage('draw/polygon/click/started', { xy: point })
     }
     
     onPolygonMiddleClick(event) {
@@ -253,48 +389,26 @@ class DrawingComponent extends Component {
       const x = event.data.global.x
       const y = event.data.global.y
   
-      var point = new PIXI.Point(
+      var point : [number, number] = [
         (x - this.scene.viewport.x) / this.scene.viewport.scale.x, 
         (y - this.scene.viewport.y) / this.scene.viewport.scale.y
-      );
+      ];
   
-  
-  
-      this.points[0].push([point.x, point.y]);
-      
-      this.edge = new Graphics();
-      this.edges.addChild(this.edge);
+      this.polygonClickMiddle(0, point)
+      this.sendMessage('draw/polygon/click/middle', { xy: point })
     }
     
     onPolygonEndClick(event) {
       event.stopPropagation();
   
-      let polygon = new Graphics();
-      polygon.assignAttribute('points', this.points[0]);
-      
-      let arr = [];
-      // @ts-ignore
-      for (let row of this.points[0]) for (let e of row) arr.push(e);
-  
-      if (this.context.getAttribute('is-drawer'))
-        polygon.beginFill(0xff0000);
-      else
-        polygon.beginFill(0x43536B);
-      
-      polygon.drawPolygon(arr);
-      polygon.endFill();
-  
-      // Draw on board or pass it to the outer context
-      this.context.addChild(polygon);
-  
-      this.temp.removeChild(this.edges);
-      this.temp.removeChild(this.vertices);
+      this.polygonClickEnd(0)
   
       this.overlay.off('mousemove', this.onPolygonMove)
       this.overlay.off('click', this.onPolygonMiddleClick)
       this.overlay.on('click', this.onPolygonStartClick);
   
       this.vertex.off('click', this.onPolygonEndClick);
+      this.sendMessage('draw/polygon/click/stopped')
     }
     
     onPolygonMove(event) {
@@ -302,60 +416,19 @@ class DrawingComponent extends Component {
       const x = event.data.global.x;
       const y = event.data.global.y;
   
-      var point = new PIXI.Point(
+      var point : [number, number] = [
         (x - this.scene.viewport.x ) / this.scene.viewport.scale.x, 
         (y - this.scene.viewport.y ) / this.scene.viewport.scale.y
-      );
+      ];
   
-      this.edge.clear();
-      this.edge.lineStyle(this.boldness, 0xffffff, 0.5);
-      this.edge.moveTo(this.points[0][this.points[0].length - 1][0], this.points[0][this.points[0].length - 1][1]);
-      this.edge.lineTo(point.x, point.y);
-    }
-    
-    
-    // ----------------------------------------
-    
-    onEraserDown(event) {
-      event.stopPropagation();
-      this.brush = new Graphics();
-      this.brush.beginFill(0xffffff);
-      this.brush.drawCircle(0, 0, 50);
-      this.brush.endFill();
-      this.overlay.on('mousemove', this.onEraserMove);
-      this.overlay.on('mouseup', this.onEraserUp);
-    }
-    
-    onEraserMove(event) {
-      const x = event.data.global.x;
-      const y = event.data.global.y;
-  
-      if (!this.sprite) return;
-  
-      var point = new PIXI.Point(
-        (x - this.scene.viewport.x ) / this.scene.viewport.scale.x - this.sprite.x, 
-        (y - this.scene.viewport.y ) / this.scene.viewport.scale.y - this.sprite.y
-      );
-  
-      this.brush.position.copyFrom(point);
-      this.brush.blendMode = PIXI.BLEND_MODES.DST_OUT;
-      this.scene.app.renderer.render(this.brush, { 
-        renderTexture: this.texture,
-        clear: false,
-        transform: null,
-        skipUpdateTransform: false }
-      );
-    }
-    
-    onEraserUp(event) {
-        this.overlay.off('mousemove', this.onEraserMove);
-        this.overlay.off('mouseup', this.onEraserUp);
+      this.polygonMove(0, point)
+      this.sendMessage('draw/polygon/moved', { xy: point })
     }
     
     // --------=====x{ METHODS }x=====--------    
     
     checkLineIntersection() {
-    
+      // TODO
     }
     
     clear() {
@@ -367,10 +440,14 @@ class DrawingComponent extends Component {
         return parseInt(`0x${color.replace(/#/g, "")}`);
     }
     
+    style(options: { color?: number, boldness?: number }) {
+      if (options.color) this.color[0] = options.color
+      if (options.boldness) this.boldness[0] = options.boldness
+    }
     
     set(mode: DrawingMode, 
         toTexture: boolean = true, 
-        context: Container = this.board) {
+        context: Container = this.board) : DrawingMode {
                 
       if (toTexture) this.transformToTexture();
           
@@ -388,21 +465,24 @@ class DrawingComponent extends Component {
       switch (this.mode) {
         case 'pencil':
           this.overlay.on('mousedown', this.onPencilDown);
-          break;
+          break
   
         case 'polygon':
           this.overlay.on('click', this.onPolygonStartClick);
-          break;
+          break
   
         case 'eraser':
           this.overlay.on('mousedown', this.onEraserDown);
-          break;
+          break
   
         case 'none':      
         default:
           this.scene.viewport.plugins.resume('drag');
           this.mode = 'none';
           this.overlay.interactive = false;
+          break
       }
+
+      return this.mode
     }
 }
