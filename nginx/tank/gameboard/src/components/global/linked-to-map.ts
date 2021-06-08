@@ -40,7 +40,7 @@ export default class LinkedToMapSystem extends Component {
         else {
             let dummy = this.setDummy()
             dummy.x = -dummy.width / 2
-            dummy.y = -dummy.height / 2 - frame.parent.height / 2 - 10
+            dummy.y = -dummy.height / 2 - frame.parent.height / 2
             frame.addChild(dummy)
         }
     }

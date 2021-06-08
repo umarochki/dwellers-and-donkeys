@@ -1,4 +1,4 @@
-import { Component, Message, Sprite, Text } from '../../libs/pixi-ecs'
+import { Component, Container, Message, Sprite, Text } from '../../libs/pixi-ecs'
 
 export default class TransformSystem extends Component {
 
@@ -12,6 +12,7 @@ export default class TransformSystem extends Component {
            
             let sprite: Sprite | undefined = obj.getAttribute('sprite')
             let name: Text | undefined = obj.getAttribute('name')
+            let map: Container | undefined = obj.getAttribute('map')
             const size: Size = msg.data
                         
             if (sprite) {
@@ -21,6 +22,10 @@ export default class TransformSystem extends Component {
             
             if (name) {
                 name.y = size.height / 2 + 10
+            }
+
+            if (map) {
+                map.y = -size.height / 2 - 10
             }
         }
         else if (msg.action === 'object/position') {
