@@ -27,7 +27,6 @@ interface Props {
 }
 
 enum Mode {
-    Grid,
     Pencil,
     Eraser,
     Polygon,
@@ -39,50 +38,51 @@ const MapControls: React.FC<Props> = props => {
     const { boardRef } = props
 
     const [mode, setMode] = useState<Mode | null>(null)
+    const [gridEnable, setGridEnable] = useState(false)
 
-    if (!boardRef.current) return null
+    if (!boardRef) return null
     
     return (
         <div className={classes.mapControls}>
             <MapControl
-                onClick={() => { boardRef.current.map.switchGrid(); setMode(mode === Mode.Grid ? null : Mode.Grid) }}
+                onClick={() => { boardRef.map.switchGrid(); setGridEnable(g => !g) }}
                 tooltip="Switch grid"
-                active={mode === Mode.Grid}
+                active={gridEnable}
             >
                 <AppsIcon />
             </MapControl>
             <MapControl
-                onClick={() => { boardRef.current.drawing.set('pencil'); setMode(mode === Mode.Pencil ? null : Mode.Pencil) }}
+                onClick={() => { boardRef.drawing.set('pencil'); setMode(mode === Mode.Pencil ? null : Mode.Pencil) }}
                 tooltip="Pencil"
                 active={mode === Mode.Pencil}
             >
                 <CreateIcon />
             </MapControl>
             <MapControl
-                onClick={() => { boardRef.current.drawing.set('eraser'); setMode(mode === Mode.Eraser ? null : Mode.Eraser) }}
+                onClick={() => { boardRef.drawing.set('eraser'); setMode(mode === Mode.Eraser ? null : Mode.Eraser) }}
                 tooltip="Eraser"
                 active={mode === Mode.Eraser}
             >
                 <EraserIcon />
             </MapControl>
             <MapControl
-                onClick={() => { boardRef.current.drawing.set('polygon'); setMode(mode === Mode.Polygon ? null : Mode.Polygon) }}
+                onClick={() => { boardRef.drawing.set('polygon'); setMode(mode === Mode.Polygon ? null : Mode.Polygon) }}
                 tooltip="Polygon"
                 active={mode === Mode.Polygon}
             >
                 <SignalCellular4BarIcon />
             </MapControl>
             <MapControl
-                onClick={() => { boardRef.current.visibilityRegion.set('draw'); setMode(mode === Mode.Fog ? null : Mode.Fog) }}
+                onClick={() => { boardRef.visibilityRegion.set('draw'); setMode(mode === Mode.Fog ? null : Mode.Fog) }}
                 tooltip="Fog of War"
                 active={mode === Mode.Fog}
             >
                 <TonalityIcon />
             </MapControl>
-            <MapControl onClick={() => { boardRef.current.visibilityRegion.clear() }} tooltip="Clear Fog of War">
+            <MapControl onClick={() => { boardRef.visibilityRegion.clear(); setMode(null) }} tooltip="Clear Fog of War">
                 <LayersClearIcon />
             </MapControl>
-            <MapControl onClick={() => boardRef.current.drawing.clear()} tooltip="Clear all">
+            <MapControl onClick={() => { boardRef.drawing.clear(); setMode(null) }} tooltip="Clear all">
                 <DeleteIcon />
             </MapControl>
         </div>
