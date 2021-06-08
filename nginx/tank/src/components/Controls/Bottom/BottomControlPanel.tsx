@@ -85,7 +85,7 @@ const useStyles = makeStyles(theme =>
 interface Props {
     showControls: boolean
     onToggle: () => void
-    game?: Game
+    game: Game | null
     users: ConnectedUser[]
     messages: ChatMessagePayload[]
     hero?: Hero

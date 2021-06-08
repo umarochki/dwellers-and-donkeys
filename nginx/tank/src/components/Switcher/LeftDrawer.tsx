@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useContext, useMemo, useState } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import Drawer from '@material-ui/core/Drawer'
 import { Button, GridList, GridListTile, Theme, Tooltip } from '@material-ui/core'
@@ -16,6 +16,7 @@ import { selectMaps } from '../../store/map/selectors'
 import { Game } from '../../models/game'
 import MapCard from '../Cards/MapCard'
 import { decorations, decorationsExtra, heroes, markers } from './icons'
+import { WebSocketContext } from '../Contexts/WebSocketContext';
 
 const drawerWidth = 300
 
@@ -111,7 +112,8 @@ interface Props {
     setType: (v: MenuType) => void
     selectedMaps: string[]
     game: Game | null
-    onLocationChange: (location: string) => void
+    gameBoard: any
+    objectId: string | null
 }
 
 interface MapMapType {
@@ -131,8 +133,11 @@ const LeftDrawer: React.FC<Props> = props => {
         type, setType,
         selectedMaps,
         game,
-        onLocationChange
+        gameBoard,
+        objectId
     } = props
+
+    const ws = useContext(WebSocketContext)
 
     const classes = useStyles()
     const classesTooltip = useTooltipStyles()
@@ -183,8 +188,15 @@ const LeftDrawer: React.FC<Props> = props => {
         }
     }, [type, onOpenGlobalCard, setOpen, setType])
 
-    const handleMapClick = (map: string) => () => {
-        type === MenuType.locations ? onMapChange(map) : onLocationChange(map)
+    const handleLocationChange = (location: string | null) => {
+        gameBoard.gameObjectManager.update({ id: objectId, location })
+        ws.sendMessage('update', { id: objectId, location })
+    }
+
+    const handleMapClick = (map: string | null) => () => {
+        type === MenuType.locations
+            ? map && onMapChange(map)
+            : handleLocationChange(map)
     }
 
     React.useEffect(() => {
@@ -224,7 +236,7 @@ const LeftDrawer: React.FC<Props> = props => {
                 return (
                     <GridList cellHeight={100} cols={1}>
                         {type === MenuType.markerLocation && (
-                            <Button>Remove map</Button>
+                            <Button onClick={handleMapClick(null)}>Remove map</Button>
                         )}
                         {selectedMaps.map((map: string) => (
                             mapMap[map] && <Tooltip classes={classesTooltip} TransitionComponent={Zoom} title={mapMap[map].name} key={map}>
