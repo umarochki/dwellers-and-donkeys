@@ -1,4 +1,4 @@
-export const markersList = [
+export const decorationsExtra = [
     'Bonfire',
     'Castle',
     'Tavern',
@@ -18,18 +18,21 @@ export const heroes = [
     'Cat Cunning', 'Girl Smart', 'Musician', 'Snake02', 'Thief'
 ]
 
+export const markers = [
+    'Dot',
+    'Finish',
+    'Start'
+]
 
-export const globalSymbols = [
+export const decorations = [
     'Bones1',
     'Bones2',
     'Bones3',
     'Chest',
     'City',
-    'Dot',
     'Dungeon1',
     'Dungeon2',
     'Dungeon3',
-    'Finsh',
     'Fire',
     'Flag',
     'Grass1',
@@ -49,7 +52,6 @@ export const globalSymbols = [
     'Mountain3',
     'Mountain4',
     'Mountain5',
-    'Start',
     'Swamp1',
     'Swamp2',
     'Tower1',

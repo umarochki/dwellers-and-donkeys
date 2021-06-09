@@ -2,12 +2,15 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { Avatar, Button, Card, Theme } from '@material-ui/core'
 import { createStyles, makeStyles } from '@material-ui/core/styles'
 import PersonIcon from '@material-ui/icons/Person'
-import { primary200, primary50 } from '../../../styles/colors'
+import { primary200, primary50, primary800 } from '../../../styles/colors'
 import InviteDialog from '../../Dialogs/InviteDialog'
 import CharacterInfoDialog from '../../Dialogs/CharacterInfoDialog'
 import { getHeroes } from '../../../store/hero/actions'
 import { useDispatch } from 'react-redux'
 import { Hero } from '../../../models/hero'
+import Brightness4Icon from '@material-ui/icons/Brightness4'
+import InvertColorsIcon from '@material-ui/icons/InvertColors'
+import MapControl from '../Map/MapControl'
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -52,6 +55,14 @@ const useStyles = makeStyles((theme: Theme) =>
             [theme.breakpoints.down('md')]: {
                 fontSize: '1rem'
             }
+        },
+        controls: {
+            display: 'flex',
+            justifyContent: 'space-between',
+            width: '80%',
+            '& > *': {
+                backgroundColor: primary800
+            }
         }
     })
 )
@@ -85,6 +96,14 @@ const UserCard: React.FC<Props> = props => {
 
     return (
         <Card className={classes.me} raised>
+            <div className={classes.controls}>
+                <MapControl onClick={() => {  }} tooltip="Night">
+                    <Brightness4Icon />
+                </MapControl>
+                <MapControl onClick={() => {  }} tooltip="Rain">
+                    <InvertColorsIcon />
+                </MapControl>
+            </div>
             <Avatar className={classes.avatarLarge} onClick={handleShowCharacter}>
                 <PersonIcon fontSize="large"/>
             </Avatar>

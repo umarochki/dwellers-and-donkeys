@@ -96,7 +96,7 @@ export const googleAuth = () => {
             .then(({ codeUrl }) => {
                 window.location.href = codeUrl
             }, () => {
-                dispatch(showErrorNotification('Failed to auth'))
+                dispatch(showErrorNotification('Failed to login'))
             })
     }
 }

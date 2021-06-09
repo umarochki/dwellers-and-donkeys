@@ -1,20 +1,14 @@
-import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import LeftDrawer from '../../components/Switcher/LeftDrawer'
 import { Hidden } from '@material-ui/core'
 import Gameboard from 'gameboard'
 import { WebSocketContext } from '../../components/Contexts/WebSocketContext'
 import { useDispatch, useSelector } from 'react-redux'
-import {
-    selectAllGames,
-    selectConnectGameState,
-    selectCurrentGame,
-    selectCurrentGameData,
-    selectGetAllGamesState
-} from '../../store/game/selectors'
+import { selectConnectGameState, selectCurrentGame, selectCurrentGameData } from '../../store/game/selectors'
 import { AsyncState } from '../../store/user/reducer'
 import FullscreenLoader from '../../components/Containers/FullscreenLoader'
 import { push } from 'connected-react-router'
-import { connectGame, disconnectGame, getAllGames } from '../../store/game/actions'
+import { connectGame, disconnectGame } from '../../store/game/actions'
 import { SocketMessage } from '../../models/socket'
 import { ChatMessagePayload } from '../../models/chat'
 import { ConnectedUser } from '../../models/user'
@@ -52,24 +46,25 @@ const Tabletop = () => {
     const classes = useStyles()
     const dispatch = useDispatch()
     const divRef = React.useRef<HTMLDivElement>(null)
-    const boardRef = React.useRef<any>(null)
+
+    const [boardRef, setBoardRef] = useState<any>()
 
     const ws = useContext(WebSocketContext)
-    const game = useSelector(selectCurrentGame)
+
     const currentGameData = useSelector(selectCurrentGameData)
     const connectGameState = useSelector(selectConnectGameState)
-
-    const allGames = useSelector(selectAllGames)
-    const getAllGamesState = useSelector(selectGetAllGamesState)
-    const currentGame = useMemo(() => game ? allGames.find(g => g.invitation_code === game.invitation_code) : undefined, [allGames, game])
+    const currentGame = useSelector(selectCurrentGame)
 
     const [myGameBoard, setMyGameBoard] = useState<any>(null)
     const [messages, setMessages] = useState<ChatMessagePayload[]>([])
     const [users, setUsers] = useState<ConnectedUser[]>([])
     const [isGlobal, setIsGlobal] = useState<boolean | null>(null)
     const [isSwiping, setSwiping] = useState(false)
+
     const [open, setOpen] = useState(false)
     const [type, setType] = useState<MenuType>(MenuType.unselect)
+    const [objectId, setObjectId] = useState<string | null>(null)
+
     const [showControls, setShowControls] = useState(true)
     const [tutorialOpen, setTutorialOpen] = useState(false)
     const [chooseHeroDialogOpen, setChooseHeroDialogOpen] = useState(false)
@@ -152,12 +147,24 @@ const Tabletop = () => {
         }
     }, [dispatch, id])
 
-    useEffect(() => {
-        dispatch(getAllGames())
-    }, [dispatch])
+    const  handleLocationChange = useCallback((id: string) => {
+        setType(MenuType.markerLocation)
+        setObjectId(id)
+        setSwiping(true)
+        setOpen(true)
+    }, [])
 
     useEffect(() => {
-        if (!myGameBoard && connectGameState === AsyncState.success && game && game.invitation_code && divRef && divRef.current && ws.socket) {
+        if (!myGameBoard && connectGameState === AsyncState.success && ws.socket && !currentGameData) {
+            ws.sendMessage('refresh')
+        }
+    }, [divRef, ws, connectGameState, myGameBoard, currentGameData])
+
+
+    useEffect(() => {
+
+        if (!myGameBoard && connectGameState === AsyncState.success && divRef && divRef.current && ws.socket && currentGameData && handleLocationChange && closeSidebar) {
+
             const gameBoard = new Gameboard({
                 parent: divRef.current,
                 width: divRef.current.clientWidth,
@@ -191,19 +198,26 @@ const Tabletop = () => {
                     setIdToDelete(data.id)
                 })
 
-                boardRef.current = gameBoard
-                ws.sendMessage('refresh')
+                gameBoard.eventManager.add('object/selected', (data: any) => {
+                    handleLocationChange(data.id)
+                })
+                gameBoard.eventManager.add('object/unselected', () => closeSidebar())
+
+                gameBoard.eventManager.add('map/set/after', () => {
+                    setIsGlobal(false)
+                })
+
+                setBoardRef(gameBoard)
             })
 
             setMyGameBoard(gameBoard)
         }
-    }, [game, divRef, ws, connectGameState, myGameBoard])
+    }, [divRef, ws, connectGameState, myGameBoard, currentGameData, closeSidebar, handleLocationChange])
 
     useEffect(() => {
-        if (currentGameData === currentGameDataRef.current) return
-        currentGameDataRef.current = currentGameData
-
-        if (currentGameData && myGameBoard !== null && boardRef.current && connectGameState === AsyncState.success) {
+        if (currentGameData && myGameBoard !== null && boardRef && connectGameState === AsyncState.success) {
+            if (currentGameData === currentGameDataRef.current) return
+            currentGameDataRef.current = currentGameData
 
             switch (currentGameData.type) {
                 case 'update_and_start':
@@ -239,7 +253,7 @@ const Tabletop = () => {
 
                     currentGameData.meta.map !== 'Global'
                         ? handleUpdateMap(currentGameData.meta.map, currentGameData)
-                        : myGameBoard.map.set({ sprite: '../globalSymbols/WorldMap.png' }, () =>
+                        : myGameBoard.map.set({ sprite: '../decorations/WorldMap.png' }, () =>
                             myGameBoard.gameObjectManager.refresh({
                                 ...currentGameData.meta
                             }))
@@ -258,7 +272,7 @@ const Tabletop = () => {
                     handleUpdateMap(mapId, currentGameData)
                     break
                 case 'global_map':
-                    myGameBoard.map.set({ sprite: '../globalSymbols/WorldMap.png' }, () => {
+                    myGameBoard.map.set({ sprite: '../decorations/WorldMap.png' }, () => {
                         myGameBoard.gameObjectManager.refresh({
                             ...currentGameData.meta
                         })
@@ -271,7 +285,7 @@ const Tabletop = () => {
                     break
             }
         }
-    }, [myGameBoard, currentGameData, connectGameState, closeSidebar, handleUpdateMap])
+    }, [myGameBoard, currentGameData, connectGameState, closeSidebar, handleUpdateMap, boardRef])
 
     useEffect(() => {
         window.addEventListener('resize', detect)
@@ -288,9 +302,9 @@ const Tabletop = () => {
 
     useEffect(() => {
         if (connectGameState === AsyncState.error || connectGameState === AsyncState.unknown) {
-            getAllGamesState === AsyncState.success && dispatch(connectGame(id))
+            dispatch(connectGame(id))
         }
-    }, [dispatch, getAllGamesState, connectGameState, id])
+    }, [dispatch, connectGameState, id])
 
     if (orientation.device === 'mobile' && orientation.orientation === 'portrait') {
         return <FullscreenPage styles={{ color: primary50 }}>Please, rotate your device to landscape mode</FullscreenPage>
@@ -301,7 +315,7 @@ const Tabletop = () => {
     }
 
     if (connectGameState === AsyncState.error || connectGameState === AsyncState.unknown) {
-        if (!game || game.invitation_code !== id) {
+        if (!currentGame || currentGame.invitation_code !== id) {
             return <FullscreenLoader/>
         }
         dispatch(push('/'))
@@ -321,6 +335,8 @@ const Tabletop = () => {
                     setType={setType}
                     selectedMaps={selectedMaps}
                     game={currentGame}
+                    gameBoard={myGameBoard}
+                    objectId={objectId}
                 />
                 <main className={classes.content}>
                     <div
@@ -343,7 +359,7 @@ const Tabletop = () => {
                         <BottomControlPanel
                             showControls={showControls}
                             onToggle={() => setShowControls(isOpen => !isOpen)}
-                            game={game}
+                            game={currentGame}
                             users={users}
                             messages={messages}
                             hero={hero}
@@ -367,9 +383,9 @@ const Tabletop = () => {
                     <RightDrawer
                         hero={hero}
                         messages={messages}
-                        invitation_code={game ? game.invitation_code || '' : ''}
+                        invitation_code={currentGame ? currentGame.invitation_code || '' : ''}
                         users={users}
-                        onSwitchGrid={() => boardRef.current && boardRef.current.switchGrid()}
+                        onSwitchGrid={() => boardRef && boardRef.switchGrid()}
                     />
                 </Hidden>
                 <TutorialDialog open={tutorialOpen} onClose={() => setTutorialOpen(false)} />

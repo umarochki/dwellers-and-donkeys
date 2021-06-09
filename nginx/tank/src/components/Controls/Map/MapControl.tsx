@@ -2,6 +2,7 @@ import React, { ReactNode } from 'react'
 import { createStyles, makeStyles } from '@material-ui/core/styles'
 import { primary700, primary900 } from '../../../styles/colors'
 import { Tooltip } from '@material-ui/core'
+import clsx from 'clsx';
 
 const useStyles = makeStyles(() =>
     createStyles({
@@ -13,6 +14,9 @@ const useStyles = makeStyles(() =>
             '&:hover': {
                 backgroundColor: primary700
             }
+        },
+        mapControlPressed: {
+            backgroundColor: primary700
         }
     })
 )
@@ -21,15 +25,16 @@ interface Props {
     onClick: () => void
     children: ReactNode
     tooltip: string
+    active?: boolean
 }
 
 const MapControl: React.FC<Props> = props => {
     const classes = useStyles()
-    const { onClick, tooltip, children } = props
+    const { onClick, tooltip, children, active = false } = props
 
     return (
         <Tooltip title={tooltip}>
-            <div className={classes.mapControl} onClick={onClick}>
+            <div className={clsx(classes.mapControl, active && classes.mapControlPressed)} onClick={onClick}>
                 {children}
             </div>
         </Tooltip>

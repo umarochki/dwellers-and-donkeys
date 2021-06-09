@@ -15,6 +15,9 @@ const gameService = {
     getGames: (): Promise<Game[]> =>
         API.get('/games')
             .then(response => response.data),
+    getGame: (code: string): Promise<Game> =>
+        API.get(`/games/${code}`, { params: {short: true} })
+            .then(response => response.data),
     getGameHistory: (): Promise<Game[]> =>
         API.get('/games/history')
             .then(response => response.data),
