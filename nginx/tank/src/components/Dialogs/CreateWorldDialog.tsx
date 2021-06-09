@@ -9,24 +9,29 @@ import {
     TextField
 } from '@material-ui/core'
 import { useForm } from 'react-hook-form'
-// import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import { createGame } from '../../store/game/actions'
 import { useDispatch } from 'react-redux'
 import Checkbox from '@material-ui/core/Checkbox'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
 import FormGroup from '@material-ui/core/FormGroup'
+import { DropzoneArea } from 'material-ui-dropzone'
+import { MapFile } from '../../models/map'
+import { handleUploadMap } from '../../helpers/uploadMedia'
 
-// const useStyles = makeStyles((theme: Theme) =>
-//     createStyles({
-//         formControl: {
-//             marginTop: theme.spacing(1),
-//             minWidth: 120,
-//         },
-//         selectEmpty: {
-//             marginTop: theme.spacing(2),
-//         },
-//     }),
-// )
+const useStyles = makeStyles((theme: Theme) =>
+    createStyles({
+        uploadMap: {
+            marginTop: 10,
+            '& > *': {
+                minHeight: 170
+            }
+        },
+        selectEmpty: {
+            marginTop: theme.spacing(2),
+        },
+    }),
+)
 
 interface Props {
     open: boolean
@@ -34,6 +39,7 @@ interface Props {
 }
 
 const CreateWorldDialog: React.FC<Props> = props => {
+    const classes = useStyles()
     const { open, onClose } = props
     const dispatch = useDispatch()
     const { register } = useForm()
@@ -43,6 +49,7 @@ const CreateWorldDialog: React.FC<Props> = props => {
     const [nameValue, setNameValue] = useState('')
     const [descValue, setDescValue] = useState('')
     const [isPrivate, setIsPrivate] = useState(true)
+    const [files, setFiles] = useState<File[]>([])
 
     return (
         <Dialog open={open} onClose={onClose} aria-labelledby="form-dialog-title">
@@ -84,6 +91,15 @@ const CreateWorldDialog: React.FC<Props> = props => {
                             label="Private"
                         />
                     </FormGroup>
+                    <div className={classes.uploadMap}>
+                        <DropzoneArea
+                            acceptedFiles={['image/jpeg', 'image/png', 'image/bmp', 'image/gif']}
+                            onChange={(files: File[]) => setFiles(files)}
+                            showAlerts={false}
+                            filesLimit={1}
+                            showPreviewsInDropzone={true}
+                        />
+                    </div>
                 </DialogContent>
                 <DialogActions>
                     {isLoading
@@ -97,7 +113,10 @@ const CreateWorldDialog: React.FC<Props> = props => {
                                 disabled={nameValue.length === 0}
                                 onClick={() => {
                                     setIsLoading(true)
-                                    dispatch(createGame(nameValue, descValue, isPrivate))
+
+                                    handleUploadMap(nameValue, files, (result?: MapFile) => {
+                                        dispatch(createGame(nameValue, descValue, isPrivate, result && result.file))
+                                    })
                                 }}>
                                 Create
                             </Button>

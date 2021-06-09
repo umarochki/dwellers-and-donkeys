@@ -7,3 +7,7 @@ def generate_key(length=20, upper=False):
     if upper:
         return res.upper()
     return res
+
+
+def is_invite_key(token):
+    return isinstance(token, str) and len(token) == 12

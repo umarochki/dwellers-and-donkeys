@@ -5,6 +5,7 @@ export interface GameRequest {
     name: string
     description: string
     is_private: boolean
+    preview: string
 }
 
 const gameService = {

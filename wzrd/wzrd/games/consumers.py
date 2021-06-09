@@ -97,12 +97,14 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
         self.user_info = auth_manager.get_user_info(token)
 
         if not self.user_info:
+            logging.warning(f"WebSocket UNAUTHORIZED with token {token}")
             return self.close(code=4401)
 
         user = await self.get_user()
         game_session = await get_game_session(self.session_name)
 
         if not game_session:
+            logging.warning(f"WebSocket GAMESESSION  {self.session_name} not found")
             return self.close(code=4400)
         await self.add_session_to_user(user, game_session)
 

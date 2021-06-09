@@ -1,4 +1,4 @@
-import * as alertConstants from './constants'
+import alertConstants from './constants'
 import { Dispatch } from '../index'
 
 export const showSuccessNotification = (message?: string) => {

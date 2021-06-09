@@ -12,9 +12,9 @@ import { useDispatch, useSelector } from 'react-redux'
 import { selectCurrentUser, selectQuickStartState } from '../../store/user/selectors'
 import { logout } from '../../store/user/actions'
 import { AsyncState } from '../../store/user/reducer'
-import ImageLoader from '../../components/Containers/ImageLoader'
+import ImageLoader from '../../components/common/ImageLoader'
 import CreateWorldDialog from '../../components/Dialogs/CreateWorldDialog'
-import FullscreenLoader from '../../components/Containers/FullscreenLoader/FullscreenLoader'
+import FullscreenLoader from '../../components/Containers/FullscreenLoader'
 import { getGameHistory, getGMGameHistory, getPublicGames } from '../../store/game/actions'
 import { selectGameHistory, selectGMGameHistory, selectPublicGames } from '../../store/game/selectors'
 
@@ -92,7 +92,7 @@ const StartPage = () => {
             <CssBaseline/>
             <AppBar position="relative">
                 <Toolbar className={classes.toolbarAvatar}>
-                    {user && <Avatar onClick={handleProfileClick} className={classes.avatar}>?</Avatar>}
+                    {user && <Avatar onClick={handleProfileClick} className={classes.avatar}/>}
                     <Menu
                         id="profile-menu"
                         anchorEl={anchorEl}
@@ -109,7 +109,7 @@ const StartPage = () => {
             </AppBar>
             <main>
                 <StartPageHeader className={classes.content} openWorldDialog={openWorldDialog}/>
-                <CreatedGameWorlds title="Created games (as Game Master):" games={gameHistoryGM} openWorldDialog={openWorldDialog}/>
+                <CreatedGameWorlds title="Created games (as Game Master):" games={gameHistoryGM} openWorldDialog={openWorldDialog} showAddCard/>
                 <CreatedGameWorlds title="Game history (as Player):" games={gameHistory} openWorldDialog={openWorldDialog}/>
                 <CreatedGameWorlds title="Public games:" games={gamesPublic} openWorldDialog={openWorldDialog}/>
                 <ImageLoader src={seaDark} className={classes.seaDark}/>

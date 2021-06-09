@@ -87,7 +87,7 @@ const LoginPage = () => {
                             <div className={classes.creatingButtonContainer}>
                                 {isLoading ? (
                                     <CircularProgress size={26} />
-                                ) : (
+                                ) : (<>
                                     <Button
                                         type="submit"
                                         disabled={loginValue.length === 0 || passwordValue.length === 0}
@@ -102,33 +102,33 @@ const LoginPage = () => {
                                     >
                                         Sign in
                                     </Button>
-                                )}
-                                <Button
-                                    variant="outlined"
-                                    className={classes.outLinedButton}
-                                    onClick={() => {
-                                        dispatch(quickstart())
-                                    }}
-                                    fullWidth
-                                >
-                                    Continue as Guest
-                                </Button>
-                                <div className={clsx(classes.formDividerContainer, classes.marginBottom)}>
-                                    <div className={classes.formDivider} />
-                                    <Typography className={classes.formDividerWord}>or</Typography>
-                                    <div className={classes.formDivider} />
-                                </div>
-                                <Button
-                                    className={clsx(
-                                        classes.googleButton,
-                                        classes.googleButtonCreating
-                                    )}
-                                    onClick={handleGoogleSignUp}
-                                    fullWidth
-                                >
-                                    <img src={google} alt="google" className={classes.googleIcon} />
-                                    &nbsp;Sign in with Google
-                                </Button>
+                                    <Button
+                                        variant="outlined"
+                                        className={classes.outLinedButton}
+                                        onClick={() => {
+                                            dispatch(quickstart())
+                                        }}
+                                        fullWidth
+                                    >
+                                        Continue as Guest
+                                    </Button>
+                                    <div className={clsx(classes.formDividerContainer, classes.marginBottom)}>
+                                        <div className={classes.formDivider} />
+                                        <Typography className={classes.formDividerWord}>or</Typography>
+                                        <div className={classes.formDivider} />
+                                    </div>
+                                    <Button
+                                        className={clsx(
+                                            classes.googleButton,
+                                            classes.googleButtonCreating
+                                        )}
+                                        onClick={handleGoogleSignUp}
+                                        fullWidth
+                                    >
+                                        <img src={google} alt="google" className={classes.googleIcon} />
+                                        &nbsp;Sign in with Google
+                                    </Button>
+                                </>)}
                                 {/*<Button*/}
                                 {/*    color="primary"*/}
                                 {/*    size="large"*/}
@@ -190,7 +190,7 @@ const LoginPage = () => {
                             <div className={classes.creatingButtonContainer}>
                                 {isLoading ? (
                                     <CircularProgress size={26} />
-                                ) : (
+                                ) : (<>
                                     <Button
                                         type="submit"
                                         onClick={() => {
@@ -209,34 +209,37 @@ const LoginPage = () => {
                                     >
                                         Create
                                     </Button>
-                                )}
+                                    <Button
+                                        variant="outlined"
+                                        className={classes.outLinedButton}
+                                        onClick={() => {
+                                            dispatch(quickstart())
+                                        }}
+                                        fullWidth
+                                    >
+                                        Continue as Guest
+                                    </Button>
+                                </>)}
+                            </div>
+                            {!isLoading && <>
+                                <div className={clsx(classes.formDividerContainer, classes.marginBottom)}>
+                                    <div className={classes.formDivider} />
+                                    <Typography className={classes.formDividerWord}>or</Typography>
+                                    <div className={classes.formDivider} />
+                                </div>
                                 <Button
-                                    variant="outlined"
-                                    className={classes.outLinedButton}
-                                    onClick={() => {
-                                        dispatch(quickstart())
-                                    }}
+                                    className={clsx(
+                                        classes.googleButton,
+                                        classes.googleButtonCreating
+                                    )}
+                                    onClick={handleGoogleSignUp}
                                     fullWidth
                                 >
-                                    Continue as Guest
+                                    <img src={google} alt="google" className={classes.googleIcon} />
+                                    &nbsp;Sign in with Google
                                 </Button>
-                            </div>
-                            <div className={clsx(classes.formDividerContainer, classes.marginBottom)}>
-                                <div className={classes.formDivider} />
-                                <Typography className={classes.formDividerWord}>or</Typography>
-                                <div className={classes.formDivider} />
-                            </div>
-                            <Button
-                                className={clsx(
-                                    classes.googleButton,
-                                    classes.googleButtonCreating
-                                )}
-                                onClick={handleGoogleSignUp}
-                                fullWidth
-                            >
-                                <img src={google} alt="google" className={classes.googleIcon} />
-                                &nbsp;Sign in with Google
-                            </Button>
+                            </>
+                            }
                         </>
                     )}
                 </form>

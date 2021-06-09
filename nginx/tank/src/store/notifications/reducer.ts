@@ -1,4 +1,4 @@
-import * as notificationConstants from './constants'
+import notificationConstants from './constants'
 import { Reducer } from 'redux'
 import { Color } from '@material-ui/lab'
 

@@ -1,15 +1,15 @@
-import * as gameConstants from './constants'
+import gameConstants from './constants'
 import { Reducer } from 'redux'
 import { AsyncState } from '../user/reducer'
-import { Game, SocketMessage } from '../../models/game'
+import { Game } from '../../models/game'
+import { SocketMessage } from '../../models/socket'
 
 export interface GameState {
     createGameState: AsyncState
-    getGameHistoryState: AsyncState
-    getGMGameHistoryState: AsyncState
-    getPublicGamesState: AsyncState
+    getAllGamesState: AsyncState
     error: Error | null
-    currentGame: Game | null
+    currentGame?: Game
+    allGames: Game[]
     games: Game[]
     gamesGM: Game[]
     publicGames: Game[]
@@ -19,11 +19,9 @@ export interface GameState {
 
 const INITIAL_STATE: GameState = {
     createGameState: AsyncState.unknown,
-    getGameHistoryState: AsyncState.unknown,
-    getGMGameHistoryState: AsyncState.unknown,
-    getPublicGamesState: AsyncState.unknown,
+    getAllGamesState: AsyncState.unknown,
     error: null,
-    currentGame: null,
+    allGames: [],
     games: [],
     gamesGM: [],
     publicGames: [],
@@ -34,16 +32,21 @@ const INITIAL_STATE: GameState = {
 const gameReducer: Reducer<GameState> = (state = INITIAL_STATE, action) => {
     switch (action.type) {
         case gameConstants.CREATE_GAME_REQUEST_STARTED:
-            return { ...state, createGameState: AsyncState.inProcess, connectGameState: AsyncState.inProcess }
+            return { ...state, createGameState: AsyncState.inProcess }
         case gameConstants.CREATE_GAME_REQUEST_FINISHED:
             return {
                 ...state,
-                connectGameState: AsyncState.inProcess,
                 createGameState: AsyncState.success,
                 currentGame: action.payload,
             }
         case gameConstants.CREATE_GAME_REQUEST_ERROR:
             return { ...state, createGameState: AsyncState.error }
+        case gameConstants.GET_ALL_GAMES_REQUEST_STARTED:
+            return { ...state, allGames: [], getAllGamesState: AsyncState.inProcess }
+        case gameConstants.GET_ALL_GAMES_REQUEST_FINISHED:
+            return { ...state, allGames: action.payload, getAllGamesState: AsyncState.success }
+        case gameConstants.GET_ALL_GAMES_REQUEST_ERROR:
+            return { ...state, allGames: [], getAllGamesState: AsyncState.error }
         case gameConstants.GET_GAME_HISTORY_REQUEST_STARTED:
             return { ...state, getGameHistoryState: AsyncState.inProcess }
         case gameConstants.GET_GAME_HISTORY_REQUEST_FINISHED:
@@ -79,7 +82,7 @@ const gameReducer: Reducer<GameState> = (state = INITIAL_STATE, action) => {
         case gameConstants.CONNECT_GAME_STARTED:
             return {
                 ...state,
-                currentGame: { invitation_code: action.payload },
+                currentGame: state.allGames.find(g => g.invitation_code === action.payload),
                 connectGameState: AsyncState.inProcess
             }
         case gameConstants.CONNECT_GAME_FINISHED:
@@ -87,7 +90,7 @@ const gameReducer: Reducer<GameState> = (state = INITIAL_STATE, action) => {
         case gameConstants.DISCONNECT_GAME:
             return {
                 ...state,
-                currentGame: null,
+                currentGame: undefined,
                 currentGameData: null,
                 connected: false,
                 connectGameState: AsyncState.unknown
@@ -95,7 +98,7 @@ const gameReducer: Reducer<GameState> = (state = INITIAL_STATE, action) => {
         case gameConstants.CONNECT_GAME_ERROR:
             return {
                 ...state,
-                currentGame: null,
+                currentGame: undefined,
                 currentGameData: null,
                 connected: false,
                 connectGameState: AsyncState.error

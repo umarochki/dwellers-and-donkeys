@@ -1,0 +1,37 @@
+{
+  "name": "gameboard",
+  "version": "1.0.0",
+  "description": "Gameboard module for D&D web application",
+  "main": "dist/app.js",
+  "scripts": {
+    "watch": "rollup -cw",
+    "build": "cross-env NODE_ENV=production rollup -c",
+    "build:dev": "rollup -c",
+    "test": "mocha tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/umarochki/dwellers-and-donkeys.git"
+  },
+  "author": "Anastasiia Kolonskaia <anagrimonia@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^19.0.0",
+    "@rollup/plugin-node-resolve": "^13.0.0",
+    "@rollup/plugin-typescript": "^8.2.1",
+    "clean-webpack-plugin": "^3.0.0",
+    "cross-env": "^7.0.2",
+    "mocha": "^7.1.1",
+    "mocha-loader": "^5.0.0",
+    "patch-package": "^6.4.7",
+    "rollup": "^2.49.0",
+    "ts-loader": "^6.2.2",
+    "typescript": "^3.8.3"
+  },
+  "dependencies": {
+    "d-path-parser": "1.0.0",
+    "penner": "0.1.3",
+    "pixi.js-legacy": "6.0.4",
+    "tinycolor2": "1.4.2"
+  }
+}

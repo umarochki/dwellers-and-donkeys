@@ -1,4 +1,4 @@
-declare module 'game-module/**/*'
+declare module 'gameboard/**/*'
 
 declare module '*.svg' {
     const content: any

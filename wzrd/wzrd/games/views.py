@@ -5,7 +5,7 @@ from django.http import JsonResponse
 from rest_framework import viewsets
 from rest_framework.decorators import action
 
-from wzrd.utils import generate_key
+from wzrd.utils import generate_key, is_invite_key
 from wzrd.users.mixins import IsAuthorisedMixin
 from wzrd.users.decorators import is_authorized, self_set_auth_token
 
@@ -55,12 +55,17 @@ class GameSessionViewSet(viewsets.ModelViewSet, IsAuthorisedMixin):
     @self_set_auth_token
     def get_queryset(self):
         queryset = self.model_class.objects.none()
-        pk = _.get(self, "request.parser_context.kwargs.pk")
-        if pk:
-            return self.model_class.objects.filter(pk=pk)
         queryset |= self.model_class.objects.filter(is_private=False)
         queryset |= self.model_class.objects.filter(game_master=self.user.id)
         return queryset
+
+    @is_authorized
+    def retrieve(self, request, *args, **kwargs):
+        pk = _.get(self, "request.parser_context.kwargs.pk")
+        if is_invite_key(pk):
+            self.lookup_field = "invitation_code"
+            self.kwargs[self.lookup_field] = pk
+        return super().retrieve(request, *args, **kwargs)
 
     @is_authorized
     def create(self, request, *args, **kwargs):
@@ -79,14 +84,22 @@ class GameSessionViewSet(viewsets.ModelViewSet, IsAuthorisedMixin):
     @action(detail=False, methods=['GET'])
     def history(self, request, *args, **kwargs):
         qs = self.user.sessions.exclude(game_master=self.user.id)
-        serializer = self.get_serializer(qs, many=True, short=True)
+        context = {
+            **self.get_serializer_context(),
+            'short': True
+        }
+        serializer = self.get_serializer(qs, many=True, context=context)
         return JsonResponse(serializer.data, safe=False, status=200)
 
     @is_authorized
     @action(detail=False, methods=['GET'])
     def gm(self, request, *args, **kwargs):
         qs = self.model_class.objects.filter(game_master=self.user.id)
-        serializer = self.get_serializer(qs, many=True, short=True)
+        context = {
+            **self.get_serializer_context(),
+            'short': True
+        }
+        serializer = self.get_serializer(qs, many=True, context=context)
         return JsonResponse(serializer.data, safe=False, status=200)
 
     def get_serializer_context(self):

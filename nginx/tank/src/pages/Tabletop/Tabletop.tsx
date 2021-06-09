@@ -1,40 +1,40 @@
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import LeftDrawer from '../../components/Switcher/LeftDrawer'
-import { Grid, Hidden } from '@material-ui/core'
-import UserCard from '../../components/Controls/UserCard'
-import PersonCard from '../../components/Controls/PersonCard'
-import ChatPanel from '../../components/Controls/ChatPanel'
-import Gameboard from 'game-module/src/Gameboard'
+import { Hidden } from '@material-ui/core'
+import Gameboard from 'gameboard'
 import { WebSocketContext } from '../../components/Contexts/WebSocketContext'
 import { useDispatch, useSelector } from 'react-redux'
-import { selectConnectGameState, selectCurrentGame, selectCurrentGameData } from '../../store/game/selectors'
+import {
+    selectAllGames,
+    selectConnectGameState,
+    selectCurrentGame,
+    selectCurrentGameData,
+    selectGetAllGamesState
+} from '../../store/game/selectors'
 import { AsyncState } from '../../store/user/reducer'
-import FullscreenLoader from '../../components/Containers/FullscreenLoader/FullscreenLoader'
+import FullscreenLoader from '../../components/Containers/FullscreenLoader'
 import { push } from 'connected-react-router'
-import { connectGame, disconnectGame } from '../../store/game/actions'
-import { GameDataMessage, SocketMessage } from '../../models/game'
+import { connectGame, disconnectGame, getAllGames } from '../../store/game/actions'
+import { SocketMessage } from '../../models/socket'
+import { ChatMessagePayload } from '../../models/chat'
 import { ConnectedUser } from '../../models/user'
 import useStyles from './styles'
 import { useParams } from 'react-router-dom'
 import { MenuType } from '../../components/Switcher/Switcher'
-import AppsIcon from '@material-ui/icons/Apps'
 import clsx from 'clsx'
 import RightDrawer from '../../components/Controls/RightDrawer/RightDrawer'
 import FullscreenPage from '../../components/Containers/FullscreenPage'
 import { primary50 } from '../../styles/colors'
-import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos'
-import CreateIcon from '@material-ui/icons/Create'
 import DeleteIcon from '@material-ui/icons/Delete'
-import { ReactComponent as EraserIcon } from '../../assets/eraser.svg'
 import { getMaps } from '../../store/map/actions'
 import { Map } from '../../models/map'
 import { selectMaps } from '../../store/map/selectors'
 import TutorialDialog from '../../components/Dialogs/TutorialDialog/TutorialDialog'
 import ChooseCharacterDialog from '../../components/Dialogs/ChooseCharacterDialog'
 import { Hero } from '../../models/hero'
-import SignalCellular4BarIcon from '@material-ui/icons/SignalCellular4Bar'
-import MapControlWithPopover from '../../components/Controls/MapControlWithPopover'
-import MapControlSettings from '../../components/Controls/MapControlSettings'
+import MapControls from '../../components/Controls/Map/MapControls'
+import BottomControlPanel from '../../components/Controls/Bottom/BottomControlPanel'
+import { RefreshMessage } from '../../models/tabletop'
 
 export enum MyHeroType {
     unknown,
@@ -59,8 +59,12 @@ const Tabletop = () => {
     const currentGameData = useSelector(selectCurrentGameData)
     const connectGameState = useSelector(selectConnectGameState)
 
+    const allGames = useSelector(selectAllGames)
+    const getAllGamesState = useSelector(selectGetAllGamesState)
+    const currentGame = useMemo(() => game ? allGames.find(g => g.invitation_code === game.invitation_code) : undefined, [allGames, game])
+
     const [myGameBoard, setMyGameBoard] = useState<any>(null)
-    const [messages, setMessages] = useState<GameDataMessage[]>([])
+    const [messages, setMessages] = useState<ChatMessagePayload[]>([])
     const [users, setUsers] = useState<ConnectedUser[]>([])
     const [isGlobal, setIsGlobal] = useState<boolean | null>(null)
     const [isSwiping, setSwiping] = useState(false)
@@ -70,10 +74,10 @@ const Tabletop = () => {
     const [tutorialOpen, setTutorialOpen] = useState(false)
     const [chooseHeroDialogOpen, setChooseHeroDialogOpen] = useState(false)
     const [myHero, setMyHero] = useState(MyHeroType.unknown)
-    const [hero, setHero] = useState<Hero | null>(null)
+    const [hero, setHero] = useState<Hero | undefined>(undefined)
 
     const [selectedMaps, setSelectedMaps] = useState<string[]>((currentGameData && currentGameData.meta.maps) || [])
-    const maps = useSelector(selectMaps) || []
+    const maps = useSelector(selectMaps)
 
     const [idToDelete, setIdToDelete] = useState<null | number>(null)
     const isDltBtnHovered = useRef<boolean>(false)
@@ -92,7 +96,7 @@ const Tabletop = () => {
     }, [])
 
     const handleOpenDrawer = useCallback(() => {
-        myGameBoard && myGameBoard.resetDraggedDOMListeners()
+        myGameBoard && myGameBoard.dragAndDrop.reset()
     }, [myGameBoard])
 
     const handleOpenGlobalCard = useCallback(() => {
@@ -115,8 +119,8 @@ const Tabletop = () => {
         const newMap = maps.find(m => m.hash === mapId)
 
         if (newMap) {
-            myGameBoard.setMap({ sprite: newMap.file }, () => {
-                myGameBoard.refresh({
+            myGameBoard.map.set({ sprite: newMap.file }, () => {
+                myGameBoard.gameObjectManager.refresh({
                     ...currentGameData.meta
                 })
             })
@@ -128,8 +132,8 @@ const Tabletop = () => {
             dispatch(getMaps(id, (maps: Map[]) => {
                 const newMap = maps.find(m => m.hash === mapId)
                 if (newMap) {
-                    myGameBoard.setMap({ sprite: newMap.file }, () => {
-                        myGameBoard.refresh({
+                    myGameBoard.map.set({ sprite: newMap.file }, () => {
+                        myGameBoard.gameObjectManager.refresh({
                             ...currentGameData.meta
                         })
                     })
@@ -149,41 +153,44 @@ const Tabletop = () => {
     }, [dispatch, id])
 
     useEffect(() => {
+        dispatch(getAllGames())
+    }, [dispatch])
+
+    useEffect(() => {
         if (!myGameBoard && connectGameState === AsyncState.success && game && game.invitation_code && divRef && divRef.current && ws.socket) {
             const gameBoard = new Gameboard({
                 parent: divRef.current,
                 width: divRef.current.clientWidth,
                 height: divRef.current.clientHeight,
                 transparent: true,
-                resizeTo: divRef.current
-                //backgroundColor: 0xfff000
-                // TODO: isGameMaster: {boolean}
+                resizeTo: divRef.current,
+                isGameMaster: (currentGameData as RefreshMessage).meta.is_gm || false
             })
 
-            // gameBoard.eventManager.subscribe('map', (data: any) => ws.sendMessage('map', data))
-            gameBoard.eventManager.subscribe('add', (data: any) => ws.sendMessage('add', data))
-            gameBoard.eventManager.subscribe('delete', (data: any) => ws.sendMessage('delete', data))
-            gameBoard.eventManager.subscribe('update', (data: any) => ws.sendMessage('update', data))
-            gameBoard.eventManager.subscribe('update_and_save', (data: any) => {
-                ws.sendMessage('update_and_save', data)
+            const assets = [{ name: 'grid', url: '../grid64.png' }]
 
-                if (isDltBtnHovered.current) {
-                    gameBoard.deleteObject({ id: data.id })
-                    ws.sendMessage('delete', { id: data.id })
-                    isDltBtnHovered.current = false
-                }
+            gameBoard.init(assets, () => {
+                // gameBoard.eventManager.add('map/set', (data: any) => ws.sendMessage('map', data))
+                gameBoard.eventManager.add('object/add', (data: any) => ws.sendMessage('add', data))
+                gameBoard.eventManager.add('object/delete', (data: any) => ws.sendMessage('delete', data))
+                gameBoard.eventManager.add('object/update', (data: any) => ws.sendMessage('update', data), true)
+                gameBoard.eventManager.add('object/update-end', (data: any) => {
+                    ws.sendMessage('update_and_save', data)
 
-                setIdToDelete(null)
+                    if (isDltBtnHovered.current) {
+                        gameBoard.gameObjectManager.delete({ id: data.id })
+                        ws.sendMessage('delete', { id: data.id })
+                        isDltBtnHovered.current = false
+                    }
 
-            })
-            gameBoard.eventManager.subscribe('update_and_start', (data: any) => {
-                ws.sendMessage('update_and_start', data)
-                setIdToDelete(data.id)
-            })
+                    setIdToDelete(null)
+                })
 
-            const assets = [{ name: 'grid', path: '../grid64.png' }]
+                gameBoard.eventManager.add('object/update-start', (data: any) => {
+                    ws.sendMessage('update_and_start', data)
+                    setIdToDelete(data.id)
+                })
 
-            gameBoard.preload(assets, () => {
                 boardRef.current = gameBoard
                 ws.sendMessage('refresh')
             })
@@ -200,17 +207,17 @@ const Tabletop = () => {
 
             switch (currentGameData.type) {
                 case 'update_and_start':
-                    myGameBoard.updateObject(currentGameData.meta, 'overlap')
-                    myGameBoard.updateObject(currentGameData.meta)
+                    myGameBoard.gameObjectManager.update(currentGameData.meta)
+                    myGameBoard.gameObjectManager.update(currentGameData.meta)
                     break
                 case 'update':
-                    myGameBoard.updateObject(currentGameData.meta)
+                    myGameBoard.gameObjectManager.update(currentGameData.meta)
                     break
                 case 'add':
-                    myGameBoard.addObject(currentGameData.meta)
+                    myGameBoard.gameObjectManager.add(currentGameData.meta)
                     break
                 case 'delete':
-                    myGameBoard.deleteObject(currentGameData.meta)
+                    myGameBoard.gameObjectManager.delete(currentGameData.meta)
                     break
                 case 'chat':
                     setMessages(prev => [...prev, currentGameData.meta])
@@ -232,8 +239,8 @@ const Tabletop = () => {
 
                     currentGameData.meta.map !== 'Global'
                         ? handleUpdateMap(currentGameData.meta.map, currentGameData)
-                        : myGameBoard.setMap({ sprite: '../globalSymbols/WorldMap.png' }, () =>
-                            myGameBoard.refresh({
+                        : myGameBoard.map.set({ sprite: '../globalSymbols/WorldMap.png' }, () =>
+                            myGameBoard.gameObjectManager.refresh({
                                 ...currentGameData.meta
                             }))
 
@@ -251,8 +258,8 @@ const Tabletop = () => {
                     handleUpdateMap(mapId, currentGameData)
                     break
                 case 'global_map':
-                    myGameBoard.setMap({ sprite: '../globalSymbols/WorldMap.png' }, () => {
-                        myGameBoard.refresh({
+                    myGameBoard.map.set({ sprite: '../globalSymbols/WorldMap.png' }, () => {
+                        myGameBoard.gameObjectManager.refresh({
                             ...currentGameData.meta
                         })
                     })
@@ -279,6 +286,12 @@ const Tabletop = () => {
         }
     }, [myHero])
 
+    useEffect(() => {
+        if (connectGameState === AsyncState.error || connectGameState === AsyncState.unknown) {
+            getAllGamesState === AsyncState.success && dispatch(connectGame(id))
+        }
+    }, [dispatch, getAllGamesState, connectGameState, id])
+
     if (orientation.device === 'mobile' && orientation.orientation === 'portrait') {
         return <FullscreenPage styles={{ color: primary50 }}>Please, rotate your device to landscape mode</FullscreenPage>
     }
@@ -289,7 +302,6 @@ const Tabletop = () => {
 
     if (connectGameState === AsyncState.error || connectGameState === AsyncState.unknown) {
         if (!game || game.invitation_code !== id) {
-            dispatch(connectGame(id))
             return <FullscreenLoader/>
         }
         dispatch(push('/'))
@@ -308,6 +320,7 @@ const Tabletop = () => {
                     type={type}
                     setType={setType}
                     selectedMaps={selectedMaps}
+                    game={currentGame}
                 />
                 <main className={classes.content}>
                     <div
@@ -327,44 +340,18 @@ const Tabletop = () => {
                         }}
                     />
                     <Hidden mdDown={true}>
-                        <div className={clsx(classes.controls, !showControls && classes.hideControls)}>
-                            <div className={clsx(classes.closeButton, classes.drawerBtn, !showControls && classes.drawerBtnClosed)} onClick={() => setShowControls(isOpen => !isOpen)}>
-                                <ArrowBackIosIcon className={clsx(classes.closeIcon, !showControls && classes.closeIconClosed)} />
-                            </div>
-                            <Grid container>
-                                <Grid item xs={5} className={classes.controlPanel}>
-                                    <div className={classes.people}>
-                                        {users.map(user => <PersonCard user={user.username} key={user.username}/>)}
-                                    </div>
-                                </Grid>
-                                <Grid item xs={2} className={classes.controlPanel}>
-                                    <UserCard code={game ? game.invitation_code || '' : ''} hero={hero}/>
-                                </Grid>
-                                <Grid item xs={5} className={classes.controlPanel}>
-                                    <ChatPanel data={messages}/>
-                                </Grid>
-                            </Grid>
-                        </div>
+                        <BottomControlPanel
+                            showControls={showControls}
+                            onToggle={() => setShowControls(isOpen => !isOpen)}
+                            game={game}
+                            users={users}
+                            messages={messages}
+                            hero={hero}
+                        />
                     </Hidden>
                 </main>
                 <Hidden mdDown={true}>
-                    <div className={classes.mapControls}>
-                        <div className={classes.mapControl} onClick={() => boardRef.current && boardRef.current.switchGrid()}><AppsIcon className={classes.mapControlIcon}/></div>
-                        <MapControlWithPopover
-                            id="pencil"
-                            icon={<div className={classes.mapControl}><CreateIcon className={classes.mapControlIcon}/></div>}
-                            controls={<MapControlSettings/>}
-                            onClick={() => boardRef.current && boardRef.current.drawer.setMode('pencil')}
-                        />
-                        <div className={classes.mapControl} onClick={() => boardRef.current && boardRef.current.drawer.setMode('eraser')}><EraserIcon className={classes.mapControlIcon}/></div>
-                        <MapControlWithPopover
-                            id="polygon"
-                            icon={<div className={classes.mapControl}><SignalCellular4BarIcon className={classes.mapControlIcon}/></div>}
-                            controls={<MapControlSettings/>}
-                            onClick={() => boardRef.current && boardRef.current.drawer.setMode('polygon')}
-                        />
-                        <div className={classes.mapControl} onClick={() => boardRef.current && boardRef.current.drawer.clear()}><DeleteIcon className={classes.mapControlIcon}/></div>
-                    </div>
+                    <MapControls boardRef={boardRef} />
                 </Hidden>
                 {
                     idToDelete &&
@@ -394,7 +381,7 @@ const Tabletop = () => {
                         ws.sendMessage('add', {
                             type: 'hero',
                             hero_id: hero.id,
-                            xy: myGameBoard ? [myGameBoard.mapContainer.width / 2, myGameBoard.mapContainer.height / 2] : [0, 0],
+                            xy: myGameBoard ? [myGameBoard.map.width / 2, myGameBoard.map.height / 2] : [0, 0],
                             sprite: hero.sprite,
                             name: hero.name
                         })

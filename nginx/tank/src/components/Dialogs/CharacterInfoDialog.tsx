@@ -20,7 +20,7 @@ import { Controller, FormProvider, useForm } from 'react-hook-form'
 import { useDispatch } from 'react-redux'
 import { addHero } from '../../store/hero/actions'
 import { Hero } from '../../models/hero'
-import { heroes } from '../Switcher/LeftDrawer'
+import { heroes } from '../Switcher/icons'
 import { getUrl } from '../../helpers/authHeader'
 
 const useStyles = makeStyles((theme: Theme) =>
