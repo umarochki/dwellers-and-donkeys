@@ -188,7 +188,10 @@ const LeftDrawer: React.FC<Props> = props => {
         }
     }, [type, onOpenGlobalCard, setOpen, setType])
 
-    const handleLocationChange = (location: string | null) => {
+    const handleLocationChange = (mapId: string | null) => {
+        const map = mapsList.find(m => m.hash === mapId)
+        
+        const location = map ? map.file : mapId
         gameBoard.gameObjectManager.update({ id: objectId, location })
         ws.sendMessage('update', { id: objectId, location })
     }

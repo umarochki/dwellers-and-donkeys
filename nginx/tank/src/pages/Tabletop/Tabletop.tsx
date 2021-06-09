@@ -150,6 +150,7 @@ const Tabletop = () => {
     const  handleLocationChange = useCallback((id: string) => {
         setType(MenuType.markerLocation)
         setObjectId(id)
+        setSwiping(true)
         setOpen(true)
     }, [])
 
@@ -201,6 +202,10 @@ const Tabletop = () => {
                     handleLocationChange(data.id)
                 })
                 gameBoard.eventManager.add('object/unselected', () => closeSidebar())
+
+                gameBoard.eventManager.add('map/set/after', () => {
+                    setIsGlobal(false)
+                })
 
                 setBoardRef(gameBoard)
             })
@@ -267,7 +272,7 @@ const Tabletop = () => {
                     handleUpdateMap(mapId, currentGameData)
                     break
                 case 'global_map':
-                    myGameBoard.map.set({ sprite: '../globalSymbols/WorldMap.png' }, () => {
+                    myGameBoard.map.set({ sprite: '../decorations/WorldMap.png' }, () => {
                         myGameBoard.gameObjectManager.refresh({
                             ...currentGameData.meta
                         })
