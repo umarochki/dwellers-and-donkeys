@@ -1,7 +1,7 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useContext, useMemo, useState } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import Drawer from '@material-ui/core/Drawer'
-import { GridList, GridListTile, Theme, Tooltip } from '@material-ui/core'
+import { Button, GridList, GridListTile, Theme, Tooltip } from '@material-ui/core'
 import clsx from 'clsx'
 import Switcher, { MenuType } from './Switcher'
 // @ts-ignore
@@ -15,7 +15,8 @@ import { useSelector } from 'react-redux'
 import { selectMaps } from '../../store/map/selectors'
 import { Game } from '../../models/game'
 import MapCard from '../Cards/MapCard'
-import { globalSymbols, heroes, markersList } from './icons'
+import { decorations, decorationsExtra, heroes, markers } from './icons'
+import { WebSocketContext } from '../Contexts/WebSocketContext';
 
 const drawerWidth = 300
 
@@ -110,7 +111,9 @@ interface Props {
     type: MenuType
     setType: (v: MenuType) => void
     selectedMaps: string[]
-    game?: Game
+    game: Game | null
+    gameBoard: any
+    objectId: string | null
 }
 
 interface MapMapType {
@@ -121,7 +124,21 @@ interface MapMapType {
 }
 
 const LeftDrawer: React.FC<Props> = props => {
-    const { onOpen, onMapChange, onOpenGlobalCard, global, open, setOpen, type, setType, selectedMaps, game } = props
+    const {
+        onOpen,
+        onMapChange,
+        onOpenGlobalCard,
+        global,
+        open, setOpen,
+        type, setType,
+        selectedMaps,
+        game,
+        gameBoard,
+        objectId
+    } = props
+
+    const ws = useContext(WebSocketContext)
+
     const classes = useStyles()
     const classesTooltip = useTooltipStyles()
     const mapsList = useSelector(selectMaps)
@@ -171,8 +188,18 @@ const LeftDrawer: React.FC<Props> = props => {
         }
     }, [type, onOpenGlobalCard, setOpen, setType])
 
-    const handleMapClick = (map: string) => () => {
-        onMapChange(map)
+    const handleLocationChange = (mapId: string | null) => {
+        const map = mapsList.find(m => m.hash === mapId)
+        
+        const location = map ? map.file : mapId
+        gameBoard.gameObjectManager.update({ id: objectId, location })
+        ws.sendMessage('update', { id: objectId, location })
+    }
+
+    const handleMapClick = (map: string | null) => () => {
+        type === MenuType.locations
+            ? map && onMapChange(map)
+            : handleLocationChange(map)
     }
 
     React.useEffect(() => {
@@ -183,13 +210,13 @@ const LeftDrawer: React.FC<Props> = props => {
 
     const renderSidebar = (type: string) => {
         switch (type) {
-            case MenuType.markers:
+            case MenuType.decorationsExtra:
                 return (
                     <GridList cellHeight={70} cols={3} className={classes.gridList}>
-                        {markersList.map((marker: string) => (
-                            <Tooltip classes={classesTooltip} TransitionComponent={Zoom} title={marker} key={marker}>
+                        {decorationsExtra.map((decoration: string) => (
+                            <Tooltip classes={classesTooltip} TransitionComponent={Zoom} title={decoration} key={decoration}>
                                 <GridListTile cols={1} className={classes.tile}>
-                                    <ImageLoader src={`/markers/${marker}.png`} marker draggable/>
+                                    <ImageLoader src={`/decorations_extra/${decoration}.png`} data="decoration" draggable/>
                                 </GridListTile>
                             </Tooltip>
                         ))}
@@ -201,15 +228,19 @@ const LeftDrawer: React.FC<Props> = props => {
                         {heroes.map((hero: string) => (
                             <Tooltip classes={classesTooltip} TransitionComponent={Zoom} title={hero} key={hero}>
                                 <GridListTile cols={1} className={classes.tile}>
-                                    <ImageLoader src={`/heroes/${hero}.png`} draggable/>
+                                    <ImageLoader src={`/heroes/${hero}.png`} data="creature" draggable/>
                                 </GridListTile>
                             </Tooltip>
                         ))}
                     </GridList>
                 )
             case MenuType.locations:
+            case MenuType.markerLocation:
                 return (
                     <GridList cellHeight={100} cols={1}>
+                        {type === MenuType.markerLocation && (
+                            <Button onClick={handleMapClick(null)}>Remove map</Button>
+                        )}
                         {selectedMaps.map((map: string) => (
                             mapMap[map] && <Tooltip classes={classesTooltip} TransitionComponent={Zoom} title={mapMap[map].name} key={map}>
                                 <GridListTile cols={1} className={classes.tile} onClick={handleMapClick(map)}>
@@ -223,20 +254,33 @@ const LeftDrawer: React.FC<Props> = props => {
                                 </GridListTile>
                             </Tooltip>
                         ))}
-                        <GridListTile cols={1} className={classes.tile} onClick={() => {
+                        {type === MenuType.locations && (<GridListTile cols={1} className={classes.tile} onClick={() => {
                             setOpenAddMap(true)
                         }}>
                             <AddCard />
-                        </GridListTile>
+                        </GridListTile>)}
                     </GridList>
                 )
-            case MenuType.globalSymbols:
+            case MenuType.decorations:
                 return (
                     <GridList cellHeight={70} cols={3}>
-                        {globalSymbols.map((globalSymbol: string) => (
-                            <Tooltip classes={classesTooltip} TransitionComponent={Zoom} title={globalSymbol} key={globalSymbol}>
+                        {decorations.map((decoration: string) => (
+                            <Tooltip classes={classesTooltip} TransitionComponent={Zoom} title={decoration} key={decoration}>
                                 <GridListTile cols={1} className={classes.tile}>
-                                    <ImageLoader src={`/globalSymbols/${globalSymbol}.png`} marker draggable/>
+                                    <ImageLoader src={`/decorations/${decoration}.png`} data="decoration" draggable/>
+                                </GridListTile>
+                            </Tooltip>
+                        ))}
+                    </GridList>
+                )
+
+            case MenuType.markers:
+                return (
+                    <GridList cellHeight={70} cols={3}>
+                        {markers.map((marker: string) => (
+                            <Tooltip classes={classesTooltip} TransitionComponent={Zoom} title={marker} key={marker}>
+                                <GridListTile cols={1} className={classes.tile}>
+                                    <ImageLoader src={`/markers/${marker}.png`} data="marker" draggable/>
                                 </GridListTile>
                             </Tooltip>
                         ))}

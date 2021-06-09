@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:rogue/live.dart';
 import 'package:http/http.dart' as http;
 import 'package:rogue/newMap.dart';
+import 'package:rogue/createHero.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/io.dart';
 import 'dart:convert';
@@ -41,33 +42,53 @@ class _GameBoardState extends State<GameBoard>
   String _invite_code = "invite_code_filler";
 
   List<dynamic> _chat = [];
+  List<dynamic> _heroes = [];
   List<dynamic> _activeUsers = [];
+
   Map<String, dynamic> _gameObjects = {};
+  Map<String, dynamic> gameObjects() => _gameObjects;
+
   List<dynamic> _maps = []; // list string
+  List<dynamic> mapsOfSession() => _maps;
+
   String _currentMap = "Global";
+  String currentMap() => _currentMap;
+
   Map<String, dynamic> _hero = {};
+
   bool _isGm = false;
+  bool isGm() => _isGm;
+
   bool _wsMustBeOn = true;
 
   WebSocketChannel _channel;
 
   String _dir;
+  String dir() => _dir;
+
   dynamic _initHeightDashboard;
 
   TabController _tabController;
 
   Map<String, dynamic> maps = {}; // все карты
+  Map<String, dynamic> mapsInfo() => maps;
 
   @override
   void initState() {
     super.initState();
     _channel = widget.channel;
     _tabController = new TabController(vsync: this, length: 3);
-    prepareMaps();
     prepareTokens();
+    prepareMarkers();
+    prepareHeroes();
     listen();
     _tabController.animateTo(1);
+    // prepareMaps();
     refresh();
+  }
+
+  void prepareHeroes() async {
+    _heroes = await getHeroes();
   }
 
   void prepareTokens() async {
@@ -78,7 +99,18 @@ class _GameBoardState extends State<GameBoard>
       var imageFile =
           await _downloadFile('${Config.url_heroes}$name', '$name', _dir);
     }
-    debugPrint('downloaded');
+    debugPrint('tokens downloaded');
+  }
+
+  void prepareMarkers() async {
+    if (_dir == null) {
+      _dir = (await getApplicationDocumentsDirectory()).path;
+    }
+    for (var name in Config.listOfMarkers) {
+      var imageFile =
+          await _downloadFile('${Config.url_markers}$name', '$name', _dir);
+    }
+    debugPrint('markers downloaded');
   }
 
   Future<void> prepareMaps() async {
@@ -97,6 +129,9 @@ class _GameBoardState extends State<GameBoard>
     maps['Global']['name'] = 'global';
     maps['Global']['img'] = Image.asset('assets/WorldMap.png');
     maps['Global']['wh'] = [1920, 1080];
+    setState(() {
+      maps = maps;
+    });
   }
 
   @override
@@ -129,7 +164,7 @@ class _GameBoardState extends State<GameBoard>
         debugPrint('message $message');
         Map<String, dynamic> json = jsonDecode(message);
 
-        // debugPrint('q: $json');
+        // debugPrint('q: ${json['meta']});
         if (json['type'] == 'refresh') {
           handleRefresh(json);
         }
@@ -199,11 +234,15 @@ class _GameBoardState extends State<GameBoard>
     _channel.sink.add('{"type":"map", "meta": "$message"}');
   }
 
-  void sendAdd(String sprite) {
-    debugPrint(
-        '{"type":"add", "meta": { "type": "none", "sprite" : "$sprite", "xy": [100.0, 100.0]}}');
-    _channel.sink.add(
-        '{"type":"add", "meta": { "type": "none", "sprite" : "$sprite", "xy": [100.0, 100.0]}}');
+  void sendAdd(String sprite, String type) {
+    // debugPrint(
+    //     '{"type":"add", "meta": { "type": "none", "sprite" : "$sprite", "xy": [100.0, 100.0]}}');
+    if (_currentMap == "Global")
+      _channel.sink.add(
+          '{"type":"add", "meta": { "type": "marker", "location" : "" , "sprite" : "$sprite", "xy": [100.0, 100.0]}}');
+    else
+      _channel.sink.add(
+          '{"type":"add", "meta": { "type": "$type", "sprite" : "$sprite", "xy": [100.0, 100.0]}}');
   }
 
   void sendWorldMap() {
@@ -219,6 +258,18 @@ class _GameBoardState extends State<GameBoard>
           .add('{"type":"update", "meta": { "id" : $id , "xy" : $xy}}');
   }
 
+  void sendLocation(dynamic id, String location) {
+    debugPrint(
+        '{"type":"update", "meta": { "id" : "$id" , "location" : "$location"}}');
+    if (id is String)
+      _channel.sink.add(
+          '{"type":"update", "meta": { "id" : "$id" , "location" : "$location"}}');
+    else
+      _channel.sink.add(
+          '{"type":"update", "meta": { "id" : $id , "location" : "$location"}}');
+    _gameObjects[id]['location'] = location;
+  }
+
   void sendDelete(dynamic id) {
     _channel.sink.add('{"type":"delete", "meta": { "id" : "$id"}}');
   }
@@ -229,6 +280,7 @@ class _GameBoardState extends State<GameBoard>
   }
 
   void handleRefresh(Map<String, dynamic> json) {
+    prepareMaps();
     if (this.mounted)
       setState(() {
         _chat = json['meta']['chat'];
@@ -260,7 +312,11 @@ class _GameBoardState extends State<GameBoard>
           .substring(gameObject['sprite'].lastIndexOf('/') + 1);
       File file = _getLocalImageFile('$name', _dir);
       var decodedImage = await decodeImageFromList(file.readAsBytesSync());
-      gameObject['wh'] = [decodedImage.width / 10, decodedImage.height / 10];
+      double divider = _currentMap == "Global" ? 3.25 : 10;
+      gameObject['wh'] = [
+        decodedImage.width / divider,
+        decodedImage.height / divider
+      ];
     }
     if (!maps.containsKey(_currentMap)) await prepareMaps();
     if (this.mounted)
@@ -283,8 +339,9 @@ class _GameBoardState extends State<GameBoard>
             1);
     File file = _getLocalImageFile('$name', _dir);
     var decodedImage = await decodeImageFromList(file.readAsBytesSync());
+    double divider = _currentMap == "Global" ? 3.25 : 10;
     _gameObjects[json['meta']['id'].toString()]
-        ['wh'] = [decodedImage.width / 10, decodedImage.height / 10];
+        ['wh'] = [decodedImage.width / divider, decodedImage.height / divider];
     if (this.mounted)
       setState(() {
         _keyGameScreen.currentState
@@ -330,6 +387,10 @@ class _GameBoardState extends State<GameBoard>
               .jumpTo(_chatScrollController.position.maxScrollExtent)
       },
     );
+  }
+
+  dynamic getSelectedId() {
+    return _keyGameScreen.currentState.selectedId();
   }
 
   String getSumStr(Map<String, dynamic> dice) {
@@ -575,44 +636,165 @@ class _GameBoardState extends State<GameBoard>
                                         child: GameScreen(
                                             key: _keyGameScreen,
                                             sendMove: sendMove,
-                                            sendDelete: sendDelete),
+                                            sendDelete: sendDelete,
+                                            sendMap: sendMap,
+                                            isGm: isGm,
+                                            dir: dir,
+                                            mapsOfSession: mapsOfSession,
+                                            sendLocation: sendLocation,
+                                            mapsInfo: mapsInfo,
+                                            gameObjects: gameObjects,
+                                            currentMap: currentMap,
+                                            getLocalImageFile:
+                                                _getLocalImageFile,
+                                            selectedId: getSelectedId),
                                         color: Colors.greenAccent)),
-                                Live(
-                                    child: Container(
-                                  padding: EdgeInsets.all(10),
-                                  child: GridView.builder(
-                                      gridDelegate:
-                                          SliverGridDelegateWithFixedCrossAxisCount(
-                                              crossAxisCount: 3,
-                                              childAspectRatio: 1,
-                                              crossAxisSpacing: 10,
-                                              mainAxisSpacing: 10),
-                                      itemCount:
-                                          Config.listOfHeroesTokens.length,
-                                      itemBuilder: (BuildContext ctx, index) {
-                                        return GestureDetector(
-                                            child: Container(
-                                              alignment: Alignment.center,
-                                              child: Image.file(
-                                                  _getLocalImageFile(
-                                                      Config.listOfHeroesTokens[
-                                                          index],
-                                                      _dir)),
-                                              decoration: BoxDecoration(
-                                                  color: Colors.amber,
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          15)),
-                                            ),
-                                            onTap: () {
-                                              debugPrint('here!!!');
+                                !_isGm
+                                    ? Live(
+                                        child: ListView.builder(
+                                            padding: EdgeInsets.all(20),
+                                            itemCount: _heroes.length + 1,
+                                            itemBuilder: (BuildContext context,
+                                                int index) {
+                                              if (index == _heroes.length) {
+                                                return ListTile(
+                                                  leading: CircleAvatar(
+                                                    backgroundColor:
+                                                        Colors.blueGrey,
+                                                  ),
+                                                  title: Text('New Hero'),
+                                                  trailing: MaterialButton(
+                                                    onPressed: () {
+                                                      Navigator.push(
+                                                          context,
+                                                          MaterialPageRoute(
+                                                              builder: (context) =>
+                                                                  CreateHero()));
+                                                    },
+                                                    color: Theme.of(context)
+                                                        .accentColor,
+                                                    height: 30.0,
+                                                    minWidth: 40.0,
+                                                    child: new Text(
+                                                      "Create",
+                                                    ),
+                                                  ),
+                                                );
+                                              }
+                                              return ListTile(
+                                                leading: CircleAvatar(
+                                                  backgroundColor:
+                                                      Colors.blueGrey,
+                                                  backgroundImage: NetworkImage(
+                                                      _heroes[index]["sprite"]),
+                                                ),
+                                                title: Text(
+                                                    '${_heroes[index]['name']}'),
+                                                trailing: MaterialButton(
+                                                  onPressed: () {},
+                                                  color: Theme.of(context)
+                                                      .accentColor,
+                                                  height: 30.0,
+                                                  minWidth: 40.0,
+                                                  child: new Text(
+                                                    "Choose",
+                                                  ),
+                                                ),
+                                              );
+                                            })) // герои
+                                    : Live(
+                                        child: _currentMap == "Global"
+                                            ? Container(
+                                                padding: EdgeInsets.all(10),
+                                                child: GridView.builder(
+                                                    gridDelegate:
+                                                        SliverGridDelegateWithFixedCrossAxisCount(
+                                                            crossAxisCount: 3,
+                                                            childAspectRatio: 1,
+                                                            crossAxisSpacing:
+                                                                10,
+                                                            mainAxisSpacing:
+                                                                10),
+                                                    itemCount: Config
+                                                        .listOfMarkers.length,
+                                                    itemBuilder:
+                                                        (BuildContext ctx,
+                                                            index) {
+                                                      return GestureDetector(
+                                                          child: Container(
+                                                            alignment: Alignment
+                                                                .center,
+                                                            child: Image.file(
+                                                                _getLocalImageFile(
+                                                                    Config.listOfMarkers[
+                                                                        index],
+                                                                    _dir)),
+                                                            decoration: BoxDecoration(
+                                                                color: Colors
+                                                                    .amber,
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            15)),
+                                                          ),
+                                                          onTap: () {
+                                                            debugPrint(
+                                                                'here!!!');
 
-                                              sendAdd(Config.url_heroes +
-                                                  Config.listOfHeroesTokens[
-                                                      index]);
-                                            });
-                                      }),
-                                ))
+                                                            sendAdd(
+                                                                Config.url_markers +
+                                                                    Config.listOfMarkers[
+                                                                        index],
+                                                                "marker");
+                                                          });
+                                                    }),
+                                              )
+                                            : Container(
+                                                padding: EdgeInsets.all(10),
+                                                child: GridView.builder(
+                                                    gridDelegate:
+                                                        SliverGridDelegateWithFixedCrossAxisCount(
+                                                            crossAxisCount: 3,
+                                                            childAspectRatio: 1,
+                                                            crossAxisSpacing:
+                                                                10,
+                                                            mainAxisSpacing:
+                                                                10),
+                                                    itemCount: Config
+                                                        .listOfHeroesTokens
+                                                        .length,
+                                                    itemBuilder:
+                                                        (BuildContext ctx,
+                                                            index) {
+                                                      return GestureDetector(
+                                                          child: Container(
+                                                            alignment: Alignment
+                                                                .center,
+                                                            child: Image.file(
+                                                                _getLocalImageFile(
+                                                                    Config.listOfHeroesTokens[
+                                                                        index],
+                                                                    _dir)),
+                                                            decoration: BoxDecoration(
+                                                                color: Colors
+                                                                    .amber,
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            15)),
+                                                          ),
+                                                          onTap: () {
+                                                            debugPrint(
+                                                                'here!!!');
+
+                                                            sendAdd(
+                                                                Config.url_heroes +
+                                                                    Config.listOfHeroesTokens[
+                                                                        index],
+                                                                "creature");
+                                                          });
+                                                    }),
+                                              ))
                               ],
                             ))
                           ]))),

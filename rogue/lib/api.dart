@@ -28,6 +28,20 @@ Future<List<dynamic>> getMaps(String session) async {
   }
 }
 
+Future<List<dynamic>> getHeroes() async {
+  final response = await http.get(
+    Config.url + '/heroes',
+    headers: headers,
+  );
+  updateCookie(response);
+  if (response.statusCode == 200) {
+    List<dynamic> mapList = json.decode(response.body);
+    return mapList;
+  } else {
+    return [];
+  }
+}
+
 Future<String> login(String username, String password) async {
   clean_headers();
   final response = await http.post(
@@ -90,13 +104,18 @@ Future<String> quickstart() async {
   }
 }
 
-Future<String> createGame(String name, String description) async {
+Future<String> createGame(
+    String name, String description, bool isPrivate) async {
   final response = await http.post(
     Config.url + '/games',
     headers: headers,
-    body:
-        jsonEncode(<String, String>{'name': name, 'description': description}),
+    body: jsonEncode(<String, dynamic>{
+      'name': name,
+      'description': description,
+      'is_private': isPrivate
+    }),
   );
+
   updateCookie(response);
   if (response.statusCode == 201) {
     debugPrint(response.headers['set-cookie']);

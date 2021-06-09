@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { getUrl } from '../helpers/authHeader'
+import { getUrl } from '../helpers/url'
 import { Store } from 'redux'
 import { push } from 'connected-react-router'
 import { NonAuthRoutes } from '../routes'

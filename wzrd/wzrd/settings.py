@@ -128,6 +128,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# Google authentication
 APP_HOST = os.environ.get("APP_HOST", "localhost")
 GOOGLE_AUTH_CLIENT_ID = '948818855343-5gg3695b245nhqa7ri4tbfv5487lragi.apps.googleusercontent.com'
 GOOGLE_AUTH_CLIENT_SECRET = 'ja6BIpoqAawoa2e8A4xbq0cb'
@@ -150,3 +151,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# Password reset
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'dwellersanddonkeys@gmail.com'
+EMAIL_HOST_PASSWORD = 'HQIior9T'

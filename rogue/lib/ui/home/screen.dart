@@ -1,14 +1,38 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
+import '../../addLocation.dart';
+
 import '../../src/classes/canvas_object.dart';
 import '../../src/controllers/canvas.dart';
 
 class GameScreen extends StatefulWidget {
   final Function sendMove;
   final Function sendDelete;
+  final Function sendLocation;
+  final Function sendMap;
+  final Function mapsOfSession;
+  final Function mapsInfo;
+  final Function selectedId;
+  final Function getLocalImageFile;
+  final Function dir;
+  final Function isGm;
+  final Function currentMap;
+  final Function gameObjects;
   const GameScreen(
-      {Key key, @required this.sendMove, @required this.sendDelete})
+      {Key key,
+      @required this.sendMove,
+      @required this.sendDelete,
+      @required this.sendLocation,
+      @required this.sendMap,
+      @required this.mapsOfSession,
+      @required this.mapsInfo,
+      @required this.selectedId,
+      @required this.getLocalImageFile,
+      @required this.currentMap,
+      @required this.dir,
+      @required this.gameObjects,
+      @required this.isGm})
       : super(key: key);
 
   @override
@@ -20,7 +44,7 @@ class GameScreenState extends State<GameScreen> {
 
   @override
   void initState() {
-    _controller = CanvasController(widget.sendMove);
+    _controller = CanvasController(widget.sendMove, widget.isGm);
     _controller.init();
     super.initState();
   }
@@ -105,6 +129,13 @@ class GameScreenState extends State<GameScreen> {
     _controller.removeAll();
   }
 
+  dynamic selectedId() {
+    if (_controller.selectedObjects.length > 0)
+      return _controller.selectedObjects[0].id;
+    else
+      return null;
+  }
+
   @override
   void dispose() {
     _controller.close();
@@ -125,70 +156,99 @@ class GameScreenState extends State<GameScreen> {
           }
           final instance = snapshot.data;
           return Scaffold(
-            floatingActionButton: FloatingActionButton(
-                backgroundColor: Colors.red,
-                child: Icon(Icons.delete),
-                onPressed: () {
-                  if (_controller.selectedObjectsIndices.length > 0) {
-                    widget.sendDelete(_controller
-                        .objects[_controller.selectedObjectsIndices[0]].id);
-                    _controller
-                        .removeObject(_controller.selectedObjectsIndices[0]);
-                    _controller.unselectAll();
-                  }
-                }),
+            floatingActionButton:
+                widget.isGm() //TODO: правки по удалению могут затронуть это
+                    ? FloatingActionButton(
+                        backgroundColor: Colors.red,
+                        child: Icon(Icons.delete),
+                        onPressed: () {
+                          if (_controller.selectedObjectsIndices.length > 0) {
+                            widget.sendDelete(_controller
+                                .objects[_controller.selectedObjectsIndices[0]]
+                                .id);
+                            _controller.removeObject(
+                                _controller.selectedObjectsIndices[0]);
+                            _controller.unselectAll();
+                          }
+                        })
+                    : null,
             backgroundColor: Color.fromRGBO(245, 245, 220, 1),
-            // appBar: AppBar(
-            //   backgroundColor: Color.fromRGBO(33, 44, 61, 1),
-            //   actions: [
-            //     // FocusScope(
-            //     //   canRequestFocus: false,
-            //     //   child: IconButton(
-            //     //     tooltip: 'Selection',
-            //     //     icon: Icon(Icons.select_all),
-            //     //     color: instance.shiftPressed
-            //     //         ? Theme.of(context).accentColor
-            //     //         : null,
-            //     //     onPressed: _controller.shiftSelect,
-            //     //   ),
-            //     // ),
-            //     // FocusScope(
-            //     //   canRequestFocus: false,
-            //     //   child: IconButton(
-            //     //     tooltip: 'Meta Key',
-            //     //     color: instance.metaPressed
-            //     //         ? Theme.of(context).accentColor
-            //     //         : null,
-            //     //     icon: Icon(Icons.category),
-            //     //     onPressed: _controller.metaSelect,
-            //     //   ),
-            //     // ),
-            //     FocusScope(
-            //       canRequestFocus: false,
-            //       child: IconButton(
-            //         tooltip: 'Zoom In',
-            //         icon: Icon(Icons.zoom_in),
-            //         onPressed: _controller.zoomIn,
-            //       ),
-            //     ),
-            //     FocusScope(
-            //       canRequestFocus: false,
-            //       child: IconButton(
-            //         tooltip: 'Zoom Out',
-            //         icon: Icon(Icons.zoom_out),
-            //         onPressed: _controller.zoomOut,
-            //       ),
-            //     ),
-            //     FocusScope(
-            //       canRequestFocus: false,
-            //       child: IconButton(
-            //         tooltip: 'Reset the Scale and Offset',
-            //         icon: Icon(Icons.restore),
-            //         onPressed: _controller.reset,
-            //       ),
-            //     ),
-            //   ],
-            // ),
+            appBar: (selectedId() != null && widget.currentMap() == "Global")
+                ? AppBar(
+                    // TODO: только на глобал карте, а актионс только для ГМа, и вообще только на селекте мб
+                    backgroundColor: Color.fromRGBO(33, 44, 61, 1),
+                    title: (widget
+                                .gameObjects()[selectedId()]
+                                .containsKey('location') &&
+                            widget.mapsInfo().containsKey(
+                                widget.gameObjects()[selectedId()]['location']))
+                        ? ListTile(
+                            leading: CircleAvatar(
+                              backgroundColor: Colors.transparent,
+                              backgroundImage: FileImage(
+                                  widget.getLocalImageFile(
+                                      widget
+                                          .mapsInfo()[
+                                              widget.gameObjects()[selectedId()]
+                                                  ['location']]['file']
+                                          .substring(widget
+                                                  .mapsInfo()[
+                                                      widget.gameObjects()[
+                                                              selectedId()]
+                                                          ['location']]['file']
+                                                  .lastIndexOf('/') +
+                                              1),
+                                      widget.dir())),
+                            ),
+                            title: Text(
+                              '${widget.mapsInfo()[widget.gameObjects()[selectedId()]['location']]['name']}',
+                              style: TextStyle(color: Colors.white),
+                              // ,
+                              //                       style: _sizeTextWhite
+                            ),
+                            trailing: widget.isGm()
+                                ? MaterialButton(
+                                    onPressed: () {
+                                      widget.sendMap(widget.mapsInfo()[
+                                          widget.gameObjects()[selectedId()]
+                                              ['location']]['hash']);
+                                    },
+                                    color: Theme.of(context).accentColor,
+                                    height: 30.0,
+                                    minWidth: 40.0,
+                                    child: new Text(
+                                      "Go to",
+                                    ),
+                                  )
+                                : null)
+                        : null,
+                    actions: widget.isGm()
+                        ? [
+                            FocusScope(
+                              canRequestFocus: false,
+                              child: IconButton(
+                                tooltip: 'Edit location',
+                                icon: Icon(Icons.edit_location),
+                                onPressed: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => AddLocation(
+                                              sendUpdate: widget.sendLocation,
+                                              mapsOfSession:
+                                                  widget.mapsOfSession,
+                                              maps: widget.mapsInfo,
+                                              selectedId: widget.selectedId,
+                                              getLocalImageFile:
+                                                  widget.getLocalImageFile,
+                                              dir: widget.dir)));
+                                },
+                              ),
+                            ),
+                          ]
+                        : [],
+                  )
+                : null,
             body: Container(
                 // decoration: BoxDecoration(
                 //     image: DecorationImage(

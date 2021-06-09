@@ -1,7 +1,7 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { selectCurrentGame } from '../../store/game/selectors'
-import { getUrlWithoutProtocol } from '../../helpers/authHeader'
+import { selectConnectGameState, selectCurrentGame } from '../../store/game/selectors'
+import { getUrlWithoutProtocol } from '../../helpers/url'
 import { connectGameError, connectGameSuccess, updateGameData } from '../../store/game/actions'
 import { AuthRoutes } from '../../routes'
 import { useLocation } from 'react-router-dom'
@@ -27,6 +27,7 @@ const WebSocketProvider: React.FC = ({ children }) => {
     const dispatch = useDispatch()
     const game = useSelector(selectCurrentGame)
     const loginState = useSelector(selectLoginState)
+    const connectGameState = useSelector(selectConnectGameState)
     const quickStartState = useSelector(selectQuickStartState)
     const location = useLocation()
 
@@ -42,7 +43,7 @@ const WebSocketProvider: React.FC = ({ children }) => {
     useEffect(() => {
         const isAuthorized = loginState === AsyncState.success || quickStartState === AsyncState.success
 
-        if (isAuthorized && game && location && location.pathname.startsWith(AuthRoutes.tabletop)) {
+        if (isAuthorized && game && game.invitation_code && location && location.pathname.startsWith(AuthRoutes.tabletop) && connectGameState === AsyncState.inProcess) {
             const newSocket = new WebSocket(`ws://${getUrlWithoutProtocol()}/ws/games/${game.invitation_code}`)
 
             newSocket.onopen = () => {
@@ -68,7 +69,7 @@ const WebSocketProvider: React.FC = ({ children }) => {
 
                 console.log('event.code', event.code)
                 if (event.code === 1006) {
-                    dispatch(showErrorNotification('Игра не найдена'))
+                    dispatch(showErrorNotification('Game not found'))
                 }
 
                 if (event.wasClean) {
@@ -82,7 +83,7 @@ const WebSocketProvider: React.FC = ({ children }) => {
                 console.error(`[socket-error] ${error}`)
             }
         }
-    }, [game, dispatch, location, loginState, quickStartState])
+    }, [game, dispatch, location, loginState, quickStartState, connectGameState])
 
     useEffect(() => {
         if (!game && socket) {

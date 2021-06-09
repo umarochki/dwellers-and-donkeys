@@ -8,7 +8,7 @@ import { selectConnectGameState } from '../../store/game/selectors'
 import { connectGameWithRedirect, deleteGame } from '../../store/game/actions'
 import { AsyncState } from '../../store/user/reducer'
 import ConfirmDialog from '../Dialogs/ConfirmDialog'
-import { getUrl } from '../../helpers/authHeader'
+import { getUrl } from '../../helpers/url'
 import { copyTextToClipboard } from '../../helpers/clipBoard'
 import { showSuccessNotification } from '../../store/notifications/actions'
 import MapCard from './MapCard'
@@ -37,10 +37,11 @@ interface Props {
     cards: Game[]
     onAddClick: () => void
     showAddCard?: boolean
+    removable: boolean
 }
 
 const CardList: React.FC<Props> = props => {
-    const { headerText, cards, onAddClick, showAddCard = false } = props
+    const { headerText, cards, onAddClick, removable, showAddCard = false } = props
     const classes = useStyles()
     const dispatch = useDispatch()
 
@@ -93,7 +94,7 @@ const CardList: React.FC<Props> = props => {
                                     onClick={() => handleConnect(card.invitation_code)}>
                                     Play
                                 </Button>
-                                <Button
+                                {removable && (<Button
                                     color="primary"
                                     disabled={isLoading}
                                     onClick={() => {
@@ -101,7 +102,7 @@ const CardList: React.FC<Props> = props => {
                                         setConfirmOpen(true)
                                     }}>
                                     Delete
-                                </Button>
+                                </Button>)}
                                 <Button
                                     color="primary"
                                     disabled={isLoading}

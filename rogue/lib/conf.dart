@@ -2,6 +2,47 @@ class Config {
   static final String url = r'http://207.154.226.69/api/v1';
   static final String url_static = r'http://207.154.226.69/media/tank';
   static final String url_heroes = r'http://207.154.226.69/heroes/';
+  static final String url_markers = r'http://207.154.226.69/globalSymbols/';
+  static final listOfMarkers = [
+    'Bones1.png',
+    'Bones2.png',
+    'Bones3.png',
+    'Chest.png',
+    'City.png',
+    'Dot.png',
+    'Dungeon1.png',
+    'Dungeon2.png',
+    'Dungeon3.png',
+    'Finsh.png',
+    'Fire.png',
+    'Flag.png',
+    'Grass1.png',
+    'Grass2.png',
+    'Grass3.png',
+    'Grass4.png',
+    'Grass5.png',
+    'Grass6.png',
+    'Hill1.png',
+    'Hill2.png',
+    'Hill3.png',
+    'Lake1.png',
+    'Lake2.png',
+    'Lake3.png',
+    'Mountain1.png',
+    'Mountain2.png',
+    'Mountain3.png',
+    'Mountain4.png',
+    'Mountain5.png',
+    'Start.png',
+    'Swamp1.png',
+    'Swamp2.png',
+    'Tower1.png',
+    'Tower2.png',
+    'Tree1.png',
+    'Tree2.png',
+    'Tree3.png',
+    'Tree4.png'
+  ];
   static final listOfHeroesTokens = [
     'Ant.png',
     'Boy Cunning.png',

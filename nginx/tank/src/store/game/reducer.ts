@@ -8,7 +8,7 @@ export interface GameState {
     createGameState: AsyncState
     getAllGamesState: AsyncState
     error: Error | null
-    currentGame?: Game
+    currentGame: Game | null
     allGames: Game[]
     games: Game[]
     gamesGM: Game[]
@@ -21,6 +21,7 @@ const INITIAL_STATE: GameState = {
     createGameState: AsyncState.unknown,
     getAllGamesState: AsyncState.unknown,
     error: null,
+    currentGame: null,
     allGames: [],
     games: [],
     gamesGM: [],
@@ -82,7 +83,7 @@ const gameReducer: Reducer<GameState> = (state = INITIAL_STATE, action) => {
         case gameConstants.CONNECT_GAME_STARTED:
             return {
                 ...state,
-                currentGame: state.allGames.find(g => g.invitation_code === action.payload),
+                currentGame: action.payload,
                 connectGameState: AsyncState.inProcess
             }
         case gameConstants.CONNECT_GAME_FINISHED:
@@ -90,7 +91,7 @@ const gameReducer: Reducer<GameState> = (state = INITIAL_STATE, action) => {
         case gameConstants.DISCONNECT_GAME:
             return {
                 ...state,
-                currentGame: undefined,
+                currentGame: null,
                 currentGameData: null,
                 connected: false,
                 connectGameState: AsyncState.unknown
@@ -98,7 +99,7 @@ const gameReducer: Reducer<GameState> = (state = INITIAL_STATE, action) => {
         case gameConstants.CONNECT_GAME_ERROR:
             return {
                 ...state,
-                currentGame: undefined,
+                currentGame: null,
                 currentGameData: null,
                 connected: false,
                 connectGameState: AsyncState.error
