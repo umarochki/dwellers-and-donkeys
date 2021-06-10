@@ -28,7 +28,6 @@ Based on Pixi.JS
     * pencilDown(id: number, boldness?: number, color?: number) - Нажатие на холст для рисунка карандашом.
     * pencilMove(id: number, point: [number, number][]) - Движение карандашом.
     * pencilUp(id: number) - Поднятие карандаша.
-    // Is progress
     * eraserDown(id: number) - Нажатие на холст ластиком.
     * eraserMove(id: number) - Движение ластиком.
     * eraserUp(id: number) - Поднятие ластика.
@@ -64,6 +63,10 @@ Based on Pixi.JS
     * clear() - Очистить холст от препятствий.
     * getRegion(options: { position: [number, number] }) - Построить полигон видимости относительно заданной координаты.
     * hide() - Скрыть полигон видимости.
+
+* **Gamemode**
+    * me(id) - Установить объект игрока (в режиме игрока).
+    * set(mode: boolean) - Установить режим карты.
 
 ### Основные события:
 * clicked

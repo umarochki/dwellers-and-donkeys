@@ -33,9 +33,23 @@ async def get_hero_session(hero_session_id):
 
 class GameSessionConsumer(AsyncJsonWebsocketConsumer):
     UPDATE_FIELDS = ("xy", "wh", "sprite")
-    ACTION_TYPES = ("add", "delete", "update", "update_and_save", "update_and_start",
-                    "map", "global_map", "refresh", "clear", "active_users", "roll",
-                    "chat", "add_hero",)
+    DRAW_ACTIONS = (
+        "draw_pencil_started",
+        "draw_pencil_moved",
+        "draw_pencil_stopped",
+        "draw_eraser_started",
+        "draw_eraser_moved",
+        "draw_eraser_stopped",
+        "draw_polygon_started",
+        "draw_polygon_middle",
+        "draw_polygon_stopped",
+        "draw_polygon_moved"
+    )
+    ACTION_TYPES = (
+        "add", "delete", "update", "update_and_save", "update_and_start", "map", "global_map", "refresh", "clear",
+        "active_users", "roll", "chat", "add_hero",
+        *DRAW_ACTIONS
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -304,6 +318,15 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
         elif action_type == "active_users":
             message_type = "send_me"
             json_data["meta"] = game_session.active_users
+
+        elif action_type in self.DRAW_ACTIONS:
+            pass  # ToDo: save polygons/etc to game_objects
+
+        else:
+            json_data["type"] = "error"
+            json_data["meta"] = f"Action type '{action_type}' is not available!"
+            logging.warning(f"[WS {self.session_name} DELETE] Action type '{action_type}' is not available!")
+            return await self.start_sending("send_me", json_data)
 
         await self.start_sending(message_type, json_data)
         if save:
