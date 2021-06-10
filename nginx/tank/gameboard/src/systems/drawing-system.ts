@@ -166,11 +166,14 @@ class DrawingComponent extends Component {
       this.board.addChild(this.sprite);
     }
     
-    pencilDown(id: number, boldness = this.boldness[0], color = this.color[0]) {
+    pencilDown(id: number, boldness = this.boldness[0], color?: string) {
       // Create marker and points for id
       this.markers[id] = new Graphics()
       this.boldness[id] = boldness
-      this.color[id] = color
+      
+      if (!color) this.color[id] = this.color[0]
+      else this.color[id] = this.convertFromHexToNumericColor(color) 
+
       this.points[id] = []
 
       this.context.addChild(this.markers[id])
@@ -222,7 +225,10 @@ class DrawingComponent extends Component {
 
     eraserUp() { }
 
-    polygonClickStart(id: number, point: [number, number]) {
+    polygonClickStart(id: number, point: [number, number],  color?: string) {
+      
+      if (!color) this.color[id] = this.color[0]
+      else this.color[id] = this.convertFromHexToNumericColor(color) 
       
       // Edges container creation
       this.edges = new Graphics();
@@ -436,12 +442,12 @@ class DrawingComponent extends Component {
         this.temp.removeChildren();
     }
     
-    convertFromHexToNumericColor(color) {
+    convertFromHexToNumericColor(color: string) {
         return parseInt(`0x${color.replace(/#/g, "")}`);
     }
     
-    style(options: { color?: number, boldness?: number }) {
-      if (options.color) this.color[0] = options.color
+    style(options: { color?: string, boldness?: number }) {
+      if (options.color) this.color[0] = this.convertFromHexToNumericColor(options.color)
       if (options.boldness) this.boldness[0] = options.boldness
     }
     

@@ -29,12 +29,12 @@ Based on Pixi.JS
     * pencilMove(id: number, point: [number, number][]) - Движение карандашом.
     * pencilUp(id: number) - Поднятие карандаша.
     * eraserDown(id: number) - Нажатие на холст ластиком.
-    * eraserMove(id: number) - Движение ластиком.
+    * eraserMove(id: number, point: [number, number][]) - Движение ластиком.
     * eraserUp(id: number) - Поднятие ластика.
-    * polygonStartClick(id: number, boldness?: number, color?: number) - Установка начальной верщины полигона.
-    * polygonMiddleClick(id: number) - Установка промежуточной вершины полигона.
+    * polygonStartClick(id: number, point: [number, number][], color?: number) - Установка начальной верщины полигона.
+    * polygonMiddleClick(id: number, point: [number, number][]) - Установка промежуточной вершины полигона.
     * polygonEndClick(id: number) - Установка конечной вершины полигона.
-    * polygonMove(id: number) - Движение грани во время рисования полигона.
+    * polygonMove(id: number, point: [number, number][]) - Движение грани во время рисования полигона.
 
 * **EventManager**
     * add(eventType: string, listener: (any) => void, limit: boolean = false, accumulate: string[] = []) - Добавить подписку на событие.
@@ -90,9 +90,9 @@ Based on Pixi.JS
 * draw/polygon/click/middle
 * draw/polygon/click/stopped 
 * draw/polygon/moved 
-* region/hided
+* region/hidden
 * region/cleared
-* region/showed
+* region/shown
 
 
 

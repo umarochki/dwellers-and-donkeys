@@ -169,7 +169,7 @@ class VisibilityRegionComponent extends Component {
 
           drawPolygonWithHoles(this.region, this.border.reduce((acc, val) => acc.concat(val), []), [visibility])
           this.region.endFill();
-          this.sendMessage('region/showed', { position: position })
+          this.sendMessage('region/shown', { position: position })
       }
       else {
           return
@@ -184,7 +184,7 @@ class VisibilityRegionComponent extends Component {
     
     hide() {
       this.region.clear();
-      this.sendMessage('region/hided')
+      this.sendMessage('region/hidden')
     }
     
     
