@@ -43,12 +43,37 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
         "draw_polygon_started",
         "draw_polygon_middle",
         "draw_polygon_stopped",
-        "draw_polygon_moved"
+        "draw_polygon_moved",
+    )
+    TOOGLE_ACTIONS = (
+        "toogle_night",
+        "toogle_rain",
+    )
+    UPDATE_ACTIONS = (
+        "update",
+        "update_and_start",
+        "update_and_save",
+    )
+    MAP_ACTIONS = (
+        "map", "global_map",
+    )
+    OBJECT_ACTIONS = (
+        "add", "delete", "clear",
+    )
+    CHAT_ACTIONS = (
+        "roll", "chat",
+    )
+    MISC = (
+        "refresh", "active_users",
     )
     ACTION_TYPES = (
-        "add", "delete", "update", "update_and_save", "update_and_start", "map", "global_map", "refresh", "clear",
-        "active_users", "roll", "chat", "add_hero",
-        *DRAW_ACTIONS
+        *OBJECT_ACTIONS,
+        *UPDATE_ACTIONS,
+        *TOOGLE_ACTIONS,
+        *CHAT_ACTIONS,
+        *DRAW_ACTIONS,
+        *MAP_ACTIONS,
+        *MISC
     )
 
     def __init__(self, *args, **kwargs):
@@ -197,7 +222,7 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
                 game_session.last_object_id += 1
                 save = [game_session]
 
-        elif action_type in ("update", "update_and_save", "update_and_start"):
+        elif action_type in self.UPDATE_ACTIONS:
             obj_id = str(meta["id"])
             if len(obj_id) >= 5:
                 obj = await get_hero_session(int(obj_id))
@@ -265,7 +290,7 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
                 "is_gm": user.id == game_session.game_master,
             }
 
-        elif action_type in ("map", "global_map"):
+        elif action_type in self.MAP_ACTIONS:
             message_type = "send_all"
             game_session.map = meta if action_type == "map" else "Global"
 
@@ -322,6 +347,8 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
         elif action_type in self.DRAW_ACTIONS:
             pass  # ToDo: save polygons/etc to game_objects
 
+        elif action_type in self.TOOGLE_ACTIONS:
+            pass  # ToDo: save state
         else:
             json_data["type"] = "error"
             json_data["meta"] = f"Action type '{action_type}' is not available!"
