@@ -165,11 +165,11 @@ class VisibilityRegionComponent extends Component {
 
           this.region.clear();
 
-          this.region.beginFill(0x000000, this.sendMessage('gamemode/mode/get').responses.responses[0].data.mode ? 0.5 : 1);
+          this.region.beginFill(0x212c3d, this.sendMessage('gamemode/mode/get').responses.responses[0].data.mode ? 0.5 : 1);
 
           drawPolygonWithHoles(this.region, this.border.reduce((acc, val) => acc.concat(val), []), [visibility])
           this.region.endFill();
-          this.sendMessage('region/showed', { position: position })
+          this.sendMessage('region/shown', { position: position })
       }
       else {
           return
@@ -184,7 +184,7 @@ class VisibilityRegionComponent extends Component {
     
     hide() {
       this.region.clear();
-      this.sendMessage('region/hided')
+      this.sendMessage('region/hidden')
     }
     
     
