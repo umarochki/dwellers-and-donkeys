@@ -10,34 +10,61 @@ export default class Gamemode {
         this.scene.addGlobalComponentAndRun(this.component);
     }
 
-    me(options: { id: number }, callback?: () => any) {
-        this.component.me(options, callback)
+    me(options: { id: number }) {
+        this.component.me(options)
     }
+
+    set(mode: boolean) : boolean {
+        return this.component.set(mode)
+    } 
 }
 
 class GamemodeComponent extends Component {
     isGameMaster: boolean
-    userId: Container
+    user: Container
 
     constructor(isGameMaster: boolean) {
         super()
-        this.isGameMaster = isGameMaster
-        this.userId = undefined
+        this.isGameMaster = isGameMaster || false
+        this.user = undefined
     }
 
-    me(options: { id: number }, callback?: () => any) {
+    onAttach() {
+        this.subscribe('gamemode/mode/get', 'gamemode/mode/set', 'gamemode/user/get', 'gamemode/user/set')
+    }
+
+    onMessage(msg: Message) {
+        switch (msg.action) {
+            case 'gamemode/mode/get':
+                return { mode: this.isGameMaster }
+            case 'gamemode/user/get':
+                return this.user
+            default: 
+                // TODO
+                return undefined
+        }
+    }
+
+    me(options: { id: number }) {
         if (this.isGameMaster) 
-            throw new Error(`You are the Game Master!`)
+            throw new Error(`You are the Game Master! You cannot have a user object!`)
         
         let obj = this.scene.findObjectByName(String(options.id))
+       
         if (!obj) 
             throw new Error(`Cannot find an element with id: ${options.id}`)
         
         if ((obj.getAttribute('options') as any).type !== 'hero') 
             throw new Error(`Object is not a hero: ${options.id}`)
 
-        // magic
-        
-        typeof callback == "function" && callback(); 
+        this.user = obj;
+        this.scene.sendMessage(new Message('gamemode/user/set/after', undefined, obj, { id: obj.name }))
+    }
+
+    set(mode: boolean) : boolean {
+        this.isGameMaster = mode;
+        if (this.user) this.user = undefined
+        this.sendMessage('gamemode/mode/set/after')
+        return mode
     }
 }

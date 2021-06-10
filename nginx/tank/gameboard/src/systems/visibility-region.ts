@@ -7,10 +7,9 @@ export default class VisibilityRegion {
     scene: Scene
     private component: VisibilityRegionComponent
     
-    constructor(scene: Scene, isGameMaster: boolean) {
+    constructor(scene: Scene) {
         this.scene = scene;
-        this.isGameMaster = isGameMaster;
-        this.component = new VisibilityRegionComponent(isGameMaster);
+        this.component = new VisibilityRegionComponent();
         this.scene.addGlobalComponentAndRun(this.component);
     }
 
@@ -31,9 +30,7 @@ export default class VisibilityRegion {
     }
 }
 
-class VisibilityRegionComponent extends Component {
-    isGameMaster: boolean
-  
+class VisibilityRegionComponent extends Component {  
     layer: Container
     
     mode: 'none' | 'draw'
@@ -44,11 +41,6 @@ class VisibilityRegionComponent extends Component {
     
     selected: Container
 
-    constructor(isGameMaster: boolean) {
-      super()
-      this.isGameMaster = isGameMaster;
-    }
-    
     onAttach() {
         this.mode = 'none';
     
@@ -70,28 +62,26 @@ class VisibilityRegionComponent extends Component {
         // @ts-ignore
         this.context.onChildrenChange = this.contextToSegments;
 
-        this.subscribe('me/added', 'me/deleted', 'object/selected', 'object/unselected', 'object/updated', 'region/update', 'map/set/after')
+        this.subscribe('gamemode/mode/set/after', 'gamemode/user/set/after','object/selected', 'object/unselected', 'object/updated', 'region/update', 'map/set/after')
     }
 
     onMessage(msg: Message) {
       switch (msg.action) {
-        case 'me/added':
-          if (this.isGameMaster) return;
-          this.select(msg.gameObject)
+        case 'gamemode/mode/set/after':
+          this.unselect() 
           break
-
-        case 'me/deleted':
-          if (this.isGameMaster) return;
-          this.unselect()
+        
+        case 'gamemode/user/set/after':
+          this.select(msg.gameObject)
           break
           
         case 'object/selected':
-          if (!this.isGameMaster) return;
+          if (!this.sendMessage('gamemode/mode/get').responses.responses[0].data.mode) return;
           this.select(msg.gameObject)
           break
 
         case 'object/unselected':
-          if (!this.isGameMaster) return;
+          if (!this.sendMessage('gamemode/mode/get').responses.responses[0].data.mode) return;
           this.unselect()
           break
       
@@ -175,7 +165,7 @@ class VisibilityRegionComponent extends Component {
 
           this.region.clear();
 
-          this.region.beginFill(0x000000, this.isGameMaster ? 0.5 : 1);
+          this.region.beginFill(0x000000, this.sendMessage('gamemode/mode/get').responses.responses[0].data.mode ? 0.5 : 1);
 
           drawPolygonWithHoles(this.region, this.border.reduce((acc, val) => acc.concat(val), []), [visibility])
           this.region.endFill();
@@ -200,6 +190,8 @@ class VisibilityRegionComponent extends Component {
     
     set(mode) {
         
+      if (!this.sendMessage('gamemode/mode/get').responses.responses[0].data.mode) throw new Error('You are not Game Master!');
+
       if (this.mode === mode) this.mode = 'none';
       else this.mode = mode;
   
