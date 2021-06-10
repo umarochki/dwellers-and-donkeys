@@ -83,7 +83,7 @@ class MapSystemComponent extends Component {
                 this.grid = new TilingSprite('', resources['grid'].texture, this.map.width, this.map.height);
                 this.layer.addChild(this.map)
                 this.scene.viewport.moveCenter(this.map.width / 2, this.map.height / 2);
-                this.sendMessage('map/set/after', { width: this.map.width, height: this.map.height })
+                this.sendMessage('map/set/after', { sprite: options.sprite, width: this.map.width, height: this.map.height })
                 typeof callback == "function" && callback();    
             }
         }
