@@ -7,9 +7,10 @@ export default class VisibilityRegion {
     scene: Scene
     private component: VisibilityRegionComponent
     
-    constructor(scene: Scene) {
+    constructor(scene: Scene, isGameMaster: boolean) {
         this.scene = scene;
-        this.component = new VisibilityRegionComponent();
+        this.isGameMaster = isGameMaster;
+        this.component = new VisibilityRegionComponent(isGameMaster);
         this.scene.addGlobalComponentAndRun(this.component);
     }
 
@@ -31,6 +32,8 @@ export default class VisibilityRegion {
 }
 
 class VisibilityRegionComponent extends Component {
+    isGameMaster: boolean
+  
     layer: Container
     
     mode: 'none' | 'draw'
@@ -41,6 +44,11 @@ class VisibilityRegionComponent extends Component {
     
     selected: Container
 
+    constructor(isGameMaster: boolean) {
+      super()
+      this.isGameMaster = isGameMaster;
+    }
+    
     onAttach() {
         this.mode = 'none';
     
@@ -62,29 +70,29 @@ class VisibilityRegionComponent extends Component {
         // @ts-ignore
         this.context.onChildrenChange = this.contextToSegments;
 
-        this.subscribe('object/selected', 'object/unselected', 'object/updated', 'region/update', 'map/set/after')
+        this.subscribe('me/added', 'me/deleted', 'object/selected', 'object/unselected', 'object/updated', 'region/update', 'map/set/after')
     }
 
     onMessage(msg: Message) {
       switch (msg.action) {
+        case 'me/added':
+          if (this.isGameMaster) return;
+          this.select(msg.gameObject)
+          break
+
+        case 'me/deleted':
+          if (this.isGameMaster) return;
+          this.unselect()
+          break
+          
         case 'object/selected':
-          let obj = msg.gameObject
-          if (!obj.hasFlag(CONSTANTS.FLAGS.RESTRICTED_VISIBILITY)) return;
-
-          if (this.selected) {
-              this.hide()
-              this.selected = undefined
-          }
-
-          this.selected = obj;
-          this.getRegion([obj.x, obj.y])
+          if (!this.isGameMaster) return;
+          this.select(msg.gameObject)
           break
 
         case 'object/unselected':
-          if (this.selected) {
-            this.hide()
-            this.selected = undefined
-          }
+          if (!this.isGameMaster) return;
+          this.unselect()
           break
       
         case 'object/updated':
@@ -105,6 +113,25 @@ class VisibilityRegionComponent extends Component {
       }
     }
     
+    select(obj: Container) {
+      if (!obj.hasFlag(CONSTANTS.FLAGS.RESTRICTED_VISIBILITY)) return;
+
+      if (this.selected) {
+          this.hide()
+          this.selected = undefined
+      }
+
+      this.selected = obj;
+      this.getRegion([obj.x, obj.y])
+    }
+    
+    unselect() {
+      if (this.selected) {
+        this.hide()
+        this.selected = undefined
+      }
+    }
+
     redrawBorders(width, height) {
         this.border = [[-1, -1], [width + 1, -1], [width + 1, height + 1], [-1, height + 1]];
         this.clear();
@@ -147,7 +174,9 @@ class VisibilityRegionComponent extends Component {
           if (visibility.length === 0) return;
 
           this.region.clear();
-          this.region.beginFill(0x000000, 0.5);
+
+          this.region.beginFill(0x000000, this.isGameMaster ? 0.5 : 1);
+
           drawPolygonWithHoles(this.region, this.border.reduce((acc, val) => acc.concat(val), []), [visibility])
           this.region.endFill();
           this.sendMessage('region/showed', { position: position })

@@ -26,6 +26,8 @@ export default class Gameboard {
     gameObjectManager: GameObjectManager
     visibilityRegion: VisibilityRegion
     drawing: DrawingSystem
+
+    isGameMaster: boolean
   
     /*
     * Gameboard Constructor
@@ -45,6 +47,8 @@ export default class Gameboard {
         forceCanvas: false,
         antialias: true
       }, options)
+      
+      this.isGameMaster = options.isGameMaster || true
       
       this.engine = new ECS.Engine()  
       this.engine.init(options)
@@ -143,7 +147,7 @@ export default class Gameboard {
       
       this.map = new MapSystem(this.engine.scene)
       this.gameObjectManager = new GameObjectManager(this.engine.scene)
-      this.visibilityRegion = new VisibilityRegion(this.engine.scene)
+      this.visibilityRegion = new VisibilityRegion(this.engine.scene, this.isGameMaster)
       this.drawing = new DrawingSystem(this.engine.scene)
     }
   }
