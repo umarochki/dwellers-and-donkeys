@@ -8,11 +8,7 @@ export default function GameObjectBuilder(options: ObjectOptions) : Container {
 
   let obj = new Container()
 
-  obj.assignAttribute('options', { 
-    type: options.type, 
-    name: options.name, 
-    sprite: options.sprite 
-  })
+  obj.assignAttribute('options', options)
   
   obj.name = String(options.id)
   obj.position.set(options.xy[0], options.xy[1]);

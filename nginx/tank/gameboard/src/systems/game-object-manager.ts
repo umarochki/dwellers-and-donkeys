@@ -20,7 +20,7 @@ export default class GameObjectManager {
         typeof callback == "function" && callback();    
     }
 
-    update(options: { id: number, xy?: [number, number], wh?: [number, number] }, callback?: () => any) {
+    update(options: any, callback?: () => any) {
         this.component.update(options)
         typeof callback == "function" && callback();    
     }

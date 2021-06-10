@@ -1,8 +1,5 @@
+import * as PIXI from 'pixi.js-legacy'
 import { Component } from '../libs/pixi-ecs'
-import { InteractionEvent } from 'pixi.js-legacy'
-
-const FPS = 60;
-
 export default class Draggable extends Component {
   dragging: boolean
   start: { x: number, y: number }
@@ -18,17 +15,10 @@ export default class Draggable extends Component {
     // events for drag start
     .on('mousedown',  this._onDragStart)
     .on('touchstart', this._onDragStart)
-    // events for drag end 
-    .on('mouseup',         this._onDragEnd)
-    .on('mouseupoutside',  this._onDragEnd)
-    .on('touchend',        this._onDragEnd)
-    .on('touchendoutside', this._onDragEnd)
-    // events for drag move
-    .on('mousemove', this._onDragMove)
-    .on('touchmove', this._onDragMove)
+    
   }
 
-  private _onDragStart(e: InteractionEvent) {
+  private _onDragStart(e: PIXI.InteractionEvent) {
       
     this._updateOverlap()
     this.scene.viewport.pause = true
@@ -43,11 +33,23 @@ export default class Draggable extends Component {
       id: this.owner.name,
       xy: [this.start.x, this.start.y]
     })
+
+    this.owner
+    // events for drag end 
+    .on('mouseup',         this._onDragEnd)
+    .on('mouseupoutside',  this._onDragEnd)
+    .on('touchend',        this._onDragEnd)
+    .on('touchendoutside', this._onDragEnd)
+    // events for drag move
+    .on('mousemove', this._onDragMove)
+    .on('touchmove', this._onDragMove)
   }
   
     
-  private _onDragEnd() {
+  private _onDragEnd(e: PIXI.InteractionEvent) {
+    
     if (this.start && 
+      (e.target as any).clickable !== false &&
       Math.abs(this.owner.x - this.start.x) <= 2 && 
       Math.abs(this.owner.y - this.start.y) <= 2)
       this.sendMessage('object/clicked', {
@@ -61,16 +63,28 @@ export default class Draggable extends Component {
       id: this.owner.name,
       xy: [this.owner.x, this.owner.y]
     })
+
+    this.owner
+    // events for drag end 
+    .off('mouseup',         this._onDragEnd)
+    .off('mouseupoutside',  this._onDragEnd)
+    .off('touchend',        this._onDragEnd)
+    .off('touchendoutside', this._onDragEnd)
+    // events for drag move
+    .off('mousemove', this._onDragMove)
+    .off('touchmove', this._onDragMove)
   }
   
-  private _onDragMove(e: InteractionEvent) {
+  private _onDragMove(e: PIXI.InteractionEvent) {
     if (this.dragging) {
 
       const x = e.data.global.x
       const y = e.data.global.y
 
-      this.owner.x += (x - this.last.x) / this.scene.viewport.scale.x 
-      this.owner.y += (y - this.last.y) / this.scene.viewport.scale.y
+      this.sendMessage('object/position', {
+        x: this.owner.x + (x - this.last.x) / this.scene.viewport.scale.x,
+        y: this.owner.y + (y - this.last.y) / this.scene.viewport.scale.y
+      })
 
       this.last = { x, y }
 

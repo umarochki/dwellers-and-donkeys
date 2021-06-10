@@ -1,3 +1,4 @@
+import * as PIXI from 'pixi.js-legacy'
 import { Component, Sprite, Message, Container, Graphics } from '../../libs/pixi-ecs'
 import * as CONSTANTS from '../../constants'
 import { SVG } from '../../libs/pixi-svg';
@@ -68,16 +69,25 @@ export default class LinkedToMapSystem extends Component {
                 url: location
             }],
             callback: (_, resources) => {
+
                 let frame = obj.getAttribute('map') as Graphics
                 let map = new Sprite('', resources[location].texture)
+
+                obj.assignAttribute('options', { location: location, ...obj.getAttribute('options')})
                 
                 map.anchor.set(0.5, 1)
                 map.scale.set(map.width > map.height ? 200 / map.width : 200 / map.height)
                 
                 frame.removeChildren()
                 frame.addChild(map)
-                map.interactive = true
-                map.on('click', (e: Event) => this.sendMessage('map/set', { sprite: location }) )
+
+                map.interactive = true;
+                (map as any).clickable = false;
+                
+                map.on('mousedown', (e: PIXI.InteractionEvent) => {  (e as any).clickable = false })
+                map.on('pointerdown', (e: PIXI.InteractionEvent) => {  (e as any).clickable = false })
+                map.on('click', (e: Event) => { this.sendMessage('map/set', { sprite: location }) })
+                map.on('pointertap', (e: Event) => this.sendMessage('map/set', { sprite: location }) )
             }
         }
 
@@ -92,13 +102,4 @@ export default class LinkedToMapSystem extends Component {
         dummy.y = -dummy.height / 2 - frame.parent.height / 2 - 10
         frame.addChild(dummy)
     }
-
-    onResetMap(obj: Container) {
-
-    }
-
-    redirect() {
-
-    }
-
 }
