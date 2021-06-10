@@ -61,6 +61,10 @@ export default class DrawingSystem {
     polygonMove(id: number, point: [number, number]) {
       this.component.polygonMove(id, point)
     }
+
+    style(options: { color?: string, boldness?: number }) {
+      this.component.style(options)
+    }
 }
 
 class DrawingComponent extends Component {
