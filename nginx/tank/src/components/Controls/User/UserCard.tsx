@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { Avatar, Button, Card, Theme } from '@material-ui/core'
 import { createStyles, makeStyles } from '@material-ui/core/styles'
 import PersonIcon from '@material-ui/icons/Person'
-import { primary200, primary50, primary800 } from '../../../styles/colors'
+import { primary200, primary50 } from '../../../styles/colors'
 import InviteDialog from '../../Dialogs/InviteDialog'
 import CharacterInfoDialog from '../../Dialogs/CharacterInfoDialog'
 import { getHeroes } from '../../../store/hero/actions'
@@ -61,7 +61,7 @@ const useStyles = makeStyles((theme: Theme) =>
             justifyContent: 'space-between',
             width: '80%',
             '& > *': {
-                backgroundColor: primary800
+                // backgroundColor: primary800
             }
         }
     })
@@ -70,11 +70,13 @@ const useStyles = makeStyles((theme: Theme) =>
 interface Props {
     code: string
     hero?: Hero
+    gameBoard: any
+    isGM: boolean
 }
 
 const UserCard: React.FC<Props> = props => {
     const classes = useStyles()
-    const { code, hero } = props
+    const { code, hero, gameBoard, isGM } = props
     const dispatch = useDispatch()
 
     const [open, setOpen] = useState(false)
@@ -85,6 +87,23 @@ const UserCard: React.FC<Props> = props => {
     const [characterCardOpen, setCharacterCardOpen] = useState(false)
     const openCharacterCard = useCallback(() => setCharacterCardOpen(true), [])
     const closeCharacterCard = useCallback(() => setCharacterCardOpen(false), [])
+
+    const [nightEnabled, setNightEnabled] = useState(false)
+    const [rainEnabled, setRainEnabled] = useState(false)
+
+    const handleNightToggle = () => {
+        setNightEnabled(isEnabled => {
+            gameBoard.filter.night()
+            return !isEnabled
+        })
+    }
+
+    const handleRainToggle = () => {
+        setRainEnabled(isEnabled => {
+            gameBoard.filter.rain()
+            return !isEnabled
+        })
+    }
 
     const handleShowCharacter = () => {
         openCharacterCard()
@@ -97,10 +116,10 @@ const UserCard: React.FC<Props> = props => {
     return (
         <Card className={classes.me} raised>
             <div className={classes.controls}>
-                <MapControl onClick={() => {  }} tooltip="Night">
+                <MapControl onClick={handleNightToggle} tooltip="Night" active={nightEnabled} disabled={!isGM}>
                     <Brightness4Icon />
                 </MapControl>
-                <MapControl onClick={() => {  }} tooltip="Rain">
+                <MapControl onClick={handleRainToggle} tooltip="Rain" active={rainEnabled} disabled={!isGM}>
                     <InvertColorsIcon />
                 </MapControl>
             </div>

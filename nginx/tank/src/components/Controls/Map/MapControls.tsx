@@ -101,6 +101,7 @@ const MapControls: React.FC<Props> = props => {
                         currentSize={currentSize}
                         onColorChange={handleColorChange}
                         onSizeChange={handleSizeChange}
+                        size={false}
                     />
                 )}
                 onClick={() => { boardRef.drawing.set('polygon'); setMode(mode === Mode.Polygon ? null : Mode.Polygon) }}

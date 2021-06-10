@@ -47,8 +47,6 @@ const Tabletop = () => {
     const dispatch = useDispatch()
     const divRef = React.useRef<HTMLDivElement>(null)
 
-    const [boardRef, setBoardRef] = useState<any>()
-
     const ws = useContext(WebSocketContext)
 
     const currentGameData = useSelector(selectCurrentGameData)
@@ -59,6 +57,7 @@ const Tabletop = () => {
     const [messages, setMessages] = useState<ChatMessagePayload[]>([])
     const [users, setUsers] = useState<ConnectedUser[]>([])
     const [isGlobal, setIsGlobal] = useState<boolean | null>(null)
+    const [isGM, setIsGM] = useState(false)
     const [isSwiping, setSwiping] = useState(false)
 
     const [open, setOpen] = useState(false)
@@ -99,6 +98,7 @@ const Tabletop = () => {
     }, [ws])
 
     const handleMapChange = (mapId: string) => {
+        console.log("ws.sendMessage('map', mapId)", mapId, "handleMapChange")
         ws.sendMessage('map', mapId)
         if (!selectedMaps.includes(mapId)) {
             setSelectedMaps((prev: string[]) => [...prev, mapId])
@@ -223,16 +223,13 @@ const Tabletop = () => {
                 gameBoard.eventManager.add('draw/polygon/click/stopped', (data: any) => ws.sendMessage('draw_polygon_stopped', data))
                 gameBoard.eventManager.add('draw/polygon/moved', (data: any) => ws.sendMessage('draw_polygon_moved', data), true)
 
-
-                setBoardRef(gameBoard)
+                setMyGameBoard(gameBoard)
             })
-
-            setMyGameBoard(gameBoard)
         }
     }, [divRef, ws, connectGameState, myGameBoard, currentGameData, closeSidebar, handleLocationChange])
 
     useEffect(() => {
-        if (currentGameData && myGameBoard !== null && boardRef && connectGameState === AsyncState.success) {
+        if (currentGameData && myGameBoard !== null && connectGameState === AsyncState.success) {
             if (currentGameData === currentGameDataRef.current) return
             currentGameDataRef.current = currentGameData
 
@@ -246,6 +243,7 @@ const Tabletop = () => {
                     break
                 case 'add':
                     myGameBoard.gameObjectManager.add(currentGameData.meta)
+                    // myGameBoard.gamemode.me({ id: hero.id })
                     break
                 case 'delete':
                     myGameBoard.gameObjectManager.delete(currentGameData.meta)
@@ -256,6 +254,7 @@ const Tabletop = () => {
                 case 'refresh':
                     setUsers(currentGameData.meta.active_users)
                     setMessages(currentGameData.meta.chat)
+                    setIsGM(currentGameData.meta.is_gm)
 
                     if (!currentGameData.meta.is_gm) {
                         if (currentGameData.meta.my_hero === null) {
@@ -263,7 +262,7 @@ const Tabletop = () => {
                         } else {
                             setMyHero(MyHeroType.set)
                             setHero(currentGameData.meta.my_hero)
-                            myGameBoard.gamemode.me(currentGameData.meta.my_hero.id)
+                            myGameBoard.gamemode.me({ id: currentGameData.meta.my_hero.id })
                         }
                     }
 
@@ -303,7 +302,7 @@ const Tabletop = () => {
                     break
             }
         }
-    }, [myGameBoard, currentGameData, connectGameState, closeSidebar, handleUpdateMap, boardRef])
+    }, [myGameBoard, currentGameData, connectGameState, closeSidebar, handleUpdateMap])
 
     useEffect(() => {
         window.addEventListener('resize', detect)
@@ -381,11 +380,13 @@ const Tabletop = () => {
                             users={users}
                             messages={messages}
                             hero={hero}
+                            gameBoard={myGameBoard}
+                            isGM={isGM}
                         />
                     </Hidden>
                 </main>
                 <Hidden mdDown={true}>
-                    <MapControls boardRef={boardRef} />
+                    <MapControls boardRef={myGameBoard} isGM={isGM} />
                 </Hidden>
                 {
                     idToDelete &&
@@ -403,7 +404,9 @@ const Tabletop = () => {
                         messages={messages}
                         invitation_code={currentGame ? currentGame.invitation_code || '' : ''}
                         users={users}
-                        onSwitchGrid={() => boardRef && boardRef.switchGrid()}
+                        onSwitchGrid={() => myGameBoard && myGameBoard.map.switchGrid()}
+                        gameBoard={myGameBoard}
+                        isGM={isGM}
                     />
                 </Hidden>
                 <TutorialDialog open={tutorialOpen} onClose={() => setTutorialOpen(false)} />
@@ -419,7 +422,6 @@ const Tabletop = () => {
                             sprite: hero.sprite,
                             name: hero.name
                         })
-                        myGameBoard.gamemode.me(hero.id)
                         setChooseHeroDialogOpen(false)
                         setTutorialOpen(true)
                     }}

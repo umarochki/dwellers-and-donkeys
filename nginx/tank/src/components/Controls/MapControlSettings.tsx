@@ -58,6 +58,7 @@ interface Props {
     currentSize: number
     onColorChange: (color: Color) => void
     onSizeChange: (size: number) => void
+    size?: boolean
 }
 
 export enum Color {
@@ -78,7 +79,7 @@ const colors = [
 
 const MapControlSettings: React.FC<Props> = props => {
     const classes = useStyles()
-    const { currentColor, currentSize, onColorChange, onSizeChange } = props
+    const { currentColor, currentSize, onColorChange, onSizeChange, size = true } = props
 
     const handleChange = (e: React.ChangeEvent<{ name?: string; value: unknown }>) => {
         onSizeChange(e.target.value as number)
@@ -103,24 +104,26 @@ const MapControlSettings: React.FC<Props> = props => {
                         />
                     ))}
                 </Grid>
-                <Typography className={classes.title} gutterBottom>
-                    Size:
-                </Typography>
-                <FormControl className={classes.margin}>
-                    <Select
-                        labelId="select-label"
-                        id="customized-select"
-                        value={currentSize}
-                        onChange={handleChange}
-                        input={<BootstrapInput />}
-                    >
-                        <MenuItem value={1}>1px</MenuItem>
-                        <MenuItem value={2}>2px</MenuItem>
-                        <MenuItem value={3}>3px</MenuItem>
-                        <MenuItem value={4}>4px</MenuItem>
-                        <MenuItem value={5}>5px</MenuItem>
-                    </Select>
-                </FormControl>
+                {size && (<>
+                    <Typography className={classes.title} gutterBottom>
+                        Size:
+                    </Typography>
+                    <FormControl className={classes.margin}>
+                        <Select
+                            labelId="select-label"
+                            id="customized-select"
+                            value={currentSize}
+                            onChange={handleChange}
+                            input={<BootstrapInput/>}
+                        >
+                            <MenuItem value={1}>1px</MenuItem>
+                            <MenuItem value={2}>2px</MenuItem>
+                            <MenuItem value={3}>3px</MenuItem>
+                            <MenuItem value={4}>4px</MenuItem>
+                            <MenuItem value={5}>5px</MenuItem>
+                        </Select>
+                    </FormControl>
+                </>)}
             </CardContent>
         </Card>
     )

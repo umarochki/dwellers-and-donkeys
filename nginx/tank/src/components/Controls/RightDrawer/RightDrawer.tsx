@@ -91,11 +91,13 @@ interface Props {
     users: ConnectedUser[]
     onSwitchGrid: () => void
     hero?: Hero
+    gameBoard: any
+    isGM: boolean
 }
 
 const RightDrawer: React.FC<Props> = props => {
     const classes = useStyles()
-    const { messages, users, invitation_code, onSwitchGrid, hero } = props
+    const { messages, users, invitation_code, onSwitchGrid, hero, gameBoard, isGM } = props
 
     const [open, setOpen] = React.useState(true)
 
@@ -120,7 +122,7 @@ const RightDrawer: React.FC<Props> = props => {
                 <AppsIcon className={classes.switchGridIcon}/>
             </div>
             <div className={clsx(classes.drawerInner, !open && classes.drawerInnerHidden)}>
-                <UserCard code={invitation_code} hero={hero} />
+                <UserCard code={invitation_code} hero={hero} gameBoard={gameBoard} isGM={isGM} />
                 <ChatPanel data={messages}/>
                 <UserList users={users} />
             </div>
