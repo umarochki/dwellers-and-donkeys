@@ -216,6 +216,10 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
                     return await self.start_sending("send_me", json_data)
 
                 json_data["meta"] = HeroSessionSerializer().to_representation(instance=hero)
+                json_data["meta"]["me"] = False
+                await self.start_sending("send_all_but_me", json_data)
+                json_data["meta"]["me"] = True
+                return await self.start_sending("send_me", json_data)
             else:
                 game_session.current_game_objects[object_id] = meta
                 json_data["meta"]["id"] = object_id
