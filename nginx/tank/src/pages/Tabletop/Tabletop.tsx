@@ -177,11 +177,14 @@ const Tabletop = () => {
             const assets = [{ name: 'grid', url: '../grid64.png' }]
 
             gameBoard.init(assets, () => {
-                // gameBoard.eventManager.add('map/set', (data: any) => ws.sendMessage('map', data))
+                gameBoard.eventManager.add('map/set', (data: any) => {
+                    setIsGlobal(false)
+                    ws.sendMessage('map', data.sprite)
+                })
                 gameBoard.eventManager.add('object/add', (data: any) => ws.sendMessage('add', data))
                 gameBoard.eventManager.add('object/delete', (data: any) => ws.sendMessage('delete', data))
-                gameBoard.eventManager.add('object/update', (data: any) => ws.sendMessage('update', data), true)
-                gameBoard.eventManager.add('object/update/after', (data: any) => {
+                gameBoard.eventManager.add('object/updated', (data: any) => ws.sendMessage('update', data), true)
+                gameBoard.eventManager.add('object/updated/after', (data: any) => {
                     ws.sendMessage('update_and_save', data)
 
                     if (isDltBtnHovered.current) {
@@ -193,7 +196,7 @@ const Tabletop = () => {
                     setIdToDelete(null)
                 })
 
-                gameBoard.eventManager.add('object/update/before', (data: any) => {
+                gameBoard.eventManager.add('object/updated/before', (data: any) => {
                     ws.sendMessage('update_and_start', data)
                     setIdToDelete(data.id)
                 })
@@ -204,11 +207,6 @@ const Tabletop = () => {
                     }
                 })
                 gameBoard.eventManager.add('object/unselected', () => closeSidebar())
-
-                gameBoard.eventManager.add('map/set/after', (data: any) => {
-                    setIsGlobal(false)
-                    ws.sendMessage('map', data.sprite)
-                })
 
                 gameBoard.eventManager.add('draw/pencil/started', (data: any) => ws.sendMessage('draw_pencil_started', data))
                 gameBoard.eventManager.add('draw/pencil/moved', (data: any) => ws.sendMessage('draw_pencil_moved', data), true, ['xy'])
@@ -243,7 +241,6 @@ const Tabletop = () => {
                     break
                 case 'add':
                     myGameBoard.gameObjectManager.add(currentGameData.meta)
-                    // myGameBoard.gamemode.me({ id: hero.id })
                     break
                 case 'delete':
                     myGameBoard.gameObjectManager.delete(currentGameData.meta)
@@ -262,7 +259,6 @@ const Tabletop = () => {
                         } else {
                             setMyHero(MyHeroType.set)
                             setHero(currentGameData.meta.my_hero)
-                            myGameBoard.gamemode.me({ id: currentGameData.meta.my_hero.id })
                         }
                     }
 
