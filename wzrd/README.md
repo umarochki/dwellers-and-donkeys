@@ -266,6 +266,21 @@ POST /api/v1/heroes [Создать игру]
 }
 
 ```
+Рисование
+```
+type: draw_pencil_started
+type: draw_pencil_moved
+type: draw_pencil_stopped
+
+type: draw_eraser_started
+type: draw_eraser_moved
+type: draw_eraser_stopped
+
+type: draw_polygon_started
+type: draw_polygon_middle
+type: draw_polygon_stopped
+type: draw_polygon_moved
+```
 список нотифаев от сервера:
 ```
 Новый игрок подключился:
