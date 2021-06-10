@@ -63,7 +63,7 @@ interface Props {
     open: boolean
     onClose: () => void
     isEdit?: boolean
-    hero?: Hero
+    hero?: Hero | null
 }
 
 const defaultValues = {
@@ -74,7 +74,7 @@ const defaultValues = {
     sex: 'male'
 }
 
-const getDefault = (hero?: Hero) => {
+const getDefault = (hero?: Hero | null) => {
     if (!hero) return defaultValues
     try {
         return ({

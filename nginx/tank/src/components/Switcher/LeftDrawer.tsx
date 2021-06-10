@@ -114,6 +114,7 @@ interface Props {
     game: Game | null
     gameBoard: any
     objectId: string | null
+    isGM: boolean
 }
 
 interface MapMapType {
@@ -134,7 +135,8 @@ const LeftDrawer: React.FC<Props> = props => {
         selectedMaps,
         game,
         gameBoard,
-        objectId
+        objectId,
+        isGM
     } = props
 
     const ws = useContext(WebSocketContext)
@@ -302,6 +304,7 @@ const LeftDrawer: React.FC<Props> = props => {
                 currentType={type}
                 close={toggleDrawer(false)}
                 onSelect={handleSelect}
+                isGM={isGM}
             />
             <Drawer
                 anchor="left"

@@ -89,11 +89,13 @@ interface Props {
     users: ConnectedUser[]
     messages: ChatMessagePayload[]
     hero?: Hero
+    gameBoard: any
+    isGM: boolean
 }
 
 const BottomControlPanel: React.FC<Props> = props => {
     const classes = useStyles()
-    const { game, showControls, onToggle, users, messages, hero } = props
+    const { game, showControls, onToggle, users, messages, hero, gameBoard, isGM } = props
 
     return (
         <div className={clsx(classes.controls, !showControls && classes.hideControls)}>
@@ -107,7 +109,7 @@ const BottomControlPanel: React.FC<Props> = props => {
                     </div>
                 </Grid>
                 <Grid item xs={2} className={classes.controlPanel}>
-                    <UserCard code={game ? game.invitation_code || '' : ''} hero={hero}/>
+                    <UserCard code={game ? game.invitation_code || '' : ''} hero={hero} gameBoard={gameBoard} isGM={isGM}/>
                 </Grid>
                 <Grid item xs={5} className={classes.controlPanel}>
                     <ChatPanel data={messages}/>

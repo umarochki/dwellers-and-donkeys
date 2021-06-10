@@ -111,10 +111,11 @@ interface Props {
     close: (event: React.KeyboardEvent | React.MouseEvent) => void
     onSelect: (type: MenuType) => void
     global: boolean | null
+    isGM: boolean
 }
 
 const Switcher: React.FC<Props> = props => {
-    const { currentType, global, onSelect } = props
+    const { currentType, global, onSelect, isGM } = props
     const classes = useStyles()
     const history = useHistory()
 
@@ -124,12 +125,12 @@ const Switcher: React.FC<Props> = props => {
     const goHome = useCallback(() => history.push(''), [history])
 
     const menuList = useMemo(() => {
-        if (global === null) return []
+        if (global === null || !isGM) return [MenuType.info]
 
         return global
             ? [MenuType.locations, MenuType.markers, MenuType.decorations, MenuType.decorationsExtra,  MenuType.info]
             : [MenuType.global, MenuType.locations, MenuType.heroes, MenuType.info]
-    }, [global])
+    }, [global, isGM])
 
     return (
         <List className={classes.switcher}>

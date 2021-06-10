@@ -1,8 +1,8 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useState } from 'react'
 import { Avatar, Button, Card, Theme } from '@material-ui/core'
 import { createStyles, makeStyles } from '@material-ui/core/styles'
 import PersonIcon from '@material-ui/icons/Person'
-import { primary200, primary50, primary800 } from '../../../styles/colors'
+import { primary200, primary50 } from '../../../styles/colors'
 import InviteDialog from '../../Dialogs/InviteDialog'
 import CharacterInfoDialog from '../../Dialogs/CharacterInfoDialog'
 import { getHeroes } from '../../../store/hero/actions'
@@ -11,6 +11,7 @@ import { Hero } from '../../../models/hero'
 import Brightness4Icon from '@material-ui/icons/Brightness4'
 import InvertColorsIcon from '@material-ui/icons/InvertColors'
 import MapControl from '../Map/MapControl'
+import { WebSocketContext } from '../../Contexts/WebSocketContext'
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -61,7 +62,7 @@ const useStyles = makeStyles((theme: Theme) =>
             justifyContent: 'space-between',
             width: '80%',
             '& > *': {
-                backgroundColor: primary800
+                // backgroundColor: primary800
             }
         }
     })
@@ -70,12 +71,15 @@ const useStyles = makeStyles((theme: Theme) =>
 interface Props {
     code: string
     hero?: Hero
+    gameBoard: any
+    isGM: boolean
 }
 
 const UserCard: React.FC<Props> = props => {
     const classes = useStyles()
-    const { code, hero } = props
+    const { code, hero, gameBoard, isGM } = props
     const dispatch = useDispatch()
+    const ws = useContext(WebSocketContext)
 
     const [open, setOpen] = useState(false)
 
@@ -85,6 +89,25 @@ const UserCard: React.FC<Props> = props => {
     const [characterCardOpen, setCharacterCardOpen] = useState(false)
     const openCharacterCard = useCallback(() => setCharacterCardOpen(true), [])
     const closeCharacterCard = useCallback(() => setCharacterCardOpen(false), [])
+
+    const [nightEnabled, setNightEnabled] = useState(false)
+    const [rainEnabled, setRainEnabled] = useState(false)
+
+    const handleNightToggle = () => {
+        setNightEnabled(isEnabled => {
+            gameBoard.filter.night()
+            ws.sendMessage('toggle_night')
+            return !isEnabled
+        })
+    }
+
+    const handleRainToggle = () => {
+        setRainEnabled(isEnabled => {
+            gameBoard.filter.rain()
+            ws.sendMessage('toggle_rain')
+            return !isEnabled
+        })
+    }
 
     const handleShowCharacter = () => {
         openCharacterCard()
@@ -97,10 +120,10 @@ const UserCard: React.FC<Props> = props => {
     return (
         <Card className={classes.me} raised>
             <div className={classes.controls}>
-                <MapControl onClick={() => {  }} tooltip="Night">
+                <MapControl onClick={handleNightToggle} tooltip="Night" active={nightEnabled} disabled={!isGM}>
                     <Brightness4Icon />
                 </MapControl>
-                <MapControl onClick={() => {  }} tooltip="Rain">
+                <MapControl onClick={handleRainToggle} tooltip="Rain" active={rainEnabled} disabled={!isGM}>
                     <InvertColorsIcon />
                 </MapControl>
             </div>
