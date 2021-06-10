@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useState } from 'react'
 import { Avatar, Button, Card, Theme } from '@material-ui/core'
 import { createStyles, makeStyles } from '@material-ui/core/styles'
 import PersonIcon from '@material-ui/icons/Person'
@@ -11,6 +11,7 @@ import { Hero } from '../../../models/hero'
 import Brightness4Icon from '@material-ui/icons/Brightness4'
 import InvertColorsIcon from '@material-ui/icons/InvertColors'
 import MapControl from '../Map/MapControl'
+import { WebSocketContext } from '../../Contexts/WebSocketContext'
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -78,6 +79,7 @@ const UserCard: React.FC<Props> = props => {
     const classes = useStyles()
     const { code, hero, gameBoard, isGM } = props
     const dispatch = useDispatch()
+    const ws = useContext(WebSocketContext)
 
     const [open, setOpen] = useState(false)
 
@@ -94,6 +96,7 @@ const UserCard: React.FC<Props> = props => {
     const handleNightToggle = () => {
         setNightEnabled(isEnabled => {
             gameBoard.filter.night()
+            ws.sendMessage('toggle_night')
             return !isEnabled
         })
     }
@@ -101,6 +104,7 @@ const UserCard: React.FC<Props> = props => {
     const handleRainToggle = () => {
         setRainEnabled(isEnabled => {
             gameBoard.filter.rain()
+            ws.sendMessage('toggle_rain')
             return !isEnabled
         })
     }

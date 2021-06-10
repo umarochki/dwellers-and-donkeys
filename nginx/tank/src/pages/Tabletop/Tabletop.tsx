@@ -354,6 +354,7 @@ const Tabletop = () => {
                     game={currentGame}
                     gameBoard={myGameBoard}
                     objectId={objectId}
+                    isGM={isGM}
                 />
                 <main className={classes.content}>
                     <div
