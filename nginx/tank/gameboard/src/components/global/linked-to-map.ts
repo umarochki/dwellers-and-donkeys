@@ -7,9 +7,11 @@ import createSVGElement from '../../utils/create-svg-element';
 import DUMMY_MAP_RAW from '../../assets/svg';
 
 export default class LinkedToMapSystem extends Component {
+    start: { x: number, y: number }
 
     onInit() {
         this.subscribe('object/added', 'object/location/set', 'object/location/reset')
+        
     }
     
     onMessage(msg: Message) {
@@ -83,11 +85,43 @@ export default class LinkedToMapSystem extends Component {
 
                 map.interactive = true;
                 (map as any).clickable = false;
-                
-                map.on('mousedown', (e: PIXI.InteractionEvent) => {  (e as any).clickable = false })
-                map.on('pointerdown', (e: PIXI.InteractionEvent) => {  (e as any).clickable = false })
-                map.on('click', (e: Event) => { this.sendMessage('map/set', { sprite: location }) })
-                map.on('pointertap', (e: Event) => this.sendMessage('map/set', { sprite: location }) )
+
+                let onDragStart = function(e: PIXI.InteractionEvent) {
+                    (e as any).clickable = false
+                    this.start = { x: obj.x, y: obj.y }
+
+                    map
+                    // events for drag end 
+                    .on('mouseup',         onDragEnd)
+                    .on('mouseupoutside',  onDragEnd)
+                    .on('touchend',        onDragEnd)
+                    .on('touchendoutside', onDragEnd)
+                }
+                  
+                    
+                let onDragEnd = function(e: PIXI.InteractionEvent) {
+                                        
+                    if (this.start && 
+                      Math.abs(obj.x - this.start.x) <= 2 && 
+                      Math.abs(obj.y - this.start.y) <= 2) {
+                        this.sendMessage('map/set', { sprite: location })
+                      }
+                        
+            
+                      map
+                    // events for drag end 
+                    .off('mouseup',         onDragEnd)
+                    .off('mouseupoutside',  onDragEnd)
+                    .off('touchend',        onDragEnd)
+                    .off('touchendoutside', onDragEnd)
+                }
+
+                onDragEnd = onDragEnd.bind(this)
+                onDragStart = onDragStart.bind(this)
+
+                map
+                .on('mousedown',  onDragStart)
+                .on('touchstart', onDragStart)
             }
         }
 
