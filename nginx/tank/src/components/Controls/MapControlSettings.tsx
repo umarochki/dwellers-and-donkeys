@@ -5,11 +5,6 @@ import CardContent from '@material-ui/core/CardContent'
 import Typography from '@material-ui/core/Typography'
 import Grid from '@material-ui/core/Grid'
 import { Avatar, FormControl, InputBase, MenuItem, Select, Theme } from '@material-ui/core'
-import deepOrange from '@material-ui/core/colors/deepOrange'
-import deepPurple from '@material-ui/core/colors/deepPurple'
-import red from '@material-ui/core/colors/red'
-import green from '@material-ui/core/colors/green'
-import blue from '@material-ui/core/colors/blue'
 import { primary200, primary500, primary900 } from '../../styles/colors'
 
 const BootstrapInput = withStyles((theme: Theme) =>
@@ -59,23 +54,34 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 }))
 
 interface Props {
+    currentColor: string
+    currentSize: number
+    onColorChange: (color: Color) => void
+    onSizeChange: (size: number) => void
+}
 
+export enum Color {
+    DeepOrange = '#ff5722',
+    DeepPurple = '#673ab7',
+    Red = '#ff0000',
+    Green = '#4caf50',
+    Blue = '#2196f3'
 }
 
 const colors = [
-    deepOrange[500],
-    deepPurple[500],
-    red[500],
-    green[500],
-    blue[500]
+    Color.DeepOrange,
+    Color.DeepPurple,
+    Color.Red,
+    Color.Green,
+    Color.Blue
 ]
 
-const MapControlSettings: React.FC<Props> = () => {
+const MapControlSettings: React.FC<Props> = props => {
     const classes = useStyles()
+    const { currentColor, currentSize, onColorChange, onSizeChange } = props
 
-    const [size, setSize] = React.useState(1)
     const handleChange = (e: React.ChangeEvent<{ name?: string; value: unknown }>) => {
-        setSize(e.target.value as number)
+        onSizeChange(e.target.value as number)
     }
 
     return (
@@ -86,7 +92,15 @@ const MapControlSettings: React.FC<Props> = () => {
                 </Typography>
                 <Grid container justify="space-between" alignItems="center" style={{ marginBottom: 20 }}>
                     {colors.map(color => (
-                        <Avatar style={{ backgroundColor: color, color: color, cursor: 'pointer', border: '2px solid #617492' }} />
+                        <Avatar
+                            onClick={() => onColorChange(color)}
+                            style={{
+                                backgroundColor: color,
+                                color: color === currentColor ? 'black' : color,
+                                cursor: 'pointer',
+                                border: '2px solid #617492'
+                            }}
+                        />
                     ))}
                 </Grid>
                 <Typography className={classes.title} gutterBottom>
@@ -96,13 +110,15 @@ const MapControlSettings: React.FC<Props> = () => {
                     <Select
                         labelId="select-label"
                         id="customized-select"
-                        value={size}
+                        value={currentSize}
                         onChange={handleChange}
                         input={<BootstrapInput />}
                     >
                         <MenuItem value={1}>1px</MenuItem>
                         <MenuItem value={2}>2px</MenuItem>
                         <MenuItem value={3}>3px</MenuItem>
+                        <MenuItem value={4}>4px</MenuItem>
+                        <MenuItem value={5}>5px</MenuItem>
                     </Select>
                 </FormControl>
             </CardContent>

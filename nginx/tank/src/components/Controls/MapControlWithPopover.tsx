@@ -3,13 +3,13 @@ import Popover from '@material-ui/core/Popover'
 
 interface Props {
     id: string
-    icon: React.ReactElement
     controls: React.ReactElement
     onClick: Function
+    children: React.ReactElement
 }
 
 const MapControlWithPopover: React.FC<Props> = props => {
-    const { id, icon, controls, onClick } = props
+    const { id, controls, onClick, children } = props
     const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null)
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -24,7 +24,7 @@ const MapControlWithPopover: React.FC<Props> = props => {
     const popoverId = open ? id : undefined
 
     const popoverIcon = React.cloneElement(
-        icon,
+        children,
         { onClick: (e: React.MouseEvent<HTMLButtonElement>) => { onClick(); handleClick(e) } }
     )
 
