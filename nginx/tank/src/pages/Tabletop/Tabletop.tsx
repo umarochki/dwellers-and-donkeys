@@ -205,9 +205,24 @@ const Tabletop = () => {
                 })
                 gameBoard.eventManager.add('object/unselected', () => closeSidebar())
 
-                gameBoard.eventManager.add('map/set/after', () => {
+                gameBoard.eventManager.add('map/set/after', (data: any) => {
                     setIsGlobal(false)
+                    ws.sendMessage('map', data.sprite)
                 })
+
+                gameBoard.eventManager.add('draw/pencil/started', (data: any) => ws.sendMessage('draw_pencil_started', data))
+                gameBoard.eventManager.add('draw/pencil/moved', (data: any) => ws.sendMessage('draw_pencil_moved', data), true, ['xy'])
+                gameBoard.eventManager.add('draw/pencil/stopped', (data: any) => ws.sendMessage('draw_pencil_stopped', data))
+
+                gameBoard.eventManager.add('draw/eraser/started', (data: any) => ws.sendMessage('draw_eraser_started', data))
+                gameBoard.eventManager.add('draw/eraser/moved', (data: any) => ws.sendMessage('draw_eraser_moved', data), true)
+                gameBoard.eventManager.add('draw/eraser/stopped', (data: any) => ws.sendMessage('draw_eraser_stopped', data))
+
+                gameBoard.eventManager.add('draw/polygon/click/started', (data: any) => ws.sendMessage('draw_polygon_started', data))
+                gameBoard.eventManager.add('draw/polygon/click/middle', (data: any) => ws.sendMessage('draw_polygon_middle', data))
+                gameBoard.eventManager.add('draw/polygon/click/stopped', (data: any) => ws.sendMessage('draw_polygon_stopped', data))
+                gameBoard.eventManager.add('draw/polygon/moved', (data: any) => ws.sendMessage('draw_polygon_moved', data), true)
+
 
                 setBoardRef(gameBoard)
             })
@@ -248,6 +263,7 @@ const Tabletop = () => {
                         } else {
                             setMyHero(MyHeroType.set)
                             setHero(currentGameData.meta.my_hero)
+                            myGameBoard.gamemode.me(currentGameData.meta.my_hero.id)
                         }
                     }
 
@@ -403,6 +419,7 @@ const Tabletop = () => {
                             sprite: hero.sprite,
                             name: hero.name
                         })
+                        myGameBoard.gamemode.me(hero.id)
                         setChooseHeroDialogOpen(false)
                         setTutorialOpen(true)
                     }}
