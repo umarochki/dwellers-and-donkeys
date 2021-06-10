@@ -15,6 +15,7 @@ import VisibilityRegion from './systems/visibility-region'
 import Selection from './components/global/selection-system'
 import TransformSystem from './components/global/transform-system'
 import LinkedToMapSystem from './components/global/linked-to-map'
+import Gamemode from './systems/game-mode'
 
 export default class Gameboard {
     private engine: ECS.Engine
@@ -22,10 +23,13 @@ export default class Gameboard {
     
     eventManager: EventManager
     dragAndDrop: DragAndDrop
+    gamemode: Gamemode
     map: MapSystem
     gameObjectManager: GameObjectManager
     visibilityRegion: VisibilityRegion
     drawing: DrawingSystem
+
+    isGameMaster: boolean
   
     /*
     * Gameboard Constructor
@@ -45,6 +49,8 @@ export default class Gameboard {
         forceCanvas: false,
         antialias: true
       }, options)
+      
+      this.isGameMaster = options.isGameMaster || false
       
       this.engine = new ECS.Engine()  
       this.engine.init(options)
@@ -140,6 +146,7 @@ export default class Gameboard {
 
       this.eventManager = new EventManager(this.engine.scene)
       this.dragAndDrop = new DragAndDrop(this.engine.scene)
+      this.gamemode = new Gamemode(this.engine.scene, this.isGameMaster)
       
       this.map = new MapSystem(this.engine.scene)
       this.gameObjectManager = new GameObjectManager(this.engine.scene)
