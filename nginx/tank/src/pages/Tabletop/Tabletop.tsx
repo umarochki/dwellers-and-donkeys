@@ -181,7 +181,7 @@ const Tabletop = () => {
                 gameBoard.eventManager.add('object/add', (data: any) => ws.sendMessage('add', data))
                 gameBoard.eventManager.add('object/delete', (data: any) => ws.sendMessage('delete', data))
                 gameBoard.eventManager.add('object/update', (data: any) => ws.sendMessage('update', data), true)
-                gameBoard.eventManager.add('object/update-end', (data: any) => {
+                gameBoard.eventManager.add('object/update/after', (data: any) => {
                     ws.sendMessage('update_and_save', data)
 
                     if (isDltBtnHovered.current) {
@@ -193,13 +193,15 @@ const Tabletop = () => {
                     setIdToDelete(null)
                 })
 
-                gameBoard.eventManager.add('object/update-start', (data: any) => {
+                gameBoard.eventManager.add('object/update/before', (data: any) => {
                     ws.sendMessage('update_and_start', data)
                     setIdToDelete(data.id)
                 })
 
                 gameBoard.eventManager.add('object/selected', (data: any) => {
-                    handleLocationChange(data.id)
+                    if (data.type === "marker") {
+                        handleLocationChange(data.id)
+                    }
                 })
                 gameBoard.eventManager.add('object/unselected', () => closeSidebar())
 
