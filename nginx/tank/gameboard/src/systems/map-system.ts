@@ -1,6 +1,6 @@
 import { Component, Container, Scene, Sprite, TilingSprite, Message } from '../libs/pixi-ecs'
 import { SVG } from '../libs/pixi-svg';
-
+import * as PIXI from 'pixi.js-legacy'
 import createSVGElement from '../utils/create-svg-element';
 import DUMMY_MAP_RAW from '../assets/svg';
 
@@ -55,13 +55,18 @@ class MapSystemComponent extends Component {
         
         this.initDummyMap()
         this.layer.addChild(this.dummy)
-        this.subscribe('map/set')
+        this.subscribe('map/set', 'map/get')
     }
 
     onMessage(msg: Message) {
         if (msg.action === 'map/set') {
             this.set({sprite: msg.data.sprite })
         } 
+        else if (msg.action === 'map/get') {
+            return { map: this.map }
+        }
+
+        return undefined;
     }
 
     onDetach() {

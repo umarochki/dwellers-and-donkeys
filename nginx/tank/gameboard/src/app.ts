@@ -16,6 +16,7 @@ import Selection from './components/global/selection-system'
 import TransformSystem from './components/global/transform-system'
 import LinkedToMapSystem from './components/global/linked-to-map'
 import Gamemode from './systems/game-mode'
+import FilterManager from './systems/filter-manager'
 
 export default class Gameboard {
     private engine: ECS.Engine
@@ -28,6 +29,7 @@ export default class Gameboard {
     gameObjectManager: GameObjectManager
     visibilityRegion: VisibilityRegion
     drawing: DrawingSystem
+    filter: FilterManager
 
     isGameMaster: boolean
   
@@ -152,5 +154,7 @@ export default class Gameboard {
       this.gameObjectManager = new GameObjectManager(this.engine.scene)
       this.visibilityRegion = new VisibilityRegion(this.engine.scene)
       this.drawing = new DrawingSystem(this.engine.scene)
+
+      this.filter = new FilterManager(this.engine.scene)
     }
   }
