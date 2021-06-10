@@ -65,7 +65,10 @@ export default class SelectionSystem extends Component {
       this._onResize()
     
     window.addEventListener('keydown', this._onKeyDown)
-    this.scene.sendMessage(new Message('object/selected', null, this.selected, { id: this.selected.name }))
+    this.scene.sendMessage(new Message('object/selected', null, this.selected, { 
+      id: this.selected.name,
+      ...this.selected.getAttribute('options')
+    }))
   }
 
   offSelect() {
