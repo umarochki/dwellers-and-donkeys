@@ -62,8 +62,8 @@ export default class DrawingSystem {
       this.component.polygonMove(options.sender, options.xy)
     }
 
-    polygonAdd(options: { sender: number, xy: [number, number][] }) {
-      this.component.polygonAdd(options.sender, options.xy)
+    polygonAdd(options: { sender: number, xy: [number, number][], color: string }) {
+      this.component.polygonAdd(options.sender, options.xy, options.color)
     }
 
     style(options: { color?: string, boldness?: number }) {
@@ -274,13 +274,15 @@ class DrawingComponent extends Component {
       this.edge.lineTo(point[0], point[1]);
     }
 
-    polygonAdd(id: number, xy: [number, number][] ) {
+    polygonAdd(id: number, xy: [number, number][], color?: string ) {
+      
+      
       let polygon = new Graphics();
       polygon.assignAttribute('points', xy);
       let arr = [];
       // @ts-ignore
       for (let row of xy) for (let e of row) arr.push(e);
-      polygon.beginFill(this.color[id]);
+      polygon.beginFill(this.convertFromHexToNumericColor(color));
       polygon.drawPolygon(arr);
       polygon.endFill();
   
@@ -417,7 +419,7 @@ class DrawingComponent extends Component {
         this.sendMessage('region/obstacle/add', { xy: this.points[0] })
       }
       else {
-        this.sendMessage('draw/polygon/add', { xy: this.points[0] })
+        this.sendMessage('draw/polygon/add', { xy: this.points[0], color: this.convertFromNumericColorToHex(this.color[0]) })
       }
   
       this.overlay.off('mousemove', this.onPolygonMove)
