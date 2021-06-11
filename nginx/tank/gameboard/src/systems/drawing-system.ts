@@ -62,6 +62,10 @@ export default class DrawingSystem {
       this.component.polygonMove(options.sender, options.xy)
     }
 
+    polygonAdd(options: { sender: number, xy: [number, number][] }) {
+      this.component.polygonAdd(options.sender, options.xy)
+    }
+
     style(options: { color?: string, boldness?: number }) {
       this.component.style(options)
     }
@@ -259,24 +263,6 @@ class DrawingComponent extends Component {
     }
 
     polygonClickEnd(id: number) {
-      let polygon = new Graphics();
-      polygon.assignAttribute('points', this.points[id]);
-      
-      let arr = [];
-      // @ts-ignore
-      for (let row of this.points[id]) for (let e of row) arr.push(e);
-  
-      if (this.context.getAttribute('is-drawer'))
-        polygon.beginFill(this.color[id]);
-      else
-        polygon.beginFill(0x43536B);
-      
-      polygon.drawPolygon(arr);
-      polygon.endFill();
-  
-      // Draw on board or pass it to the outer context
-      this.context.addChild(polygon);
-  
       this.temp.removeChild(this.edges);
       this.temp.removeChild(this.vertices);
     }
@@ -286,6 +272,20 @@ class DrawingComponent extends Component {
       this.edge.lineStyle(this.boldness[0], 0xffffff, 0.5);
       this.edge.moveTo(this.points[id][this.points[id].length - 1][0], this.points[id][this.points[id].length - 1][1]);
       this.edge.lineTo(point[0], point[1]);
+    }
+
+    polygonAdd(id: number, xy: [number, number][] ) {
+      let polygon = new Graphics();
+      polygon.assignAttribute('points', xy);
+      let arr = [];
+      // @ts-ignore
+      for (let row of xy) for (let e of row) arr.push(e);
+      polygon.beginFill(this.color[id]);
+      polygon.drawPolygon(arr);
+      polygon.endFill();
+  
+      // Draw on board or pass it to the outer context
+      this.context.addChild(polygon);
     }
     
     // --------=====x{ HANDLERS }x=====--------
@@ -412,6 +412,13 @@ class DrawingComponent extends Component {
       event.stopPropagation();
   
       this.polygonClickEnd(0)
+
+      if (!this.context.getAttribute('is-drawer')) {
+        this.sendMessage('region/obstacle/add', { xy: this.points[0] })
+      }
+      else {
+        this.sendMessage('draw/polygon/add', { xy: this.points[0] })
+      }
   
       this.overlay.off('mousemove', this.onPolygonMove)
       this.overlay.off('click', this.onPolygonMiddleClick)

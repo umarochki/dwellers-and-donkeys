@@ -69,7 +69,7 @@ class VisibilityRegionComponent extends Component {
         this.contextToSegments = this.contextToSegments.bind(this);
         
         // @ts-ignore
-        this.context.onChildrenChange = this.contextToSegments;
+        //this.context.onChildrenChange = this.contextToSegments;
 
         this.subscribe('gamemode/mode/set/after', 'gamemode/user/set/after','object/selected', 'object/unselected', 'object/updated', 'region/update', 'map/set/after')
     }
@@ -127,6 +127,7 @@ class VisibilityRegionComponent extends Component {
     
         // Draw on board or pass it to the outer context
         this.context.addChild(polygon);
+        this.contextToSegments()
     }
     
     select(obj: Container) {
@@ -175,9 +176,6 @@ class VisibilityRegionComponent extends Component {
 
           if (flag) polygons.push(points);
           else this.context.removeChild(child)
-
-          if (i === this.context.children.length - 1)
-            this.sendMessage('region/obstacle/add', { xy: points })
         }
             
         let segments = this._convertToSegments(polygons);
