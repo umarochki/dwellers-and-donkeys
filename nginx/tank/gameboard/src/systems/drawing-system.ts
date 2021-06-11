@@ -22,44 +22,44 @@ export default class DrawingSystem {
         this.component.clear()
     }
 
-    pencilDown(id: number, boldness?, color?) {
-      this.component.pencilDown(id, boldness, color)
+    pencilDown(options: { sender: number, boldness?, color? }) {
+      this.component.pencilDown(options.sender, options.boldness, options.color)
     }
 
-    pencilMove(id: number, point: [number, number][]) {
-      this.component.pencilMove(id, point)
+    pencilMove(options: { sender: number, point: [number, number][] }) {
+      this.component.pencilMove(options.sender, options.point)
     }
 
-    pencilUp(id: number) {
-      this.component.pencilUp(id)
+    pencilUp(options: { sender: number }) {
+      this.component.pencilUp(options.sender)
     }
 
-    eraserDown(id: number) {
+    eraserDown(options: {sender: number}) {
       this.component.eraserDown()
     }
 
-    eraserMove(id: number, point: [number, number][]) {
-      this.component.eraserMove(point)
+    eraserMove(options: {sender: number, point: [number, number][]}) {
+      this.component.eraserMove(options.point)
     }
 
-    eraserUp(id: number) {
+    eraserUp(options: { sender: number }) {
       this.component.eraserUp()
     }
 
-    polygonClickStart(id: number, point: [number, number]) {
-      this.component.polygonClickStart(id, point)
+    polygonClickStart(options: { sender: number, point: [number, number] }) {
+      this.component.polygonClickStart(options.sender, options.point)
     }
 
-    polygonClickMiddle(id: number, point: [number, number]) {
-      this.component.polygonClickMiddle(id, point)
+    polygonClickMiddle(options: { sender: number, point: [number, number] }) {
+      this.component.polygonClickMiddle(options.sender, options.point)
     }
 
-    polygonClickEnd(id: number, point: [number, number]) {
-      this.component.polygonClickEnd(id)
+    polygonClickEnd(options: { sender: number }) {
+      this.component.polygonClickEnd(options.sender)
     }
 
-    polygonMove(id: number, point: [number, number]) {
-      this.component.polygonMove(id, point)
+    polygonMove(options: { sender: number, point: [number, number]}) {
+      this.component.polygonMove(options.sender, options.point)
     }
 
     style(options: { color?: string, boldness?: number }) {
