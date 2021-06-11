@@ -17,6 +17,10 @@ export default class VisibilityRegion {
         this.component.set(mode)
     }
 
+    addObstacle(options: { xy: [number, number][] }) {
+      this.component.addObstacle(options)
+    }
+    
     clear() {
         this.component.clear()
     }
@@ -102,6 +106,23 @@ class VisibilityRegionComponent extends Component {
           break
       }
     }
+
+    addObstacle(options: { xy: [number, number][]}) {
+        let polygon = new Graphics();
+        polygon.assignAttribute('points', options.xy);
+        
+        let arr = [];
+        // @ts-ignore
+        for (let row of this.points[id]) for (let e of row) arr.push(e);
+    
+        polygon.beginFill(0x43536B);
+        
+        polygon.drawPolygon(arr);
+        polygon.endFill();
+    
+        // Draw on board or pass it to the outer context
+        this.context.addChild(polygon);
+    }
     
     select(obj: Container) {
       if (!obj.hasFlag(CONSTANTS.FLAGS.RESTRICTED_VISIBILITY)) return;
@@ -149,6 +170,9 @@ class VisibilityRegionComponent extends Component {
 
           if (flag) polygons.push(points);
           else this.context.removeChild(child)
+
+          if (i === this.context.children.length - 1)
+            this.sendMessage('region/obstacle/add', { xy: points })
         }
             
         let segments = this._convertToSegments(polygons);
