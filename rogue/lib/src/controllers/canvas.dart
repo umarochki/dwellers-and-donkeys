@@ -8,42 +8,37 @@ import 'package:flutter/services.dart';
 import '../classes/canvas_object.dart';
 import '../classes/rect_points.dart';
 
-/// Control the canvas and the objects on it
 class CanvasController {
   Function sendMove;
+  Function sendSave;
   Function isGm;
+  Function hero;
 
-  CanvasController(Function sendMove, Function isGm) {
+  CanvasController(
+      Function sendMove, Function isGm, Function hero, Function sendSave) {
     this.sendMove = sendMove;
     this.isGm = isGm;
+    this.hero = hero;
+    this.sendSave = sendSave;
   }
 
-  /// Controller for the stream output
   final _controller = StreamController<CanvasController>();
 
-  /// Reference to the stream to update the UI
   Stream<CanvasController> get stream => _controller.stream;
 
-  /// Emit a new event to rebuild the UI
   void add([CanvasController val]) => _controller.add(val ?? this);
 
-  /// Stop the stream and finish
   void close() {
     _controller.close();
     focusNode.dispose();
   }
 
-  /// Start the stream
   void init() => add();
-
-  // -- Canvas Objects --
 
   final List<CanvasObject<Widget>> _objects = [];
 
-  /// Current Objects on the canvas
   List<CanvasObject<Widget>> get objects => _objects;
 
-  /// Add an object to the canvas
   void addObject(CanvasObject<Widget> value) => _update(() {
         if (_objects.length > 0 &&
             _objects[_objects.length - 1]
@@ -57,12 +52,10 @@ class CanvasController {
         }
       });
 
-  /// Add an object to the canvas
   void updateObject(int i, CanvasObject<Widget> value) => _update(() {
         _objects[i] = value;
       });
 
-  /// Remove an object from the canvas
   void removeObject(int i) => _update(() {
         _objects.removeAt(i);
       });
@@ -71,59 +64,23 @@ class CanvasController {
         while (_objects.length > 0) _objects.removeAt(0);
       });
 
-  /// Focus node for listening for keyboard shortcuts
   final focusNode = FocusNode();
 
-  /// Raw events from keys pressed
-  void rawKeyEvent(BuildContext context, RawKeyEvent key) {
-    // Scale keys
-    if (key.isKeyPressed(LogicalKeyboardKey.minus)) {
-      zoomOut();
-    }
-    if (key.isKeyPressed(LogicalKeyboardKey.equal)) {
-      zoomIn();
-    }
-    // Directional Keys
-    if (key.isKeyPressed(LogicalKeyboardKey.arrowLeft)) {
-      offset = offset + Offset(offsetAdjust, 0.0);
-    }
-    if (key.isKeyPressed(LogicalKeyboardKey.arrowRight)) {
-      offset = offset + Offset(-offsetAdjust, 0.0);
-    }
-    if (key.isKeyPressed(LogicalKeyboardKey.arrowUp)) {
-      offset = offset + Offset(0.0, offsetAdjust);
-    }
-    if (key.isKeyPressed(LogicalKeyboardKey.arrowDown)) {
-      offset = offset + Offset(0.0, -offsetAdjust);
-    }
-
-    _shiftPressed = key.isShiftPressed;
-    _metaPressed = key.isMetaPressed;
-
-    /// Update Controller Instance
-    add(this);
-  }
-
-  /// Trigger Shift Press
   void shiftSelect() {
     _shiftPressed = true;
   }
 
-  /// Trigger Meta Press
   void metaSelect() {
     _metaPressed = true;
   }
 
   final Map<int, Offset> _pointerMap = {};
 
-  /// Number of inputs currently on the screen
   int get touchCount => _pointerMap.values.length;
 
-  /// Marquee selection on the canvas
   RectPoints get marquee => _marquee;
   RectPoints _marquee;
 
-  /// Dragging a canvas object
   bool get isMovingCanvasObject => _isMovingCanvasObject;
   bool _isMovingCanvasObject = false;
 
@@ -133,7 +90,6 @@ class CanvasController {
       _selectedObjects.map((i) => _objects[i]).toList();
   bool isObjectSelected(int i) => _selectedObjects.contains(i);
 
-  /// Called every time a new input touches the screen
   void addTouch(int pointer, Offset offsetVal, Offset globalVal) {
     _pointerMap[pointer] = offsetVal;
 
@@ -142,14 +98,11 @@ class CanvasController {
       _marquee = RectPoints(pt, pt);
     }
 
-    /// Update Controller Instance
     add(this);
   }
 
-  /// Called when any of the inputs update position
   void updateTouch(int pointer, Offset offsetVal, Offset globalVal) {
     if (_marquee != null) {
-      // Update New Widget Rect
       final _pts = _marquee;
       final a = _pointerMap.values.first;
       _pointerMap[pointer] = offsetVal;
@@ -165,7 +118,6 @@ class CanvasController {
         }
       }
     } else if (touchCount == 1) {
-      // Widget Move
       _isMovingCanvasObject = true;
       final a = _pointerMap.values.first;
       _pointerMap[pointer] = offsetVal;
@@ -175,9 +127,7 @@ class CanvasController {
         return;
       }
       for (final idx in _selectedObjects) {
-        // debugPrint('$isGm()');
-        if (isGm()) {
-          // TODO: или если это твой герой
+        if (isGm() || (hero() != null && _objects[idx].id == hero()['id'])) {
           final widget = _objects[idx];
           final delta = (b - a) / scale;
           final _newOffset = widget.offset + delta;
@@ -189,7 +139,6 @@ class CanvasController {
         }
       }
     } else if (touchCount == 2) {
-      // Scale and Rotate Update
       _isMovingCanvasObject = false;
       final _rectA = _getRectFromPoints(_pointerMap.values.toList());
       _pointerMap[pointer] = offsetVal;
@@ -202,7 +151,6 @@ class CanvasController {
       final change = (bDistance / aDistance);
       scale = scale * change;
     } else {
-      // Pan Update
       _isMovingCanvasObject = false;
       final _rectA = _getRectFromPoints(_pointerMap.values.toList());
       _pointerMap[pointer] = offsetVal;
@@ -212,11 +160,9 @@ class CanvasController {
     }
     _pointerMap[pointer] = offsetVal;
 
-    /// Update Controller Instance
     add(this);
   }
 
-  /// Called when a input is removed from the screen
   void removeTouch(int pointer) {
     _pointerMap.remove(pointer);
 
@@ -228,7 +174,15 @@ class CanvasController {
       _shiftPressed = false;
     }
 
-    /// Update Controller Instance
+    for (final idx in _selectedObjects) {
+      if (isGm() || (hero() != null && _objects[idx].id == hero()['id'])) {
+        sendSave(_objects[idx].id, [
+          _objects[idx].dx + _objects[idx].width / 2,
+          _objects[idx].dy + _objects[idx].height / 2
+        ]);
+      }
+    }
+
     add(this);
   }
 
@@ -246,15 +200,12 @@ class CanvasController {
     _selectedObjects.clear();
   }
 
-  /// Checks if the shift key on the keyboard is pressed
   bool get shiftPressed => _shiftPressed;
   bool _shiftPressed = false;
 
-  /// Checks if the meta key on the keyboard is pressed
   bool get metaPressed => _metaPressed;
   bool _metaPressed = false;
 
-  /// Scale of the canvas
   double get scale => _scale;
   double _scale = 1;
   set scale(double value) => _update(() {
@@ -266,19 +217,14 @@ class CanvasController {
         _scale = value;
       });
 
-  /// Max possible scale
   static const double maxScale = 3.0;
 
-  /// Min possible scale
   static const double minScale = 0.2;
 
-  /// How much to scale the canvas in increments
   static const double scaleAdjust = 0.05;
 
-  /// How much to shift the canvas in increments
   static const double offsetAdjust = 15;
 
-  /// Current offset of the canvas
   Offset get offset => _offset;
   Offset _offset = Offset.zero;
   set offset(Offset value) => _update(() {
@@ -288,18 +234,15 @@ class CanvasController {
   static const double _scaleDefault = 1;
   static const Offset _offsetDefault = Offset.zero;
 
-  /// Reset the canvas zoom and offset
   void reset() {
     scale = _scaleDefault;
     offset = _offsetDefault;
   }
 
-  /// Zoom in the canvas
   void zoomIn() {
     scale += scaleAdjust;
   }
 
-  /// Zoom out the canvas
   void zoomOut() {
     scale -= scaleAdjust;
   }

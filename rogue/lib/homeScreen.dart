@@ -6,7 +6,6 @@ import 'dart:convert';
 import 'package:rogue/menu.dart';
 
 class HomeScreen extends StatelessWidget {
-  String _email;
   String _login;
   String _password;
   final formKeyLogin = new GlobalKey<FormState>();
@@ -53,8 +52,6 @@ class HomeScreen extends StatelessWidget {
                                   keyboardType: TextInputType.emailAddress,
                                   style: _sizeTextInput,
                                   onSaved: (val) => _login = val,
-                                  // validator: (val) =>
-                                  //     !val.contains("@") ? 'Not a valid email.' : null,
                                 ),
                                 width: 300.0,
                               ),
@@ -80,8 +77,6 @@ class HomeScreen extends StatelessWidget {
                                       hideKeyboard();
                                       String cookie =
                                           await login(_login, _password);
-                                      // debugPrint('$headers');
-                                      // debugPrint('rsp: $cookie');
                                       if (cookie != "Bad credentials") {
                                         Navigator.push(
                                             context,

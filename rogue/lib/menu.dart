@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:rogue/api.dart';
 import 'package:flutter/foundation.dart';
 import 'package:rogue/classes.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:rogue/gameboard.dart';
 

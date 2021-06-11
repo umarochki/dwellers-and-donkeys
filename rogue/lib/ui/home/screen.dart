@@ -16,7 +16,9 @@ class GameScreen extends StatefulWidget {
   final Function selectedId;
   final Function getLocalImageFile;
   final Function dir;
+  final Function hero;
   final Function isGm;
+  final Function sendSave;
   final Function currentMap;
   final Function gameObjects;
   const GameScreen(
@@ -31,6 +33,8 @@ class GameScreen extends StatefulWidget {
       @required this.getLocalImageFile,
       @required this.currentMap,
       @required this.dir,
+      @required this.hero,
+      @required this.sendSave,
       @required this.gameObjects,
       @required this.isGm})
       : super(key: key);
@@ -44,7 +48,8 @@ class GameScreenState extends State<GameScreen> {
 
   @override
   void initState() {
-    _controller = CanvasController(widget.sendMove, widget.isGm);
+    _controller = CanvasController(
+        widget.sendMove, widget.isGm, widget.hero, widget.sendSave);
     _controller.init();
     super.initState();
   }
@@ -77,7 +82,6 @@ class GameScreenState extends State<GameScreen> {
       x = 0;
       y = 0;
     } else {
-      // debugPrint('$xy $wh');
       x = xy[0].toDouble() - wh[0].toDouble() / 2;
       y = xy[1].toDouble() - wh[1].toDouble() / 2;
     }
@@ -175,7 +179,6 @@ class GameScreenState extends State<GameScreen> {
             backgroundColor: Color.fromRGBO(245, 245, 220, 1),
             appBar: (selectedId() != null && widget.currentMap() == "Global")
                 ? AppBar(
-                    // TODO: только на глобал карте, а актионс только для ГМа, и вообще только на селекте мб
                     backgroundColor: Color.fromRGBO(33, 44, 61, 1),
                     title: (widget
                                 .gameObjects()[selectedId()]
@@ -203,8 +206,6 @@ class GameScreenState extends State<GameScreen> {
                             title: Text(
                               '${widget.mapsInfo()[widget.gameObjects()[selectedId()]['location']]['name']}',
                               style: TextStyle(color: Colors.white),
-                              // ,
-                              //                       style: _sizeTextWhite
                             ),
                             trailing: widget.isGm()
                                 ? MaterialButton(
@@ -250,11 +251,6 @@ class GameScreenState extends State<GameScreen> {
                   )
                 : null,
             body: Container(
-                // decoration: BoxDecoration(
-                //     image: DecorationImage(
-                //   image: AssetImage("assets/cat.jpg"),
-                //   fit: BoxFit.cover,
-                // )),
                 child: Listener(
               behavior: HitTestBehavior.opaque,
               onPointerSignal: (details) {
@@ -296,7 +292,6 @@ class GameScreenState extends State<GameScreen> {
               child: RawKeyboardListener(
                 autofocus: true,
                 focusNode: _controller.focusNode,
-                onKey: (key) => _controller.rawKeyEvent(context, key),
                 child: SizedBox.expand(
                   child: Stack(
                     children: [

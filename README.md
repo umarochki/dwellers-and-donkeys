@@ -12,7 +12,9 @@
 
 Так мы выглядим на экранах поменьше.
 
-[Здесь должна быть мобильная версия]
+![Preview](https://raw.githubusercontent.com/umarochki/dwellers-and-donkeys/main/.github/images/mobile.png)
+
+Так мы выглядим в мобильном приложении.
 
 </div>
 

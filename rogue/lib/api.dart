@@ -42,21 +42,37 @@ Future<List<dynamic>> getHeroes() async {
   }
 }
 
+Future<String> createHero(String name, String sprite, String race,
+    String description, String sex) async {
+  final response = await http.post(
+    Config.url + '/heroes',
+    headers: headers,
+    body: jsonEncode(<String, String>{
+      'name': name,
+      'sprite': sprite,
+      'race': race,
+      'description': description,
+      'sex': sex
+    }),
+  );
+  updateCookie(response);
+  if (response.statusCode == 201) {
+    return response.body;
+  } else {
+    return response.body;
+  }
+}
+
 Future<String> login(String username, String password) async {
   clean_headers();
   final response = await http.post(
-    // Uri.https(Config.url, 'api/v1/auth/login'),
     Config.url + '/auth/login',
-    // headers: <String, String>{
-    //   'Content-Type': 'application/json; charset=UTF-8',
-    // },
     headers: headers,
     body: jsonEncode(
         <String, String>{'username': username, 'password': password}),
   );
   updateCookie(response);
   if (response.statusCode == 200) {
-    // debugPrint(response.headers['set-cookie']);
     String cookie = response.headers['set-cookie'];
     cookie = cookie.substring(
         cookie.indexOf('auth_token=') + 11, cookie.indexOf(';'));

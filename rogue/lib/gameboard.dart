@@ -27,9 +27,7 @@ class GameBoard extends StatefulWidget {
 }
 
 class _GameBoardState extends State<GameBoard>
-    with SingleTickerProviderStateMixin
-// with AutomaticKeepAliveClientMixin
-{
+    with SingleTickerProviderStateMixin {
   final _sizeTextWhite = const TextStyle(fontSize: 20.0, color: Colors.white);
   final _bgc = const Color.fromRGBO(67, 83, 107, 1);
   final _color = const Color.fromRGBO(83, 102, 129, 1);
@@ -55,6 +53,7 @@ class _GameBoardState extends State<GameBoard>
   String currentMap() => _currentMap;
 
   Map<String, dynamic> _hero = {};
+  Map<String, dynamic> hero() => _hero;
 
   bool _isGm = false;
   bool isGm() => _isGm;
@@ -65,8 +64,6 @@ class _GameBoardState extends State<GameBoard>
 
   String _dir;
   String dir() => _dir;
-
-  dynamic _initHeightDashboard;
 
   TabController _tabController;
 
@@ -83,12 +80,14 @@ class _GameBoardState extends State<GameBoard>
     prepareHeroes();
     listen();
     _tabController.animateTo(1);
-    // prepareMaps();
     refresh();
   }
 
   void prepareHeroes() async {
     _heroes = await getHeroes();
+    setState(() {
+      _heroes = _heroes;
+    });
   }
 
   void prepareTokens() async {
@@ -132,6 +131,8 @@ class _GameBoardState extends State<GameBoard>
     setState(() {
       maps = maps;
     });
+
+    debugPrint('maps downloaded');
   }
 
   @override
@@ -147,9 +148,6 @@ class _GameBoardState extends State<GameBoard>
     super.dispose();
   }
 
-  // @override
-  // bool get wantKeepAlive => true;
-
   void connect() {
     _channel = IOWebSocketChannel.connect(
         'ws://207.154.226.69/ws/games/$_invite_code',
@@ -164,7 +162,6 @@ class _GameBoardState extends State<GameBoard>
         debugPrint('message $message');
         Map<String, dynamic> json = jsonDecode(message);
 
-        // debugPrint('q: ${json['meta']});
         if (json['type'] == 'refresh') {
           handleRefresh(json);
         }
@@ -198,7 +195,6 @@ class _GameBoardState extends State<GameBoard>
         debugPrint('ws channel closed');
 
         if (this.mounted && _wsMustBeOn) connect();
-        // TODO: не реконнектиться когда не надо (проверить что работает)
       },
       onError: (error) {
         debugPrint('ws error $error');
@@ -235,14 +231,23 @@ class _GameBoardState extends State<GameBoard>
   }
 
   void sendAdd(String sprite, String type) {
-    // debugPrint(
-    //     '{"type":"add", "meta": { "type": "none", "sprite" : "$sprite", "xy": [100.0, 100.0]}}');
     if (_currentMap == "Global")
       _channel.sink.add(
           '{"type":"add", "meta": { "type": "marker", "location" : "" , "sprite" : "$sprite", "xy": [100.0, 100.0]}}');
     else
       _channel.sink.add(
           '{"type":"add", "meta": { "type": "$type", "sprite" : "$sprite", "xy": [100.0, 100.0]}}');
+  }
+
+  void sendHero(dynamic heroId) {
+    if (_currentMap != "Global") {
+      if (heroId is String)
+        _channel.sink.add(
+            '{"type":"add", "meta": { "type": "hero", "hero_id" : "$heroId"  ,"xy": [100.0, 100.0]}}');
+      else
+        _channel.sink.add(
+            '{"type":"add", "meta": { "type": "hero", "hero_id" : $heroId  ,"xy": [100.0, 100.0]}}');
+    }
   }
 
   void sendWorldMap() {
@@ -256,6 +261,15 @@ class _GameBoardState extends State<GameBoard>
     else
       _channel.sink
           .add('{"type":"update", "meta": { "id" : $id , "xy" : $xy}}');
+  }
+
+  void sendSave(dynamic id, List<dynamic> xy) {
+    if (id is String)
+      _channel.sink.add(
+          '{"type":"update_and_save", "meta": { "id" : "$id" , "xy" : $xy}}');
+    else
+      _channel.sink.add(
+          '{"type":"update_and_save", "meta": { "id" : $id , "xy" : $xy}}');
   }
 
   void sendLocation(dynamic id, String location) {
@@ -275,12 +289,12 @@ class _GameBoardState extends State<GameBoard>
   }
 
   void handleDisconnect() {
-    _channel.sink.close(); // TODO: только если ты
-    // if (this.mounted && _wsMustBeOn) connect();
+    _channel.sink.close();
   }
 
   void handleRefresh(Map<String, dynamic> json) {
     prepareMaps();
+    prepareHeroes();
     if (this.mounted)
       setState(() {
         _chat = json['meta']['chat'];
@@ -292,16 +306,14 @@ class _GameBoardState extends State<GameBoard>
         _isGm = json['meta']['is_gm'];
         _hero = json['meta']['my_hero'];
       });
-
-    // debugPrint('$_gameObjects');
   }
 
   void handleMap(Map<String, dynamic> json) {
-    refresh(); // TODO : понять глубокую логику давать карту по имени и т.д.
+    refresh(); // TODO : fix
   }
 
   void handleGlobalMap(Map<String, dynamic> json) {
-    refresh(); // TODO : что вообще с бэком?
+    refresh(); // TODO : fix
   }
 
   void rewriteTokens() async {
@@ -428,7 +440,9 @@ class _GameBoardState extends State<GameBoard>
     return Image.file(file);
   }
 
-  File _getLocalImageFile(String name, String dir) => File('$dir/$name');
+  File _getLocalImageFile(String name, String dir) {
+    return File('$dir/$name');
+  }
 
   Future<bool> _hasToDownloadAssets(String name, String dir) async {
     var file = File('$dir/$name');
@@ -534,10 +548,6 @@ class _GameBoardState extends State<GameBoard>
                                                     decoration: BoxDecoration(
                                                         color: _color),
                                                     child: ListTile(
-                                                      // leading: CircleAvatar(
-                                                      //   backgroundColor:
-                                                      //       Colors.blueGrey,
-                                                      // ),
                                                       title: Text('New Map',
                                                           style:
                                                               _sizeTextWhite),
@@ -635,6 +645,8 @@ class _GameBoardState extends State<GameBoard>
                                     child: Container(
                                         child: GameScreen(
                                             key: _keyGameScreen,
+                                            sendSave: sendSave,
+                                            hero: hero,
                                             sendMove: sendMove,
                                             sendDelete: sendDelete,
                                             sendMap: sendMap,
@@ -669,7 +681,9 @@ class _GameBoardState extends State<GameBoard>
                                                           context,
                                                           MaterialPageRoute(
                                                               builder: (context) =>
-                                                                  CreateHero()));
+                                                                  CreateHero(
+                                                                      updateHeroes:
+                                                                          prepareHeroes)));
                                                     },
                                                     color: Theme.of(context)
                                                         .accentColor,
@@ -691,7 +705,10 @@ class _GameBoardState extends State<GameBoard>
                                                 title: Text(
                                                     '${_heroes[index]['name']}'),
                                                 trailing: MaterialButton(
-                                                  onPressed: () {},
+                                                  onPressed: () {
+                                                    sendHero(
+                                                        _heroes[index]["id"]);
+                                                  },
                                                   color: Theme.of(context)
                                                       .accentColor,
                                                   height: 30.0,
@@ -738,9 +755,6 @@ class _GameBoardState extends State<GameBoard>
                                                                             15)),
                                                           ),
                                                           onTap: () {
-                                                            debugPrint(
-                                                                'here!!!');
-
                                                             sendAdd(
                                                                 Config.url_markers +
                                                                     Config.listOfMarkers[
@@ -784,9 +798,6 @@ class _GameBoardState extends State<GameBoard>
                                                                             15)),
                                                           ),
                                                           onTap: () {
-                                                            debugPrint(
-                                                                'here!!!');
-
                                                             sendAdd(
                                                                 Config.url_heroes +
                                                                     Config.listOfHeroesTokens[
@@ -798,8 +809,6 @@ class _GameBoardState extends State<GameBoard>
                               ],
                             ))
                           ]))),
-
-                  // Divider(color: Colors.black),
                   PreferredSize(
                     preferredSize: Size.fromHeight(50.0),
                     child: TabBar(
@@ -843,9 +852,6 @@ class _GameBoardState extends State<GameBoard>
                                         title: Text(
                                             '${_activeUsers[index]["username"]}',
                                             style: _sizeTextWhite),
-                                        // subtitle: Text(
-                                        //     '${_activeUsers[index]["username"]}',
-                                        //     style: _sizeTextWhite),
                                         trailing: Icon(Icons.poll),
                                         onTap: () {
                                           print('Debug');
@@ -1049,7 +1055,6 @@ class _DicesState extends State<Dices> {
                       color: _color,
                       child: Container(
                           padding: const EdgeInsets.all(5),
-                          // color: Colors.yellow,
                           child: ListView(
                             scrollDirection: Axis.horizontal,
                             children: [

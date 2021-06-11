@@ -1,11 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:rogue/api.dart';
 import 'package:flutter/foundation.dart';
-import 'package:rogue/conf.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
-import 'package:web_socket_channel/io.dart';
-import 'package:rogue/gameboard.dart';
 
 class AddLocation extends StatefulWidget {
   final Function sendUpdate;
@@ -58,7 +52,7 @@ class _AddLocation extends State<AddLocation> {
                       if (!widget
                           .maps()
                           .containsKey(widget.mapsOfSession()[index])) {
-                        return null;
+                        return Container();
                       }
                       String name = widget
                           .maps()[widget.mapsOfSession()[index]]['file']
@@ -72,7 +66,6 @@ class _AddLocation extends State<AddLocation> {
                             alignment: Alignment.center,
                             child: Image.file(widget.getLocalImageFile(
                                 '$name', widget.dir())),
-                            // child: Image.asset('assets/cat.jpg'),
                             decoration: BoxDecoration(
                                 color: Colors.amber,
                                 borderRadius: BorderRadius.circular(15)),
