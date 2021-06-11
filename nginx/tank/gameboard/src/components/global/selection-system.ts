@@ -161,7 +161,7 @@ export default class SelectionSystem extends Component {
       this._redrawBorder()
 
       this.sendMessage('object/updated', {
-        id: this.id,
+        id: this.selected.name,
         wh: [point.width,  point.height]
       })
     }
