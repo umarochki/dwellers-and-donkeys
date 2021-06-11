@@ -32,6 +32,11 @@ export default class VisibilityRegion {
     hide() {
       this.hide()
     }
+
+    refresh(obstacles: { [key: string]: { xy: [number, number][] }}) {
+      for (let key in obstacles)
+        this.component.addObstacle(obstacles[key])
+    }
 }
 
 class VisibilityRegionComponent extends Component {  
