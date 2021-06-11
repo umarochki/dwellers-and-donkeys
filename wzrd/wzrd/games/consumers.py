@@ -282,7 +282,10 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
 
         elif action_type in self.MAP_ACTIONS:
             message_type = "send_all"
-            game_session.map = meta if action_type == "map" else "Global"
+            map_name = meta if action_type == "map" else "Global"
+            if not map_name:
+                return await self.error_response(f"Incorrect map name '{map_name}")
+            game_session.map = map_name
 
             serializer = HeroSessionSerializer()
             hero_sessions = await self.get_all_herosessions(game_session, serializer)
@@ -337,6 +340,8 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
         elif action_type in self.DRAW_ACTIONS:
             if action_type.startswith("draw"):
                 json_data["meta"]["sender"] = self.user_info["id"]  # ToDo: save polygons/etc to game_objects
+            if action_type in ("draw_polygon_add", "region_obstacle_add"):
+                message_type = "send_all"
 
         elif action_type in self.TOGGLE_ACTIONS:
             pass  # ToDo: save state
