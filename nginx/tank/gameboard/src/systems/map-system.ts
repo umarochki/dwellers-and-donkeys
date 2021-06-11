@@ -55,7 +55,7 @@ class MapSystemComponent extends Component {
         
         this.initDummyMap()
         this.layer.addChild(this.dummy)
-        this.subscribe('map/set', 'map/get')
+        this.subscribe(/*'map/set',*/ 'map/get')
     }
 
     onMessage(msg: Message) {
