@@ -330,6 +330,12 @@ const Tabletop = () => {
                 case 'region_obstacle_add':
                     myGameBoard.visibilityRegion.addObstacle(currentGameData.meta)
                     break
+                case 'toggle_night':
+                    myGameBoard.filter.night()
+                    break
+                case 'toggle_rain':
+                    myGameBoard.filter.rain()
+                    break
                 case 'clear':
                     break
                 default:

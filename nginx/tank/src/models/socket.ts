@@ -36,7 +36,10 @@ export enum SocketMessageType {
     draw_polygon_middle = 'draw_polygon_middle',
     draw_polygon_stopped = 'draw_polygon_stopped',
     draw_polygon_moved = 'draw_polygon_moved',
-    region_obstacle_add = 'region_obstacle_add'
+    region_obstacle_add = 'region_obstacle_add',
+
+    toggle_night = 'toggle_night',
+    toggle_rain = 'toggle_rain'
 }
 
 export type SocketMessage =
@@ -63,6 +66,8 @@ export type SocketMessage =
     | draw_polygon_stoppedMessage
     | draw_polygon_movedMessage
     | region_obstacle_addMessage
+    | toggle_nightMessage
+    | toggle_rainMessage
 
 export interface SocketMessageBase {
     type: SocketMessageType
@@ -121,5 +126,14 @@ export interface draw_polygon_movedMessage extends SocketMessageBase {
 }
 export interface region_obstacle_addMessage extends SocketMessageBase {
     type: SocketMessageType.region_obstacle_add
+    meta: any
+}
+
+export interface toggle_nightMessage extends SocketMessageBase {
+    type: SocketMessageType.toggle_night
+    meta: any
+}
+export interface toggle_rainMessage extends SocketMessageBase {
+    type: SocketMessageType.toggle_rain
     meta: any
 }
