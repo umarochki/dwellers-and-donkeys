@@ -84,6 +84,7 @@ class GameObjectManagerComponent extends Component {
         if (!obj) throw new Error(`Cannot find an element with id: ${options.id}`)
         if (options.wh) this.scene.sendMessage(new Message('object/resize', undefined, obj, { width: options.wh[0], height: options.wh[1] }))
         if (options.xy) this.scene.sendMessage(new Message('object/position', undefined, obj, { x: options.xy[0], y: options.xy[1] }))
+        if (options.hash) obj.assignAttribute('options', { hash: options.hash, ...obj.getAttribute('options') })
         if (options.location) this.scene.sendMessage(new Message('object/location/set', undefined, obj, { location: options.location }))
         else if (options.location === null) this.scene.sendMessage(new Message('object/location/unset', undefined, obj ))
     }

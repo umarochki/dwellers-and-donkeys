@@ -50,7 +50,7 @@ export default class LinkedToMapSystem extends Component {
 
     setDummy() : Graphics {
         let rect = new Graphics()
-        rect.beginFill(0x000000, 0.5);
+        rect.beginFill(0x212c3d, 1);
         rect.drawRect(0, 0, 200, 120);
         rect.endFill();
 
@@ -104,7 +104,10 @@ export default class LinkedToMapSystem extends Component {
                     if (this.start && 
                       Math.abs(obj.x - this.start.x) <= 2 && 
                       Math.abs(obj.y - this.start.y) <= 2) {
-                        this.sendMessage('map/set', { sprite: location })
+                        this.sendMessage('map/set', { 
+                            sprite: location,
+                            hash: (obj.getAttribute('options') as any).hash
+                        })
                       }
                         
             
