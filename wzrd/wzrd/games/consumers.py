@@ -44,6 +44,7 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
         "draw_polygon_middle",
         "draw_polygon_stopped",
         "draw_polygon_moved",
+        "region_obstacle_add",
     )
     TOGGLE_ACTIONS = (
         "toggle_night",
@@ -349,7 +350,8 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
             json_data["meta"] = game_session.active_users
 
         elif action_type in self.DRAW_ACTIONS:
-            json_data["meta"]["sender"] = self.user_info["id"]  # ToDo: save polygons/etc to game_objects
+            if action_type.startswith("draw"):
+                json_data["meta"]["sender"] = self.user_info["id"]  # ToDo: save polygons/etc to game_objects
 
         elif action_type in self.TOGGLE_ACTIONS:
             pass  # ToDo: save state
