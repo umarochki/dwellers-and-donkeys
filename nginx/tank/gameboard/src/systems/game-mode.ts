@@ -39,6 +39,9 @@ class GamemodeComponent extends Component {
                 return { mode: this.isGameMaster }
             case 'gamemode/user/get':
                 return this.user
+            case 'gamemode/user/set':
+                this.me(msg.data)
+                return undefined;
             default: 
                 // TODO
                 return undefined

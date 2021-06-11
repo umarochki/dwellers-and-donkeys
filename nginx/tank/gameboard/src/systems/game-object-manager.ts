@@ -43,7 +43,7 @@ class GameObjectManagerComponent extends Component {
         this.scene.viewport.addChild(this.layer)
     }
 
-    add(options: ObjectOptions, callback?: () => any) {
+    add(options: any, callback?: () => any) {
         if (this.scene.findObjectByName(String(options.id)))
             throw new Error(`Object with id ${options.id} already exists`)
 
@@ -59,6 +59,7 @@ class GameObjectManagerComponent extends Component {
                     wh: [0, 0],
                 } as ObjectOptions); 
                 this.layer.addChild(obj)
+                if (options.me) this.sendMessage('gamemode/user/set', { id: options.id })
                 this.scene.sendMessage(new Message('object/added', undefined, obj))
                 typeof callback == "function" && callback(); 
             }
@@ -87,7 +88,7 @@ class GameObjectManagerComponent extends Component {
         else if (options.location === null) this.scene.sendMessage(new Message('object/location/unset', undefined, obj ))
     }
 
-    refresh(options: { game_objects: { [key: number]: ObjectOptions }}, callback?: () => any) {
+    refresh(options: { game_objects: { [key: number]: any }}, callback?: () => any) {
         this.clear()
         
         let resources = [];
@@ -115,6 +116,7 @@ class GameObjectManagerComponent extends Component {
                     } as ObjectOptions); 
 
                     this.layer.addChild(obj)
+                    if (options.game_objects[key].me) this.sendMessage('gamemode/user/set', { id: options.game_objects[key].id })
                     this.scene.sendMessage(new Message('object/added', undefined, obj))
                 }
                 
