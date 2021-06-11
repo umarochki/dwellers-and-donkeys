@@ -46,8 +46,8 @@ export default class DrawingSystem {
       this.component.eraserUp()
     }
 
-    polygonClickStart(options: { sender: number, xy: [number, number] }) {
-      this.component.polygonClickStart(options.sender, options.xy)
+    polygonClickStart(options: { sender: number, xy: [number, number], color?: string }) {
+      this.component.polygonClickStart(options.sender, options.xy, options.color)
     }
 
     polygonClickMiddle(options: { sender: number, xy: [number, number] }) {
@@ -236,7 +236,7 @@ class DrawingComponent extends Component {
     polygonClickStart(id: number, point: [number, number],  color?: string) {
       
       if (!color) this.color[id] = this.color[0]
-      else this.color[id] = this.convertFromHexToNumericColor(color) 
+      else this.color[id] = this.convertFromHexToNumericColor(color)
       
       // Edges container creation
       this.edges = new Graphics();
@@ -295,7 +295,7 @@ class DrawingComponent extends Component {
       this.pencilDown(0)
       this.overlay.on('mousemove', this.onPencilMove);
       this.overlay.on('mouseup', this.onPencilUp);
-      this.sendMessage('draw/pencil/started', {})
+      this.sendMessage('draw/pencil/started', { color: this.convertFromNumericColorToHex(this.color[0]) })
     }
     
     onPencilMove(event) {
@@ -390,7 +390,7 @@ class DrawingComponent extends Component {
   
       this.overlay.off('click', this.onPolygonStartClick);
       this.overlay.on('click', this.onPolygonMiddleClick);
-      this.sendMessage('draw/polygon/click/started', { xy: point })
+      this.sendMessage('draw/polygon/click/started', { xy: point, color: this.convertFromNumericColorToHex(this.color[0]) })
     }
     
     onPolygonMiddleClick(event) {
@@ -456,6 +456,14 @@ class DrawingComponent extends Component {
     convertFromHexToNumericColor(color: string) {
         return parseInt(`0x${color.replace(/#/g, "")}`);
     }
+
+    convertFromNumericColorToHex(i: number){
+      let c = (i & 0x00FFFFFF)
+          .toString(16)
+          .toUpperCase();
+  
+      return "#" + "00000".substring(0, 6 - c.length) + c;
+  }
     
     style(options: { color?: string, boldness?: number }) {
       if (options.color) this.color[0] = this.convertFromHexToNumericColor(options.color)
