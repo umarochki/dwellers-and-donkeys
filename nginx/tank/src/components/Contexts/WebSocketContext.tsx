@@ -56,9 +56,10 @@ const WebSocketProvider: React.FC = ({ children }) => {
                 console.info(`[socket] Message: ${event.data}`)
                 try {
                     const data = JSON.parse(event.data)
-                    data.type === 'error'
-                        ? dispatch(showErrorNotification(data.meta))
-                        : dispatch(updateGameData(data))
+                    if (data.type !== 'error') dispatch(updateGameData(data))
+                    // data.type === 'error'
+                    //     ? dispatch(showErrorNotification(data.meta))
+                    //     : dispatch(updateGameData(data))
                 } catch (error) {
                     console.log('[socket] Parse error:', event.data)
                 }
