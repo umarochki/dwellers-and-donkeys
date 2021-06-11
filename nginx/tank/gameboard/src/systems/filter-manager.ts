@@ -22,7 +22,7 @@ export default class FilterManager {
     }
 
     rain() : boolean {
-        return false // TODO: this.component.rain()
+        return this.component.rain()
     }
 
 }
@@ -66,7 +66,7 @@ class FilterManagerComponent extends Component {
 
         for (let star of this.stars) {
             star.sprite.alpha = 0;
-            this.randomizeStar(star, true);
+            this.randomize(star, true);
         }
 
         this.cameraZ = 0;
@@ -74,35 +74,37 @@ class FilterManagerComponent extends Component {
         this.warpSpeed = 0;
 
         this.nightTicker = this.nightTicker.bind(this)
+        this.rainTicker = this.rainTicker.bind(this)
     }
 
     night() : boolean {
         
-        if (this.mode === 'night' || this.mode === 'rain')  {
+        if (this.mode === 'rain') this.rain()
+        if (this.mode === 'night')  {
             this.mode = 'none'
-
+            
             for (let star of this.stars) {
                 star.sprite.alpha = 0;
-                this.randomizeStar(star, true);
+                this.randomize(star, true);
             }
 
             this.scene.app.ticker.remove(this.nightTicker);
             let map = this.sendMessage('map/get').responses.responses[0].data.map
             if (map) { map.filters = [] }
 
-            return false;   
+            return false;
         }
+        
         else {
             this.mode = 'night'
             
-            
             for (let star of this.stars) {
                 star.sprite.alpha = 1;
+                this.randomize(star, true)
             }
 
             // Listen for animate update
             this.scene.app.ticker.add(this.nightTicker)
-            //t.destroy()
             
             let colorMatrix = new PIXI.filters.ColorMatrixFilter();
             let map = this.sendMessage('map/get').responses.responses[0].data.map
@@ -116,7 +118,7 @@ class FilterManagerComponent extends Component {
         }
     }
 
-    randomizeStar(star, initial) {
+    randomize(star, initial) {
         let cameraZ = 0;
         star.z = initial ? Math.random() * 2000 : cameraZ + Math.random() * 1000 + 2000;
 
@@ -133,7 +135,7 @@ class FilterManagerComponent extends Component {
         this.cameraZ += delta * 10 * (this.speed + baseSpeed);
         for (let i = 0; i < AMOUNT; i++) {
             const star = this.stars[i];
-            if (star.z < this.cameraZ) this.randomizeStar(star, undefined);
+            if (star.z < this.cameraZ) this.randomize(star, undefined);
     
             // Map star 3d position to 2d with really simple projection
             const z = star.z - this.cameraZ;
@@ -153,6 +155,71 @@ class FilterManagerComponent extends Component {
         }
     }
     
+
+    rain() : boolean {
+
+        if (this.mode === 'night') this.night()
+        if (this.mode === 'rain')  {
+            this.mode = 'none'
+            for (let star of this.stars) {
+                star.sprite.alpha = 0;
+                this.randomize(star, true)
+            }
+            
+            this.scene.app.ticker.remove(this.rainTicker);
+            let map = this.sendMessage('map/get').responses.responses[0].data.map
+            if (map) { map.filters = [] }
+            return false;
+
+        }
+        else {
+            this.mode = 'rain'
+                    
+            for (let star of this.stars) {
+                star.sprite.alpha = 1;
+                this.randomize(star, true)
+            }
+            
+            // Listen for animate update
+            this.scene.app.ticker.add(this.rainTicker)
+            
+            let colorMatrix = new PIXI.filters.ColorMatrixFilter();
+            let map = this.sendMessage('map/get').responses.responses[0].data.map
+            if (map) {
+                map.filters = [colorMatrix]
+                colorMatrix.desaturate()
+                colorMatrix.alpha = 0.7
+            }
+            
+            return true;
+        }
+    }
+
+    rainTicker(delta) {
+         // Simple easing. This should be changed to proper easing function when used for real.
+        this.speed += (this.warpSpeed - this.speed) / 20;
+        this.cameraZ += delta * 10 * (this.speed + baseSpeed);
+        for (let i = 0; i < AMOUNT; i++) {
+            const star = this.stars[i];
+            if (star.z < this.cameraZ) this.randomize(star, undefined);
+    
+            // Map star 3d position to 2d with really simple projection
+            const z = star.z - this.cameraZ;
+            star.sprite.x = star.x * (fov / z) * this.scene.app.renderer.screen.width + this.scene.app.renderer.screen.width / 2;
+            star.sprite.y = star.y * (fov / z) * this.scene.app.renderer.screen.width - 5000;
+    
+            // Calculate star scale & rotation.
+            const dxCenter = star.sprite.x - this.scene.app.renderer.screen.width / 2;
+            const dyCenter = star.sprite.y - this.scene.app.renderer.screen.height / 2;
+            const distanceCenter = Math.sqrt(dxCenter * dxCenter + dyCenter * dyCenter);
+            const distanceScale = Math.max(0, (2000 - z) / 2000);
+            star.sprite.scale.x = distanceScale * starBaseSize;
+            // Star is looking towards center so that y axis is towards center.
+            // Scale the star depending on how fast we are moving, what the stretchfactor is and depending on how far away it is from the center.
+            star.sprite.scale.y = distanceScale * starBaseSize + distanceScale * this.speed * starStretch * distanceCenter / this.scene.app.renderer.screen.width;
+            star.sprite.rotation = Math.atan2(dyCenter, dxCenter) + Math.PI / 2;
+        }
+    }
 }
 
 
