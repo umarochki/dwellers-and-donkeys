@@ -296,6 +296,41 @@ const Tabletop = () => {
                     closeSidebar()
                     break
                 case 'clear':
+                    break
+
+                // ---------------------
+                case 'draw_pencil_started':
+                    myGameBoard.drawing.pencilDown(currentGameData.meta)
+                    break
+                case 'draw_pencil_moved':
+                    myGameBoard.drawing.pencilMove(currentGameData.meta)
+                    break
+                case 'draw_pencil_stopped':
+                    myGameBoard.drawing.pencilUp(currentGameData.meta)
+                    break
+                case 'draw_eraser_started':
+                    myGameBoard.drawing.eraserDown(currentGameData.meta)
+                    break
+                case 'draw_eraser_moved':
+                    myGameBoard.drawing.eraserMove(currentGameData.meta)
+                    break
+                case 'draw_eraser_stopped':
+                    myGameBoard.drawing.eraserUp(currentGameData.meta)
+                    break
+                case 'draw_polygon_started':
+                    myGameBoard.drawing.polygonClickStart(currentGameData.meta)
+                    break
+                case 'draw_polygon_middle':
+                    myGameBoard.drawing.polygonClickMiddle(currentGameData.meta)
+                    break
+                case 'draw_polygon_stopped':
+                    myGameBoard.drawing.polygonClickEnd(currentGameData.meta)
+                    break
+                case 'draw_polygon_moved':
+                    myGameBoard.drawing.polygonMove(currentGameData.meta)
+                    break
+                // ---------------------
+
                 default:
                     break
             }
