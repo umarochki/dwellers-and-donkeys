@@ -181,7 +181,7 @@ const Tabletop = () => {
             gameBoard.init(assets, () => {
                 gameBoard.eventManager.add('map/set', (data: any) => {
                     setIsGlobal(false)
-                    ws.sendMessage('map', data.sprite)
+                    ws.sendMessage('map', data.hash)
                 })
                 gameBoard.eventManager.add('object/add', (data: any) => ws.sendMessage('add', data))
                 gameBoard.eventManager.add('object/delete', (data: any) => ws.sendMessage('delete', data))
@@ -297,10 +297,6 @@ const Tabletop = () => {
                     setIsGlobal(true)
                     closeSidebar()
                     break
-                case 'clear':
-                    break
-
-                // ---------------------
                 case 'draw_pencil_started':
                     myGameBoard.drawing.pencilDown(currentGameData.meta)
                     break
@@ -334,8 +330,8 @@ const Tabletop = () => {
                 case 'region_obstacle_add':
                     myGameBoard.visibilityRegion.addObstacle(currentGameData.meta)
                     break
-                // ---------------------
-
+                case 'clear':
+                    break
                 default:
                     break
             }

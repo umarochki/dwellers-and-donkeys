@@ -194,8 +194,8 @@ const LeftDrawer: React.FC<Props> = props => {
         const map = mapsList.find(m => m.hash === mapId)
         
         const location = map ? map.file : mapId
-        gameBoard.gameObjectManager.update({ id: objectId, location })
-        ws.sendMessage('update', { id: objectId, location })
+        gameBoard.gameObjectManager.update({ id: objectId, location, hash: mapId })
+        ws.sendMessage('update', { id: objectId, location: mapId })
     }
 
     const handleMapClick = (map: string | null) => () => {
