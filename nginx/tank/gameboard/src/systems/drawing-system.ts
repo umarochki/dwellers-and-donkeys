@@ -295,7 +295,7 @@ class DrawingComponent extends Component {
       this.pencilDown(0)
       this.overlay.on('mousemove', this.onPencilMove);
       this.overlay.on('mouseup', this.onPencilUp);
-      this.sendMessage('draw/pencil/started')
+      this.sendMessage('draw/pencil/started', {})
     }
     
     onPencilMove(event) {
@@ -315,7 +315,7 @@ class DrawingComponent extends Component {
       this.pencilUp(0)
       this.overlay.off('mousemove', this.onPencilMove);
       this.overlay.off('mouseup', this.onPencilUp);
-      this.sendMessage('draw/pencil/stopped')
+      this.sendMessage('draw/pencil/stopped', {})
       this.points[0] = []
     }
 
@@ -326,7 +326,7 @@ class DrawingComponent extends Component {
       this.eraserDown()
       this.overlay.on('mousemove', this.onEraserMove);
       this.overlay.on('mouseup', this.onEraserUp);
-      this.sendMessage('draw/eraser/started')
+      this.sendMessage('draw/eraser/started', {})
     }
     
     onEraserMove(event) {
@@ -347,7 +347,7 @@ class DrawingComponent extends Component {
         this.eraserUp()
         this.overlay.off('mousemove', this.onEraserMove);
         this.overlay.off('mouseup', this.onEraserUp);
-        this.sendMessage('draw/eraser/stopped')
+        this.sendMessage('draw/eraser/stopped', {})
     }
     
     // ----------------------------------------
@@ -418,7 +418,7 @@ class DrawingComponent extends Component {
       this.overlay.on('click', this.onPolygonStartClick);
   
       this.vertex.off('click', this.onPolygonEndClick);
-      this.sendMessage('draw/polygon/click/stopped')
+      this.sendMessage('draw/polygon/click/stopped', {})
     }
     
     onPolygonMove(event) {
