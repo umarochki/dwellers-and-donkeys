@@ -44,7 +44,7 @@ class FilterManagerComponent extends Component {
         this.mode = 'none'
         
         // Get the texture for rope.
-        const starTexture = PIXI.Texture.from('star.png');
+        const starTexture = PIXI.Texture.from('star');
 
         // Create the stars
         this.stars = [];
