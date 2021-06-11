@@ -349,9 +349,9 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
             json_data["meta"] = game_session.active_users
 
         elif action_type in self.DRAW_ACTIONS:
-            pass  # ToDo: save polygons/etc to game_objects
+            json_data["meta"]["sender"] = self.user_info["id"]  # ToDo: save polygons/etc to game_objects
 
-        elif action_type in self.TOOGLE_ACTIONS:
+        elif action_type in self.TOGGLE_ACTIONS:
             pass  # ToDo: save state
         else:
             json_data["type"] = "error"
