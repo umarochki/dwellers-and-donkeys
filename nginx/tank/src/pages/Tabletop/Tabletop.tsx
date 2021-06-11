@@ -98,7 +98,6 @@ const Tabletop = () => {
     }, [ws])
 
     const handleMapChange = (mapId: string) => {
-        console.log("ws.sendMessage('map', mapId)", mapId, "handleMapChange")
         ws.sendMessage('map', mapId)
         if (!selectedMaps.includes(mapId)) {
             setSelectedMaps((prev: string[]) => [...prev, mapId])
