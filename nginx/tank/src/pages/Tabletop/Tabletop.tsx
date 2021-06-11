@@ -222,6 +222,7 @@ const Tabletop = () => {
                 gameBoard.eventManager.add('draw/polygon/click/middle', (data: any) => ws.sendMessage('draw_polygon_middle', data))
                 gameBoard.eventManager.add('draw/polygon/click/stopped', (data: any) => ws.sendMessage('draw_polygon_stopped', data))
                 gameBoard.eventManager.add('draw/polygon/moved', (data: any) => ws.sendMessage('draw_polygon_moved', data), true)
+                gameBoard.eventManager.add('draw/polygon/add', (data: any) => ws.sendMessage('draw_polygon_add', data), true)
 
                 gameBoard.eventManager.add('region/obstacle/add', (data: any) => ws.sendMessage('region_obstacle_add', data))
 
@@ -326,6 +327,9 @@ const Tabletop = () => {
                     break
                 case 'draw_polygon_moved':
                     myGameBoard.drawing.polygonMove(currentGameData.meta)
+                    break
+                case 'draw_polygon_add':
+                    myGameBoard.drawing.polygonAdd(currentGameData.meta)
                     break
                 case 'region_obstacle_add':
                     myGameBoard.visibilityRegion.addObstacle(currentGameData.meta)
