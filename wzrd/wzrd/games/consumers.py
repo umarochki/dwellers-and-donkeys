@@ -45,9 +45,9 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
         "draw_polygon_stopped",
         "draw_polygon_moved",
     )
-    TOOGLE_ACTIONS = (
-        "toogle_night",
-        "toogle_rain",
+    TOGGLE_ACTIONS = (
+        "toggle_night",
+        "toggle_rain",
     )
     UPDATE_ACTIONS = (
         "update",
@@ -69,7 +69,7 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
     ACTION_TYPES = (
         *OBJECT_ACTIONS,
         *UPDATE_ACTIONS,
-        *TOOGLE_ACTIONS,
+        *TOGGLE_ACTIONS,
         *CHAT_ACTIONS,
         *DRAW_ACTIONS,
         *MAP_ACTIONS,
