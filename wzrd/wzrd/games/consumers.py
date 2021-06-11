@@ -177,7 +177,7 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
     async def receive(self, text_data=None, bytes_data=None, **kwargs):
         json_data = json.loads(text_data)
         action_type = json_data["type"]
-        meta = json_data.get("meta")
+        meta = json_data["meta"] = json_data.get("meta") or {}
         save = []
 
         if action_type not in self.ACTION_TYPES:
