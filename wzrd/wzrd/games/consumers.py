@@ -44,6 +44,7 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
         "draw_polygon_middle",
         "draw_polygon_stopped",
         "draw_polygon_moved",
+        "draw_polygon_add",
         "region_obstacle_add",
     )
     TOGGLE_ACTIONS = (
@@ -175,6 +176,14 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
 
         await self.channel_layer.group_discard(self.session_name, self.channel_name)
 
+    async def error_response(self, msg):
+        logging.warning(f"[WS {self.session_name}] {msg}")
+        json_data = {
+            "type": "error",
+            "meta": msg
+        }
+        await self.start_sending("send_me", json_data)
+
     async def receive(self, text_data=None, bytes_data=None, **kwargs):
         json_data = json.loads(text_data)
         action_type = json_data["type"]
@@ -182,17 +191,11 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
         save = []
 
         if action_type not in self.ACTION_TYPES:
-            json_data["type"] = "error"
-            json_data["meta"] = f"Tried non-existant action_type {action_type}"
-            logging.warning(f"[WS {self.session_name}] Tried non-existant action_type {action_type}")
-            return await self.start_sending("send_me", json_data)
+            return await self.error_response(f"Tried non-existant action_type {action_type}")
 
         game_session = await get_game_session(self.session_name)
         if not game_session:
-            json_data["type"] = "error"
-            json_data["meta"] = "Game session not found!"
-            logging.warning(f"[WS {self.session_name}] Game session not found!")
-            return await self.start_sending("send_me", json_data)
+            return await self.error_response("Game session not found!")
 
         message_type = "send_all_but_me"
         if action_type == "add":
@@ -202,19 +205,13 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
             if meta["type"] == "hero":
                 hero_id = meta.pop("hero_id", None)
                 if not hero_id:
-                    json_data["type"] = "error"
-                    json_data["meta"] = "hero_id was not provided!"
-                    logging.warning(f"[WS {self.session_name}] hero_id was not provided!")
-                    return await self.start_sending("send_me", json_data)
+                    return await self.error_response("Hero_id was not provided!")
 
                 user = await self.get_user()
                 hero = await self.add_herosession(user, game_session, hero_id, meta)
 
                 if not hero:
-                    json_data["type"] = "error"
-                    json_data["meta"] = f"Hero [{meta}] not found!"
-                    logging.warning(f"[WS {self.session_name} ADD HERO] Hero [{meta}] not found!")
-                    return await self.start_sending("send_me", json_data)
+                    return await self.error_response(f"Hero [{meta}] not found!")
 
                 json_data["meta"] = HeroSessionSerializer().to_representation(instance=hero)
                 json_data["meta"]["me"] = False
@@ -235,17 +232,11 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
                 obj = game_session.current_game_objects.get(obj_id)
 
             if not obj:
-                json_data["type"] = "error"
-                json_data["meta"] = f"Object [{meta['id']}] not found!"
-                logging.warning(f"[WS {self.session_name} UPDATE] Object [{meta['id']}] not found!")
-                return await self.start_sending("send_me", json_data)
+                return await self.error_response(f"Object [{meta['id']}] not found!")
 
             # changes = _.pick(meta, *self.UPDATE_FIELDS)
             if not self.validate_fields(meta):
-                json_data["type"] = "error"
-                json_data["meta"] = "Field validation failed!"
-                logging.warning(f"[WS {self.session_name} UPDATE] Field validation failed!")
-                return await self.start_sending("send_me", json_data)
+                return await self.error_response("Field validation failed!")
 
             obj.update(meta)
 
@@ -262,16 +253,10 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
             if len(object_id) == 5:
                 error = await self.delete_herosession_by_id(int(object_id))
                 if error:
-                    json_data["type"] = "error"
-                    json_data["meta"] = f"Object [{meta['id']}] not found!"
-                    logging.warning(f"[WS {self.session_name} DELETE] Object [{meta['id']}] not found!")
-                    return await self.start_sending("send_me", json_data)
+                    return await self.error_response(f"Object [{meta['id']}] not found!")
             else:
                 if object_id not in game_session.current_game_objects:
-                    json_data["type"] = "error"
-                    json_data["meta"] = f"Object [{meta['id']}] not found!"
-                    logging.warning(f"[WS {self.session_name} DELETE] Object [{meta['id']}] not found!")
-                    return await self.start_sending("send_me", json_data)
+                    return await self.error_response(f"Object [{meta['id']}] not found!")
 
                 del game_session.current_game_objects[object_id]
                 save = [game_session]
@@ -297,7 +282,10 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
 
         elif action_type in self.MAP_ACTIONS:
             message_type = "send_all"
-            game_session.map = meta if action_type == "map" else "Global"
+            map_name = meta if action_type == "map" else "Global"
+            if not map_name:
+                return await self.error_response(f"Incorrect map name '{map_name}")
+            game_session.map = map_name
 
             serializer = HeroSessionSerializer()
             hero_sessions = await self.get_all_herosessions(game_session, serializer)
@@ -352,14 +340,13 @@ class GameSessionConsumer(AsyncJsonWebsocketConsumer):
         elif action_type in self.DRAW_ACTIONS:
             if action_type.startswith("draw"):
                 json_data["meta"]["sender"] = self.user_info["id"]  # ToDo: save polygons/etc to game_objects
+            if action_type in ("draw_polygon_add", "region_obstacle_add"):
+                message_type = "send_all"
 
         elif action_type in self.TOGGLE_ACTIONS:
             pass  # ToDo: save state
         else:
-            json_data["type"] = "error"
-            json_data["meta"] = f"Action type '{action_type}' is not available!"
-            logging.warning(f"[WS {self.session_name} DELETE] Action type '{action_type}' is not available!")
-            return await self.start_sending("send_me", json_data)
+            return await self.error_response(f"Action type '{action_type}' is not available!")
 
         await self.start_sending(message_type, json_data)
         if save:
