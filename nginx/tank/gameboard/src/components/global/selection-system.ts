@@ -160,7 +160,7 @@ export default class SelectionSystem extends Component {
       this._calculateAngle(diff)
       this._redrawBorder()
 
-      this.sendMessage('object/update', {
+      this.sendMessage('object/updated', {
         id: this.id,
         wh: [point.width,  point.height]
       })
