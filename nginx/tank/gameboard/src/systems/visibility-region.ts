@@ -113,7 +113,7 @@ class VisibilityRegionComponent extends Component {
         
         let arr = [];
         // @ts-ignore
-        for (let row of this.points[id]) for (let e of row) arr.push(e);
+        for (let row of options.xy) for (let e of row) arr.push(e);
     
         polygon.beginFill(0x43536B);
         
