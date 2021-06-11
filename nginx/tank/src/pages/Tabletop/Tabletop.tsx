@@ -173,7 +173,10 @@ const Tabletop = () => {
                 isGameMaster: (currentGameData as RefreshMessage).meta.is_gm || false
             })
 
-            const assets = [{ name: 'grid', url: '../grid64.png' }]
+            const assets = [
+                { name: 'grid', url: '../grid64.png' },
+                { name: 'star', url: '../star.png' }
+            ]
 
             gameBoard.init(assets, () => {
                 gameBoard.eventManager.add('map/set', (data: any) => {
