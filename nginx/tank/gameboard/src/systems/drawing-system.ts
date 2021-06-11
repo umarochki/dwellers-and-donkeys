@@ -26,8 +26,8 @@ export default class DrawingSystem {
       this.component.pencilDown(options.sender, options.boldness, options.color)
     }
 
-    pencilMove(options: { sender: number, point: [number, number][] }) {
-      this.component.pencilMove(options.sender, options.point)
+    pencilMove(options: { sender: number, xy: [number, number][] }) {
+      this.component.pencilMove(options.sender, options.xy)
     }
 
     pencilUp(options: { sender: number }) {
@@ -38,28 +38,28 @@ export default class DrawingSystem {
       this.component.eraserDown()
     }
 
-    eraserMove(options: {sender: number, point: [number, number][]}) {
-      this.component.eraserMove(options.point)
+    eraserMove(options: {sender: number, xy: [number, number][]}) {
+      this.component.eraserMove(options.xy)
     }
 
     eraserUp(options: { sender: number }) {
       this.component.eraserUp()
     }
 
-    polygonClickStart(options: { sender: number, point: [number, number] }) {
-      this.component.polygonClickStart(options.sender, options.point)
+    polygonClickStart(options: { sender: number, xy: [number, number] }) {
+      this.component.polygonClickStart(options.sender, options.xy)
     }
 
-    polygonClickMiddle(options: { sender: number, point: [number, number] }) {
-      this.component.polygonClickMiddle(options.sender, options.point)
+    polygonClickMiddle(options: { sender: number, xy: [number, number] }) {
+      this.component.polygonClickMiddle(options.sender, options.xy)
     }
 
     polygonClickEnd(options: { sender: number }) {
       this.component.polygonClickEnd(options.sender)
     }
 
-    polygonMove(options: { sender: number, point: [number, number]}) {
-      this.component.polygonMove(options.sender, options.point)
+    polygonMove(options: { sender: number, xy: [number, number]}) {
+      this.component.polygonMove(options.sender, options.xy)
     }
 
     style(options: { color?: string, boldness?: number }) {
